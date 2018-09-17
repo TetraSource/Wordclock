@@ -125,6 +125,9 @@
     <ClInclude Include="Firmware\Wordclock\Wordclock.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Firmware\Wordclock\Languages.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="LICENSE.txt" />

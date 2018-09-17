@@ -135,6 +135,7 @@
     <ClInclude Include="Firmware\Wordclock\GeneratorGradient.hpp" />
     <ClInclude Include="Firmware\Wordclock\GeneratorRandom.hpp" />
     <ClInclude Include="Firmware\Wordclock\GeneratorStatic.hpp" />
+    <ClInclude Include="Firmware\Wordclock\Languages.hpp" />
     <ClInclude Include="Firmware\Wordclock\Marker.hpp" />
     <ClInclude Include="Firmware\Wordclock\ModeAlarm.hpp" />
     <ClInclude Include="Firmware\Wordclock\modeBase.hpp" />

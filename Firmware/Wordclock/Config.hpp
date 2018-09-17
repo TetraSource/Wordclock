@@ -72,6 +72,13 @@ namespace Wordclock
 
 #define BUTTON_LOCK_TIME 250 // the time a button is locked before it can be used again in milliseconds.
 #define SHOW_MODE            // Just shows the current configuration mode if this setting exists.
+#define LANGUAGE 1           // the language of the time shown by the words.
+
+/*
+languages
+0 - English
+1 - German
+*/
 
 // ALARMS
 
