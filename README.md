@@ -33,9 +33,10 @@ You can set all this in the [Config.hpp file](Firmware/Wordclock/Config.hpp). Be
 When congigurating the effects you will encounter something that's called _generators_. These are classes that generated colors for diverse purposes. Note that while many other settings are template parameters they are constructor parameters since they are objects.
 
 ## Uploading
-To upload the project to the Arduino Nano simply download it and open the [Wordclock.ino file](Firmware/Wordclock/Wordclock.ino) with the Arduino IDE. Then set the board to Arduino Nano and the port to the one you connected your Arduino to and press upload.
+To upload the project to the Arduino Nano simply download it and open the [Wordclock.ino file](Firmware/Wordclock/Wordclock.ino) with the Arduino IDE. Make sure you have already installed the [FastLED library](http://fastled.io/) e.g. via the update manager. Then set the board to Arduino Nano and the port to the one you connected your Arduino to and press upload.
 I relinquished a file structure ordered by folders and rather organized them by their name so you can upload it that way.
-Optinally, you can synchronise your project with Visual Studio with the Visual Micro plugin installed and upload it from there. I highly recommend this option when you want to extend the program. Otherwise the Arduino IDE is just fine.
+
+Optionally, you can synchronize your project with Visual Studio with the [Visual Micro plugin](https://www.visualmicro.com/) installed and upload it from there. I highly recommend this option when you want to extend the program. Otherwise the Arduino IDE is just fine.
 
 Note, however, that you should reset the EEPROM when you upload the program the first time or when you change the color presets, alarms, modes or effects in the Config.hpp file.
 To reset the EEPROM simply activate _RESET\_EPPROM_ or _RESET\_EEPROM\_SAFELY_ in the Config.hpp file.
