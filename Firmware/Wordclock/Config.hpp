@@ -1,6 +1,4 @@
 
-								  // configuration file //
-
 //////////////////////////////////// HARDWARE SETTINGS ///////////////////////////////////
 
 // PINS
@@ -20,6 +18,14 @@
 #define CHIPSET  WS2812B   // the LED stripe type
 #define COLOR_ORDER GRB    // the color order or the LED stripe
 
+#define LANGUAGE 1           // the language of the time shown by the words.
+
+/*
+languages
+0 - English
+1 - German
+*/
+
 #define LED_COUNT    110   // The sum of all LED stripes that form the display
 #define ROW_LENGTH    11   // The length of a LED stripe
 //#define VERTICAL_STRIPES   // Should exists if the LED stripes are laid vertically. This mode hasn't been tested yet.
@@ -34,6 +40,7 @@ namespace Wordclock
 	// Order of the LEDs on the display. This must always be arranged horizontally (like here)
 	// even if the stripes are installed vertically. Please replace non-ASCII letters by \0.
 	const char letters[LED_COUNT] = {
+#if LANGUAGE == 1
 		'E', 'S', 'K', 'I', 'S', 'T', 'L', 'F', '\0', 'N', 'F',
 		'Z', 'E', 'H', 'N', 'Z', 'W', 'A', 'N', 'Z', 'I', 'G',
 		'D', 'R', 'E', 'I', 'V', 'I', 'E', 'R', 'T', 'E', 'L',
@@ -44,6 +51,7 @@ namespace Wordclock
 		'E', 'L', 'F', 'N', 'E', 'U', 'N', 'V', 'I', 'E', 'R',
 		'W', 'A', 'C', 'H', 'T', 'Z', 'E', 'H', 'N', 'R', 'S',
 		'B', 'S', 'E', 'C', 'H', 'S', 'F', 'M', 'U', 'H', 'R',
+#endif
 	};
 }
 #endif
@@ -72,13 +80,6 @@ namespace Wordclock
 
 #define BUTTON_LOCK_TIME 250 // the time a button is locked before it can be used again in milliseconds.
 #define SHOW_MODE            // Just shows the current configuration mode if this setting exists.
-#define LANGUAGE 1           // the language of the time shown by the words.
-
-/*
-languages
-0 - English
-1 - German
-*/
 
 // ALARMS
 
