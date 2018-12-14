@@ -1,18 +1,19 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
-    <ProjectConfiguration Include="Debug|Win32">
-      <Configuration>Debug</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
     <ProjectConfiguration Include="Release|Win32">
       <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{C5F80730-F44F-4478-BDAE-6634EFC2CA88}</ProjectGuid>
-    <RootNamespace>Sketch1</RootNamespace>
+    <RootNamespace>
+    </RootNamespace>
     <ProjectName>Wordclock</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -46,13 +47,6 @@
     <PlatformToolset>
     </PlatformToolset>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
-    <UseDebugLibraries>false</UseDebugLibraries>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>MultiByte</CharacterSet>
-    <PlatformToolset>v141</PlatformToolset>
-  </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
@@ -72,20 +66,6 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup />
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
-      <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir)Firmware\Wordclock;$(ProjectDir)..\..\..\..\..\Program Files (x86)\Arduino\hardware\arduino\avr\libraries\EEPROM\src;$(ProjectDir)..\..\..\Documents\Arduino\libraries\FastLED;$(ProjectDir)..\..\..\..\..\Program Files (x86)\Arduino\hardware\arduino\avr\libraries\Wire\src;$(ProjectDir)..\..\..\..\..\Program Files (x86)\Arduino\hardware\arduino\avr\libraries\Wire\src\utility;$(ProjectDir)..\..\..\..\..\Program Files (x86)\Arduino\libraries;$(ProjectDir)..\..\..\Documents\Arduino\libraries;$(ProjectDir)..\..\..\..\..\Program Files (x86)\Arduino\hardware\arduino\avr\libraries;$(ProjectDir)..\..\..\..\..\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino;$(ProjectDir)..\..\..\..\..\Program Files (x86)\Arduino\hardware\arduino\avr\variants\eightanaloginputs;$(ProjectDir)..\..\..\..\..\Program Files (x86)\Arduino\hardware\tools\avr\avr\include;$(ProjectDir)..\..\..\..\..\Program Files (x86)\Arduino\hardware\tools\avr\avr\include\avr;$(ProjectDir)..\..\..\..\..\Program Files (x86)\Arduino\hardware\tools\avr\lib\gcc\avr\4.8.1\include;$(ProjectDir)..\..\..\..\..\Program Files (x86)\Arduino\hardware\tools\avr\lib\gcc\avr\4.9.2\include;$(ProjectDir)..\..\..\..\..\Program Files (x86)\Arduino\hardware\tools\avr\lib\gcc\avr\4.9.3\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <ForcedIncludeFiles>$(ProjectDir)..\..\__vm\.Wordclock.vsarduino.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
-      <IgnoreStandardIncludePath>false</IgnoreStandardIncludePath>
-      <PreprocessorDefinitions>__AVR_ATmega328p__;__AVR_ATmega328P__;F_CPU=16000000L;ARDUINO=10806;ARDUINO_AVR_NANO;ARDUINO_ARCH_AVR;__cplusplus=201103L;_VMICRO_INTELLISENSE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
-    <Link>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-    </Link>
-  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -93,8 +73,8 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir)Firmware\Wordclock;$(ProjectDir)..\..\..\..\..\Program Files (x86)\Arduino\hardware\arduino\avr\libraries\EEPROM\src;$(ProjectDir)..\..\..\Documents\Arduino\libraries\FastLED;$(ProjectDir)..\..\..\..\..\Program Files (x86)\Arduino\hardware\arduino\avr\libraries\Wire\src;$(ProjectDir)..\..\..\..\..\Program Files (x86)\Arduino\hardware\arduino\avr\libraries\Wire\src\utility;$(ProjectDir)..\..\..\..\..\Program Files (x86)\Arduino\libraries;$(ProjectDir)..\..\..\Documents\Arduino\libraries;$(ProjectDir)..\..\..\..\..\Program Files (x86)\Arduino\hardware\arduino\avr\libraries;$(ProjectDir)..\..\..\..\..\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino;$(ProjectDir)..\..\..\..\..\Program Files (x86)\Arduino\hardware\arduino\avr\variants\eightanaloginputs;$(ProjectDir)..\..\..\..\..\Program Files (x86)\Arduino\hardware\tools\avr\avr\include;$(ProjectDir)..\..\..\..\..\Program Files (x86)\Arduino\hardware\tools\avr\avr\include\avr;$(ProjectDir)..\..\..\..\..\Program Files (x86)\Arduino\hardware\tools\avr\lib\gcc\avr\4.8.1\include;$(ProjectDir)..\..\..\..\..\Program Files (x86)\Arduino\hardware\tools\avr\lib\gcc\avr\4.9.2\include;$(ProjectDir)..\..\..\..\..\Program Files (x86)\Arduino\hardware\tools\avr\lib\gcc\avr\4.9.3\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <ForcedIncludeFiles>$(ProjectDir)..\..\__vm\.Wordclock.vsarduino.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\Wordclock;$(ProjectDir)..\..\..\..\..\Program Files (x86)\Arduino\hardware\arduino\avr\libraries\EEPROM\src;$(ProjectDir)..\..\Arduino\libraries\FastLED;$(ProjectDir)..\..\..\..\..\Program Files (x86)\Arduino\hardware\arduino\avr\libraries\Wire\src;$(ProjectDir)..\..\..\..\..\Program Files (x86)\Arduino\hardware\arduino\avr\libraries\Wire\src\utility;$(ProjectDir)..\..\..\..\..\Program Files (x86)\Arduino\libraries;$(ProjectDir)..\..\..\..\..\Program Files (x86)\Arduino\hardware\arduino\avr\libraries;$(ProjectDir)..\..\Arduino\libraries;$(ProjectDir)..\..\..\..\..\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino;$(ProjectDir)..\..\..\..\..\Program Files (x86)\Arduino\hardware\arduino\avr\variants\eightanaloginputs;$(ProjectDir)..\..\..\..\..\Program Files (x86)\Arduino\hardware\tools\avr\avr\include;$(ProjectDir)..\..\..\..\..\Program Files (x86)\Arduino\hardware\tools\avr\avr\include\avr;$(ProjectDir)..\..\..\..\..\Program Files (x86)\Arduino\hardware\tools\avr\lib\gcc\avr\4.8.1\include;$(ProjectDir)..\..\..\..\..\Program Files (x86)\Arduino\hardware\tools\avr\lib\gcc\avr\4.9.2\include;$(ProjectDir)..\..\..\..\..\Program Files (x86)\Arduino\hardware\tools\avr\lib\gcc\avr\4.9.3\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ForcedIncludeFiles>$(ProjectDir)__vm\.Wordclock.vsarduino.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <PreprocessorDefinitions>__AVR_ATmega328p__;__AVR_ATmega328P__;F_CPU=16000000L;ARDUINO=10806;ARDUINO_AVR_NANO;ARDUINO_ARCH_AVR;__cplusplus=201103L;_VMICRO_INTELLISENSE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
@@ -104,59 +84,131 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ForcedIncludeFiles>%(ForcedIncludeFiles)</ForcedIncludeFiles>
+      <IgnoreStandardIncludePath>true</IgnoreStandardIncludePath>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
   <ItemGroup>
     <ProjectCapability Include="VisualMicro" />
   </ItemGroup>
-  <PropertyGroup>
-    <DebuggerFlavor>VisualMicroDebugger</DebuggerFlavor>
-  </PropertyGroup>
   <ItemGroup>
-    <None Include=".gitattributes" />
-    <None Include=".gitignore" />
-    <None Include="Firmware\Wordclock\Wordclock.ino">
+    <None Include="Wordclock.ino">
       <FileType>CppCode</FileType>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Firmware\Wordclock\Config.hpp" />
-    <ClInclude Include="Firmware\Wordclock\DisplayTool.hpp" />
-    <ClInclude Include="Firmware\Wordclock\EffectBase.hpp" />
-    <ClInclude Include="Firmware\Wordclock\EffectColorBase.hpp" />
-    <ClInclude Include="Firmware\Wordclock\EffectColorChangerTime.hpp" />
-    <ClInclude Include="Firmware\Wordclock\EffectColorChangerTimer.hpp" />
-    <ClInclude Include="Firmware\Wordclock\EffectDefault.hpp" />
-    <ClInclude Include="Firmware\Wordclock\EffectFiller.hpp" />
-    <ClInclude Include="Firmware\Wordclock\EffectFlyingPixels.hpp" />
-    <ClInclude Include="Firmware\Wordclock\EffectGlowing.hpp" />
-    <ClInclude Include="Firmware\Wordclock\EffectTimeSlice.hpp" />
-    <ClInclude Include="Firmware\Wordclock\EffectWaves.hpp" />
-    <ClInclude Include="Firmware\Wordclock\GeneratorBase.hpp" />
-    <ClInclude Include="Firmware\Wordclock\GeneratorColorPreset.hpp" />
-    <ClInclude Include="Firmware\Wordclock\GeneratorGradient.hpp" />
-    <ClInclude Include="Firmware\Wordclock\GeneratorRandom.hpp" />
-    <ClInclude Include="Firmware\Wordclock\GeneratorStatic.hpp" />
-    <ClInclude Include="Firmware\Wordclock\Languages.hpp" />
-    <ClInclude Include="Firmware\Wordclock\Marker.hpp" />
-    <ClInclude Include="Firmware\Wordclock\ModeAlarm.hpp" />
-    <ClInclude Include="Firmware\Wordclock\modeBase.hpp" />
-    <ClInclude Include="Firmware\Wordclock\ModeBrightness.hpp" />
-    <ClInclude Include="Firmware\Wordclock\ModeColorBase.hpp" />
-    <ClInclude Include="Firmware\Wordclock\ModeColorPreset.hpp" />
-    <ClInclude Include="Firmware\Wordclock\ModeDefault.hpp" />
-    <ClInclude Include="Firmware\Wordclock\ModeEffect.hpp" />
-    <ClInclude Include="Firmware\Wordclock\ModeHSV.hpp" />
-    <ClInclude Include="Firmware\Wordclock\ModeListAlarms.hpp" />
-    <ClInclude Include="Firmware\Wordclock\ModeRearrangeColorPreset.hpp" />
-    <ClInclude Include="Firmware\Wordclock\ModeRGB.hpp" />
-    <ClInclude Include="Firmware\Wordclock\ModeTime.hpp" />
-    <ClInclude Include="Firmware\Wordclock\Painter.hpp" />
-    <ClInclude Include="Firmware\Wordclock\Utilities.hpp" />
-    <ClInclude Include="Firmware\Wordclock\Wordclock.hpp" />
-    <ClInclude Include="Firmware\__vm\.Sketch1.vsarduino.h" />
-    <ClInclude Include="__vm\.Wordclock.vsarduino.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="LICENSE.txt" />
+    <ClInclude Include="Firmware\Wordclock\Config.hpp">
+      <FileType>CppCode</FileType>
+    </ClInclude>
+    <ClInclude Include="Firmware\Wordclock\DisplayTool.hpp">
+      <FileType>CppCode</FileType>
+    </ClInclude>
+    <ClInclude Include="Firmware\Wordclock\EffectBase.hpp">
+      <FileType>CppCode</FileType>
+    </ClInclude>
+    <ClInclude Include="Firmware\Wordclock\EffectColorBase.hpp">
+      <FileType>CppCode</FileType>
+    </ClInclude>
+    <ClInclude Include="Firmware\Wordclock\EffectColorChangerTime.hpp">
+      <FileType>CppCode</FileType>
+    </ClInclude>
+    <ClInclude Include="Firmware\Wordclock\EffectColorChangerTimer.hpp">
+      <FileType>CppCode</FileType>
+    </ClInclude>
+    <ClInclude Include="Firmware\Wordclock\EffectDefault.hpp">
+      <FileType>CppCode</FileType>
+    </ClInclude>
+    <ClInclude Include="Firmware\Wordclock\EffectFiller.hpp">
+      <FileType>CppCode</FileType>
+    </ClInclude>
+    <ClInclude Include="Firmware\Wordclock\EffectFlyingPixels.hpp">
+      <FileType>CppCode</FileType>
+    </ClInclude>
+    <ClInclude Include="Firmware\Wordclock\EffectGlowing.hpp">
+      <FileType>CppCode</FileType>
+    </ClInclude>
+    <ClInclude Include="Firmware\Wordclock\EffectTimeSlice.hpp">
+      <FileType>CppCode</FileType>
+    </ClInclude>
+    <ClInclude Include="Firmware\Wordclock\EffectWaves.hpp">
+      <FileType>CppCode</FileType>
+    </ClInclude>
+    <ClInclude Include="Firmware\Wordclock\GeneratorBase.hpp">
+      <FileType>CppCode</FileType>
+    </ClInclude>
+    <ClInclude Include="Firmware\Wordclock\GeneratorColorPreset.hpp">
+      <FileType>CppCode</FileType>
+    </ClInclude>
+    <ClInclude Include="Firmware\Wordclock\GeneratorGradient.hpp">
+      <FileType>CppCode</FileType>
+    </ClInclude>
+    <ClInclude Include="Firmware\Wordclock\GeneratorRandom.hpp">
+      <FileType>CppCode</FileType>
+    </ClInclude>
+    <ClInclude Include="Firmware\Wordclock\GeneratorStatic.hpp">
+      <FileType>CppCode</FileType>
+    </ClInclude>
+    <ClInclude Include="Firmware\Wordclock\Languages.hpp">
+      <FileType>CppCode</FileType>
+    </ClInclude>
+    <ClInclude Include="Firmware\Wordclock\Marker.hpp">
+      <FileType>CppCode</FileType>
+    </ClInclude>
+    <ClInclude Include="Firmware\Wordclock\ModeAlarm.hpp">
+      <FileType>CppCode</FileType>
+    </ClInclude>
+    <ClInclude Include="Firmware\Wordclock\ModeBase.hpp">
+      <FileType>CppCode</FileType>
+    </ClInclude>
+    <ClInclude Include="Firmware\Wordclock\ModeBrightness.hpp">
+      <FileType>CppCode</FileType>
+    </ClInclude>
+    <ClInclude Include="Firmware\Wordclock\ModeColorBase.hpp">
+      <FileType>CppCode</FileType>
+    </ClInclude>
+    <ClInclude Include="Firmware\Wordclock\ModeColorPreset.hpp">
+      <FileType>CppCode</FileType>
+    </ClInclude>
+    <ClInclude Include="Firmware\Wordclock\ModeDefault.hpp">
+      <FileType>CppCode</FileType>
+    </ClInclude>
+    <ClInclude Include="Firmware\Wordclock\ModeEffect.hpp">
+      <FileType>CppCode</FileType>
+    </ClInclude>
+    <ClInclude Include="Firmware\Wordclock\ModeHSV.hpp">
+      <FileType>CppCode</FileType>
+    </ClInclude>
+    <ClInclude Include="Firmware\Wordclock\ModeListAlarms.hpp">
+      <FileType>CppCode</FileType>
+    </ClInclude>
+    <ClInclude Include="Firmware\Wordclock\ModeRearrangeColorPreset.hpp">
+      <FileType>CppCode</FileType>
+    </ClInclude>
+    <ClInclude Include="Firmware\Wordclock\ModeRGB.hpp">
+      <FileType>CppCode</FileType>
+    </ClInclude>
+    <ClInclude Include="Firmware\Wordclock\ModeTime.hpp">
+      <FileType>CppCode</FileType>
+    </ClInclude>
+    <ClInclude Include="Firmware\Wordclock\Painter.hpp">
+      <FileType>CppCode</FileType>
+    </ClInclude>
+    <ClInclude Include="Firmware\Wordclock\Utilities.hpp">
+      <FileType>CppCode</FileType>
+    </ClInclude>
+    <ClInclude Include="Firmware\Wordclock\Wordclock.hpp">
+      <FileType>CppCode</FileType>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Firmware\Wordclock\DisplayTool.cpp" />
@@ -173,7 +225,7 @@
     <ClCompile Include="Firmware\Wordclock\GeneratorGradient.cpp" />
     <ClCompile Include="Firmware\Wordclock\Marker.cpp" />
     <ClCompile Include="Firmware\Wordclock\ModeAlarm.cpp" />
-    <ClCompile Include="Firmware\Wordclock\modeBase.cpp" />
+    <ClCompile Include="Firmware\Wordclock\ModeBase.cpp" />
     <ClCompile Include="Firmware\Wordclock\ModeColorBase.cpp" />
     <ClCompile Include="Firmware\Wordclock\ModeColorPreset.cpp" />
     <ClCompile Include="Firmware\Wordclock\ModeEffect.cpp" />
@@ -184,6 +236,9 @@
     <ClCompile Include="Firmware\Wordclock\Painter.cpp" />
     <ClCompile Include="Firmware\Wordclock\Utilities.cpp" />
   </ItemGroup>
+  <PropertyGroup>
+    <DebuggerFlavor>VisualMicroDebugger</DebuggerFlavor>
+  </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

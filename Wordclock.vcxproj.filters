@@ -15,17 +15,9 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Firmware\Wordclock\Wordclock.ino" />
-    <None Include=".gitignore" />
-    <None Include=".gitattributes" />
+    <None Include="Wordclock.ino" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Firmware\__vm\.Sketch1.vsarduino.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="__vm\.Wordclock.vsarduino.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Firmware\Wordclock\Config.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -77,13 +69,16 @@
     <ClInclude Include="Firmware\Wordclock\GeneratorStatic.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Firmware\Wordclock\Languages.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="Firmware\Wordclock\Marker.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Firmware\Wordclock\ModeAlarm.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Firmware\Wordclock\modeBase.hpp">
+    <ClInclude Include="Firmware\Wordclock\ModeBase.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Firmware\Wordclock\ModeBrightness.hpp">
@@ -125,12 +120,6 @@
     <ClInclude Include="Firmware\Wordclock\Wordclock.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Firmware\Wordclock\Languages.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="LICENSE.txt" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Firmware\Wordclock\DisplayTool.cpp">
@@ -175,7 +164,7 @@
     <ClCompile Include="Firmware\Wordclock\ModeAlarm.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Firmware\Wordclock\modeBase.cpp">
+    <ClCompile Include="Firmware\Wordclock\ModeBase.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Firmware\Wordclock\ModeColorBase.cpp">
