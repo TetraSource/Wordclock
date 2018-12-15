@@ -1,10 +1,14 @@
 
-#include "EffectTimeSlice.hpp"
 #include <FastLED.h>
+#include "ModeTimeSlice.hpp"
+#include "Utilities.hpp"
 
 namespace Wordclock
 {
-	uint8_t EffectTimeSliceBase::calcLength(const uint32_t &l, const uint8_t &column, const uint8_t &max)
+	uint8_t ModeTimeSliceBase::calcLength(
+		const uint32_t &l,
+		const uint8_t &column,
+		const uint8_t &max)
 	{
 		uint16_t length = (l * ((column << 1) + 1) + 0x8000) >> 16;
 		if (length > max)
@@ -12,7 +16,7 @@ namespace Wordclock
 		return (uint8_t)length;
 	}
 
-	void EffectTimeSliceBase::paintSlice(Painter* painter, uint32_t rec, uint32_t maxSecs)
+	void ModeTimeSliceBase::paintSlice(uint32_t rec, uint32_t maxSecs)
 	{
 		const uint8_t hWidth = Painter::width >> 1;
 		const uint8_t hHeight = Painter::height >> 1;
@@ -26,22 +30,24 @@ namespace Wordclock
 		rec <<= 16; // rectangle = (rectangle) * (unit of rectangle)
 		rec /= maxSecs;
 
-		painter->setForeground(Wordclock::getCurrentPreset());
-		painter->markAll();
-
-		painter->setForeground(Wordclock::getCurrentPreset(1));
-		painter->setBackground(Wordclock::getCurrentPreset(2));
+		Painter::setColor(Wordclock::getCurrentPreset(1));
 
 		if (rec == 0x10000) {
-			painter->markAll();
+			// Paint the entire display if the slice fills it completly.
+			Painter::paintAll();
 			return;
 		}
+		// Paint all completly filled quarters of the slice.
 		if (rec >= 0x4000) {
-			painter->mark(hWidth, 0, Painter::width - hWidth, Painter::height - hHeight);
+			Painter::paint(
+				hWidth, 0,
+				Painter::width - hWidth, Painter::height - hHeight);
 			if (rec >= 0x8000) {
-				painter->mark(rhWidth, rhHeight, hWidth, hHeight);
+				Painter::paint(rhWidth, rhHeight, hWidth, hHeight);
 				if (rec >= 0xC000) {
-					painter->mark(0, hHeight, Painter::width - hWidth, Painter::height - hHeight);
+					Painter::paint(
+						0, hHeight,
+						Painter::width - hWidth, Painter::height - hHeight);
 				}
 			}
 		}
@@ -51,39 +57,44 @@ namespace Wordclock
 		l <<= 16;
 		l /= cos16(rec % 0x4000);
 
+		// Paint the remaining quarter of the slice.
 		uint8_t length;
 		if (rec < 0x4000) {
 			for (uint8_t column = 0; column < rhHeight; column++) {
 				length = calcLength(l, column, rhWidth);
-				painter->mark(hWidth, rhHeight - column - 1, length, 1);
+				Painter::paint(hWidth, rhHeight - column - 1, length, 1);
 			}
 		}
 		else if (rec < 0x8000) {
 			for (uint8_t column = 0; column < hWidth; column++) {
 				length = calcLength(l, column, hHeight);
-				painter->mark(rhWidth + column, rhHeight, 1, length);
+				Painter::paint(rhWidth + column, rhHeight, 1, length);
 			}
 		}
 		else if (rec < 0xC000) {
 			for (uint8_t column = 0; column < rhHeight; column++) {
 				length = calcLength(l, column, rhWidth);
-				painter->mark(rhWidth - length, hHeight + column, length, 1);
+				Painter::paint(
+					rhWidth - length, hHeight + column,
+					length, 1);
 			}
 		}
 		else if (rec < 0x10000) {
 			for (uint8_t column = 0; column < hWidth; column++) {
 				length = calcLength(l, column, hHeight);
-				painter->mark(hWidth - column - 1, hHeight - length, 1, length);
+				Painter::paint(
+					hWidth - column - 1,
+					hHeight - length, 1, length);
 			}
 		}
 	}
 
-	void EffectTimeSliceBase::select()
+	void ModeTimeSliceBase::select()
 	{
-		update();
+		timer();
 	}
 
-	void EffectTimeSliceBase::update()
+	void ModeTimeSliceBase::timer()
 	{
 		Wordclock::repaint();
 		startTimer(1000);

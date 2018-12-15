@@ -1,9 +1,8 @@
 #pragma once
 
-#include "Marker.hpp"
 #include "ModeBase.hpp"
-#include "Wordclock.hpp"
 #include "Utilities.hpp"
+#include "Wordclock.hpp"
 
 namespace Wordclock
 {
@@ -36,7 +35,7 @@ namespace Wordclock
 	public:
 		void increment(const bool &inc);
 
-		void shape(Marker* marker);
+		void paint();
 	};
 
 	// implementation //
@@ -64,43 +63,45 @@ namespace Wordclock
 		case SetAlarm:
 			if (!success) {
 				if (inc)
-					success = Wordclock::addAlarm(AlarmTime(time.weekday >= 7 ? 0xff : time.weekday, time.hour, time.minute));
+					success = Wordclock::addAlarm(
+						AlarmTime(time.weekday >= 7 ? 0xff : time.weekday,
+							time.hour, time.minute));
 				else
 					Wordclock::listAlarms(&removeAlarm);
 			}
 		}
-		Wordclock::reshape();
+		Wordclock::repaint();
 	}
 
 	template <char letter, ModeAlarmTypes type>
-	void ModeAlarm<letter, type>::shape(Marker* marker)
+	void ModeAlarm<letter, type>::paint()
 	{
 		switch (type)
 		{
 		case AlarmMinute:
-			Utilities::shapeNumber(marker, time.minute == 0 ? 60 : time.minute);
+			Utilities::printNumber(time.minute == 0 ? 60 : time.minute);
 			break;
 
 		case AlarmHour:
-			Utilities::shapeNumber(marker, time.hour == 0 ? 24 : time.hour);
+			Utilities::printNumber(time.hour == 0 ? 24 : time.hour);
 			break;
 
 		case AlarmWeekday:
 			if (time.weekday >= 7) {
-				Utilities::shapeNumber(marker, 17);
-				marker->mark(4, 5, 3);
+				Utilities::printNumber(17);
+				Painter::paint(4, 5, 3);
 			}
 			else {
-				Utilities::shapeNumber(marker, time.weekday == 0 ? 7 : time.weekday);
+				Utilities::printNumber(time.weekday == 0 ? 7 : time.weekday);
 			}
 			break;
 
 		case SetAlarm:
-			Utilities::shapeAnswere(marker, success);
+			Utilities::printAnswere(success);
 		}
 
 #ifdef SHOW_MODE
-		marker->mark(letter);
+		Painter::paint(letter);
 #endif
 	}
 }

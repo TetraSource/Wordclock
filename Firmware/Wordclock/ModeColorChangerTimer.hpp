@@ -1,18 +1,16 @@
 #pragma once
 
-#include "EffectColorBase.hpp"
+#include "ModeColorBase.hpp"
 #include "GeneratorBase.hpp"
-#include "Painter.hpp"
+#include "Utilities.hpp"
 #include "Wordclock.hpp"
 
 namespace Wordclock
 {
-	class Painter;
-
 	/// automatically changes the color once the timer elapses.
 	/// @tparam time - the time between each selection of the next.
 	template <uint32_t time>
-	class EffectColorChangerTimer : public EffectColorBase
+	class ModeColorChangerTimer : public ModeColorBase
 	{
 	protected:
 		GeneratorBase* gen;
@@ -20,29 +18,30 @@ namespace Wordclock
 	public:
 		/// initializes the effect.
 		/// @param generator - the color generator that select a new color when necessary.
-		EffectColorChangerTimer(GeneratorBase* generator);
+		ModeColorChangerTimer(GeneratorBase* generator);
 
 		void select();
 
-		void update();
+		void timer();
 
-		void paint(Painter* painter);
+		void paint();
 	};
 
 	template <uint32_t time>
-	EffectColorChangerTimer<time>::EffectColorChangerTimer(GeneratorBase* generator)
+	ModeColorChangerTimer<time>::ModeColorChangerTimer(
+		GeneratorBase* generator)
 	{
 		gen = generator;
 	}
 
 	template <uint32_t time>
-	void EffectColorChangerTimer<time>::select()
+	void ModeColorChangerTimer<time>::select()
 	{
-		update();
+		timer();
 	}
 
 	template <uint32_t time>
-	void EffectColorChangerTimer<time>::update()
+	void ModeColorChangerTimer<time>::timer()
 	{
 		currColor = gen->nextRGBColor();
 		Wordclock::repaint();
@@ -50,9 +49,9 @@ namespace Wordclock
 	}
 
 	template <uint32_t time>
-	void EffectColorChangerTimer<time>::paint(Painter* painter)
+	void ModeColorChangerTimer<time>::paint()
 	{
-		painter->setForeground(currColor);
-		painter->markAll();
+		Painter::setColor(currColor);
+		Utilities::printTime();
 	}
 }

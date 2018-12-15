@@ -1,14 +1,11 @@
 #pragma once
 
-#include "Marker.hpp"
 #include "ModeBase.hpp"
 #include "Utilities.hpp"
 #include "Wordclock.hpp"
 
 namespace Wordclock
 {
-	class Marker;
-
 	class ModeTimeBase : public ModeBase
 	{
 	protected:
@@ -30,7 +27,7 @@ namespace Wordclock
 
 		void increment(const bool &inc);
 
-		void shape(Marker* marker);
+		void paint();
 	};
 
 	// implementation //
@@ -54,17 +51,19 @@ namespace Wordclock
 	void ModeTime<letter, timeType>::increment(const bool &inc)
 	{
 		changed = true;
-		newTime = Utilities::changeValue(newTime, Wordclock::getMaximumTime(timeType), inc);
-		Wordclock::reshape();
+		newTime = Utilities::changeValue(newTime,
+			Wordclock::getMaximumTime(timeType), inc);
+		Wordclock::repaint();
 	}
 
 	template <char letter, TimeTypes timeType>
-	void ModeTime<letter, timeType>::shape(Marker* marker)
+	void ModeTime<letter, timeType>::paint()
 	{
-		Utilities::shapeNumber(marker, newTime == 0 ? Wordclock::getMaximumTime(timeType) : newTime);
+		Utilities::printNumber(
+			newTime == 0 ? Wordclock::getMaximumTime(timeType) : newTime);
 
 #ifdef SHOW_MODE
-		marker->mark(letter);
+		Painter::paint(letter);
 #endif
 	}
 }

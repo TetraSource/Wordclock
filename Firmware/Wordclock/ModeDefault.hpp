@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Marker.hpp"
 #include "ModeBase.hpp"
 #include "Utilities.hpp"
 #include "Wordclock.hpp"
@@ -13,18 +12,18 @@ namespace Wordclock
 	class ModeDefault : public ModeBase
 	{
 	public:
-		void shape(Marker* marker);
+		void paint();
 	};
 
 	// implementation //
 
 	template <char letter>
-	void ModeDefault<letter>::shape(Marker* marker)
+	void ModeDefault<letter>::paint()
 	{
-		Utilities::shapeTime(marker);
+		Utilities::printTime();
 
 #ifdef SHOW_MODE
-		marker->mark(letter);
+		Painter::paint(letter);
 #endif
 	}
 }
