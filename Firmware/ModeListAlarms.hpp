@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Marker.hpp"
 #include "ModeBase.hpp"
 #include "Utilities.hpp"
 #include "Wordclock.hpp"
@@ -30,24 +29,24 @@ namespace Wordclock
 	class ModeListAlarms : public ModeListAlarmsBase
 	{
 	public:
-		void shape(Marker* marker);
+		void paint();
 	};
 
 	// implementation //
 
 	template <char letter>
-	void ModeListAlarms<letter>::shape(Marker* marker)
+	void ModeListAlarms<letter>::paint()
 	{
 		if (time.weekday > 6) {
-			Utilities::shapeAnswere(marker, false);
+			Utilities::printAnswere(false);
 		}
 		else {
-			Utilities::shapeTime(marker, time.hour, time.minute);
-			marker->mark(time.weekday, 0);
+			Utilities::printTime(time.hour, time.minute);
+			Painter::paint(time.weekday, 0);
 		}
 
 #ifdef SHOW_MODE
-		marker->mark(letter);
+		Painter::paint(letter);
 #endif
 	}
 }

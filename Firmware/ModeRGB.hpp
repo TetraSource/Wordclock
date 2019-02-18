@@ -1,7 +1,6 @@
 #pragma once
 
-#include "Marker.hpp"
-#include "ModeColorBase.hpp"
+#include "ModeBase.hpp"
 #include "Utilities.hpp"
 #include "Wordclock.hpp"
 
@@ -19,29 +18,30 @@ namespace Wordclock
 	/// @tparam value - the element of the color that the mode changes.
 	/// @tparam levelCount - the count of grades the user can change the color values by.
 	template <char letter, RGBColorValues value, uint8_t levelCount>
-	class ModeRGB : public ModeColorBase
+	class ModeRGB : public ModeBase
 	{
 	public:
 		void increment(const bool &inc);
 
-		void shape(Marker* marker);
+		void paint();
 	};
 
 	template <char letter, RGBColorValues value, uint8_t levelCount>
 	void ModeRGB<letter, value, levelCount>::increment(const bool &inc)
 	{
-		CRGB color = Wordclock::getColorPreset(Wordclock::getColorPresetIndex());
+		CRGB color = Wordclock::getColorPreset(
+			Wordclock::getColorPresetIndex());
 		color[value] = Utilities::changeLevel(color[value], levelCount, inc);
 		Wordclock::setColorPreset(Wordclock::getColorPresetIndex(), color);
 	}
 
 	template <char letter, RGBColorValues value, uint8_t levelCount>
-	void ModeRGB<letter, value, levelCount>::shape(Marker* marker)
+	void ModeRGB<letter, value, levelCount>::paint()
 	{
-		Utilities::shapeTime(marker);
+		Utilities::printTime();
 
 #ifdef SHOW_MODE
-		marker->mark(letter);
+		Painter::paint(letter);
 #endif
 	}
 }

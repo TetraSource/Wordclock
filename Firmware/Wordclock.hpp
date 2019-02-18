@@ -2,11 +2,8 @@
 
 #include <Arduino.h>
 #include "Config.hpp"
-#include "EffectBase.hpp"
 #include <FastLED.h>
-#include "Marker.hpp"
 #include "ModeBase.hpp"
-#include "Painter.hpp"
 
 #ifdef DEBUG
 #define DEBUG_OUT(s) Serial.println(s)
@@ -18,12 +15,11 @@ Serial.print("\t"); Serial.println(c.b)
 #define DEBUG_RGB(c)
 #endif
 
-// EEPROM indexes
+// EEPROM memory
 #define MODE_INDEX 0
-#define EFFECT_INDEX 1
-#define COLOR_PRESET_INDEX_INDEX 2
-#define BRIGHTNESS_INDEX 3
-#define COLOR_PRESET_INDEX 4
+#define COLOR_PRESET_INDEX_INDEX 1
+#define BRIGHTNESS_INDEX 2
+#define COLOR_PRESET_INDEX 3
 #define ALARM_INDEX COLOR_PRESET_INDEX + COLOR_PRESET_COUNT * sizeof(CRGB)
 #define LAST_INDEX ALARM_INDEX + ALARM_COUNT * sizeof(AlarmTime)
 
@@ -60,8 +56,13 @@ namespace Wordclock
 		uint8_t minute;
 
 		AlarmTime();
-		AlarmTime(const uint8_t &weekday, const uint8_t &hour, const uint8_t &minute);
+
+		AlarmTime(const uint8_t &weekday,
+			const uint8_t &hour,
+			const uint8_t &minute);
+
 		AlarmTime(const AlarmTime &time);
+
 		void setTo(const AlarmTime &time);
 	};
 
@@ -82,16 +83,9 @@ namespace Wordclock
 		static ModeBase* modes[MODE_COUNT];
 		static uint8_t currMode;
 
-		static EffectBase* effects[EFFECT_COUNT];
-		static uint8_t currEffect;
-
 		static bool alarm;
-		static bool reshapeRequest;
 		static bool repaintRequest;
 		static bool saveTimeRequest;
-
-		static Marker* marker;
-		static Painter* painter;
 
 		static void saveTime();
 		static void loadTime();
@@ -105,40 +99,39 @@ namespace Wordclock
 		inline static uint8_t getDaysOfMonth();
 
 	public:
-		/// selects the effect at the specified index.
-		/// @param mode - the index of the current mode
-		/// @returns whether the mode was a valid one or not.
-		static bool setEffectIndex(const uint8_t &index);
-
-		/// returns the index of the current effect.
-		/// @returns the index of the current effect
-		static uint8_t getEffectIndex();
-
 		/// sets the specified time for the specified time type.
-		/// @param timeType - specifies the unit of the time (see enum Wordclock::TimeTypes).
+		/// @param timeType - specifies the unit of the time
+		///                   (see enum Wordclock::TimeTypes).
 		/// @param time - the new time
 		/// @returns whether the time was a valid one or not.
 		static bool setTime(const uint8_t &timeType, uint8_t time);
 
 		/// returns the current time of the current time type.
-		/// @param timeType - specifies the unit of the time (see enum Wordclock::TimeTypes).
+		/// @param timeType - specifies the unit of the time
+		///                   (see enum Wordclock::TimeTypes).
 		/// @params - the current time
 		static uint8_t getTime(const uint8_t &timeType);
 
 		/// returns the valid maximum for the specified time type.
-		/// @param timeType - specifies the unit of the time (see enum Wordclock::TimeTypes).
+		/// @param timeType - specifies the unit of the time
+		///                   (see enum Wordclock::TimeTypes).
 		/// @returns the maximal value
 		static uint8_t getMaximumTime(const uint8_t &timeType);
 
-		/// returns the count of seconds since the given time type advanced last.
-		/// @param timeType - the time type that advances last (see enum Wordclock::TimeTypes).
+		/// returns the count of seconds since the given time type advanced
+		/// last.
+		/// @param timeType - the time type that advances last
+		///                   (see enum Wordclock::TimeTypes).
 		/// @returns the count of seconds.
 		static uint32_t getSeconds(const uint8_t &timeType);
 
-		/// returns the count of seconds that one unit of the given time type takes (e.g. an hour takes at most 3600s).
-		/// The result is influenced by the current time and may cause different results at different times
+		/// returns the count of seconds that one unit of the given time type
+		/// takes (e.g. an hour takes at most 3600s).
+		/// The result is influenced by the current time and may cause
+		/// different results at different times
 		/// (e.g. the count of days in Juli in higher than in June).
-		/// @param timeType - specifies the unit of the time (see enum Wordclock::TimeTypes).
+		/// @param timeType - specifies the unit of the time
+		///                   (see enum Wordclock::TimeTypes).
 		/// @returns the count of seconds.
 		static uint32_t getUnitSeconds(const uint8_t &timeType);
 
@@ -172,14 +165,20 @@ namespace Wordclock
 
 		/// sets an alarm for the given time.
 		/// @param time - the time the alarm shall be activated at.
-		///               Note that the value time.minute is rounded to the next five minute interval.
-		///               Additionally, the value time.weekday can either be a single day or a bit mask representing a set of days.
-		///               In this case the eighth bit of the mask has to be set to 1.
-		/// @returns whether the alarm could be set successfully or not. Note, that there is an internal limit of alarms.
+		///               Note that the value time.minute is rounded to the
+		///               next five minute interval.
+		///               Additionally, the value time.weekday can either be a
+		///               single day or a bit mask representing a set of days.
+		///               In this case the eighth bit of the mask has to be
+		///               set to 1.
+		/// @returns whether the alarm could be set successfully or not.
+		///          Note, that there is an internal limit of alarms.
 		static bool addAlarm(AlarmTime time);
 
 		/// allows to get and remove set alarms.
-		/// @param checker - the function that is called with all existing alarms. If it return true, the alarm will be removed.
+		/// @param checker - the function that is called with all existing
+		///                  alarms. If it return true, the alarm will be
+		///                  removed.
 		static void listAlarms(AlarmChecker checker);
 
 		/// sets whether the alarm is active or not.
@@ -191,20 +190,17 @@ namespace Wordclock
 		static bool getAlarm();
 
 		/// sets the general brightness of all LEDs.
-		/// @param brightness - the desired brightness. 255 means full brightness and 0 none.
+		/// @param brightness - the desired brightness. 255 means full
+		///                     brightness and 0 none.
 		static void setBrightness(const uint8_t &brightness);
 
 		/// returns the general brightness of all LEDs.
-		/// @returns the current brightness. 255 means full brightness and 0 none.
+		/// @returns the current brightness. 255 means full brightness and
+		///          0 none.
 		static uint8_t getBrightness();
 
-		/// requests an update of the current LEDs by a call
-		/// - to the paint function of the current effect.
+		/// requests an update of the current LEDs by a call to the paint
+		/// function of the current mode.
 		static void repaint();
-
-		/// requests an update of the current LEDs by a call
-		/// - to the paint function of the current effect and
-		/// - to the shape function of the current mode.
-		static void reshape();
 	};
 }

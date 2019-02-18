@@ -8,8 +8,11 @@ namespace Wordclock
 
 	void ModeHSVBase::select()
 	{
-		ModeColorBase::select();
-		if (!Painter::areIdentical(result, Wordclock::getColorPreset(Wordclock::getColorPresetIndex())))
-			curr = rgb2hsv_approximate(Wordclock::getColorPreset(Wordclock::getColorPresetIndex()));
+		if (!Painter::areIdentical(result,
+			Wordclock::getColorPreset(Wordclock::getColorPresetIndex())))
+		{
+			curr = rgb2hsv_approximate(
+				Wordclock::getColorPreset(Wordclock::getColorPresetIndex()));
+		}
 	}
 }

@@ -1,7 +1,9 @@
 
-#include "Marker.hpp"
+#define IMPORT_LETTERS
+#include "Config.hpp"
 #include "Painter.hpp"
 
+// constants for arrange method
 #ifdef UPSIDE_DOWN
 #define INCREMENT(var) var--
 #define SOURCE_INIT LED_COUNT - 1
@@ -15,9 +17,31 @@
 #define BACKWARDS_INIT false
 #endif
 
+// constants for painting methods
+#ifdef VERTICAL_STRIPES
+#define PAINT_X y
+#define PAINT_Y x
+#define PAINT_WIDTH h
+#define PAINT_HEIGHT w
+#define ADAPT_TO_GRID(index) index / ROW_LENGTH + (index % ROW_LENGTH) * ROW_LENGTH
+#else
+#define PAINT_X x
+#define PAINT_Y y
+#define PAINT_WIDTH w
+#define PAINT_HEIGHT h
+#define ADAPT_TO_GRID(index) index
+#endif
+
 namespace Wordclock
 {
 	CRGB Painter::buffer[LED_COUNT] = {};
+	
+	CRGB Painter::leds[LED_COUNT] = {};
+	CRGB Painter::curr = CRGB(0, 0, 0);
+
+	const uint8_t Painter::width = WIDTH;
+	const uint8_t Painter::height = HEIGHT;
+	const uint8_t Painter::maxLength = MAX_LENGTH;
 
 	void Painter::arrange()
 	{
@@ -48,53 +72,122 @@ namespace Wordclock
 		}
 	}
 
-	void Painter::note(const uint8_t &index)
+	CRGB Painter::getColor()
 	{
-		leds[index] = marker->mask[index] ? foreground : background;
+		return curr;
 	}
 
-	bool Painter::query(const uint8_t &index)
+	bool Painter::hasColor()
 	{
-		return leds[index].r != 0 || leds[index].g != 0 || leds[index].b != 0;
+		return curr.r != 0 && curr.g != 0 && curr.b != 0;
 	}
 
-	Painter::Painter(Marker* marker)
+	void Painter::setColor(const CRGB &color)
 	{
-		this->marker = marker;
+		curr = color;
 	}
 
-	bool Painter::isForeground(const uint8_t &x, const uint8_t &y)
+	CRGB Painter::getPixel(const uint8_t &x, const uint8_t &y)
 	{
-#ifdef VERTICAL_STRIPES
-		if (y >= ROW_LENGTH) return false;
-		uint8_t index = y + x * ROW_LENGTH;
-		if (index >= LED_COUNT) return false;
-#else
-		if (x >= ROW_LENGTH) return false;
-		uint8_t index = x + y * ROW_LENGTH;
-		if (index >= LED_COUNT) return false;
+		if (PAINT_X >= ROW_LENGTH) return;
+		uint8_t index = PAINT_X + PAINT_Y * ROW_LENGTH;
+		if (index >= LED_COUNT) return;
+		return leds[index];
+	}
+
+	void Painter::paintAll()
+	{
+#ifdef DEBUG_DISPLAY
+		Serial.println("ma "); // mark all
 #endif
-		return marker->query(index);
+		for (uint8_t index = 0; index < LED_COUNT; index++) {
+			leds[index] = curr;
+		}
 	}
 
-	void Painter::setForeground(const CRGB &foreground)
+	void Painter::paint(const uint8_t &x, const uint8_t &y)
 	{
-		this->foreground = foreground;
+#ifdef DEBUG_DISPLAY
+		Serial.print("ms "); // mark spot
+		Serial.print(x);
+		Serial.print(" ");
+		Serial.println(y);
+#endif
+		if (PAINT_X >= ROW_LENGTH) return;
+		uint8_t index = PAINT_X + PAINT_Y * ROW_LENGTH;
+		if (index >= LED_COUNT) return;
+		leds[index] = curr;
 	}
 
-	CRGB Painter::getForeground()
+	void Painter::paint(
+		const uint8_t &x, const uint8_t &y,
+		const uint8_t &w, const uint8_t &h = 1)
 	{
-		return foreground;
+#ifdef DEBUG_DISPLAY
+		Serial.print("mr "); // mark rectangle
+		Serial.print(x);
+		Serial.print(" ");
+		Serial.print(y);
+		Serial.print(" ");
+		Serial.print(w);
+		Serial.print(" ");
+		Serial.println(h);
+#endif
+
+		if (PAINT_X >= ROW_LENGTH) return;
+		uint8_t index = PAINT_X + PAINT_Y * ROW_LENGTH;
+		if (index >= LED_COUNT) return;
+
+		uint8_t newWidth = PAINT_X + PAINT_WIDTH <= ROW_LENGTH ? PAINT_WIDTH : ROW_LENGTH - PAINT_X;
+
+		for (uint8_t i = 0; i < PAINT_HEIGHT && index < LED_COUNT; i++)
+		{
+			for (uint8_t j = 0; j < newWidth; j++) {
+				leds[index++] = curr;
+			}
+			index += ROW_LENGTH - newWidth;
+		}
 	}
 
-	void Painter::setBackground(const CRGB &background)
+	bool Painter::paint(const char &letter)
 	{
-		this->background = background;
-	}
+#ifdef DEBUG_DISPLAY
+		Serial.print("ml "); // mark letter
+		Serial.println(letter);
+#endif
+		if (letter == ' ')
+			return true;
 
-	CRGB Painter::getBackground()
-	{
-		return background;
+		// Try to find a solitary version of the letter
+		uint8_t rowEnd;
+		uint8_t index = 0;
+		while (index < LED_COUNT) {
+			rowEnd = index + width;
+			do {
+				if (leds[index+1].r != 0 || leds[index+1].g != 0 || leds[index+1].b != 0) {
+					index += 3;
+				}
+				else if (leds[index].r != 0 || leds[index].g != 0 || leds[index].b != 0) {
+					index += 2;
+				}
+				else if (letters[index] == letter) {
+					leds[ADAPT_TO_GRID(index)] = curr;
+					return true;
+				}
+				else {
+					index += 1;
+				}
+			} while (index <= rowEnd);
+			index = rowEnd;
+		}
+
+		// Just try to find the letter
+		index = 0;
+		while (index < LED_COUNT && letters[index] != letter)
+			index++;
+		if (index < LED_COUNT)
+			leds[ADAPT_TO_GRID(index)] = curr;
+		return false;
 	}
 
 	bool Painter::areIdentical(CRGB c0, CRGB c1)
@@ -103,9 +196,14 @@ namespace Wordclock
 			c0.g - 5 <= c1.g && c0.g + 5 >= c1.g &&
 			c0.b - 5 <= c1.b && c0.b + 5 >= c1.b;
 	}
-
-	bool Painter::areIdentical()
-	{
-		return areIdentical(foreground, background);
-	}
 }
+
+#undef INCREMENT
+#undef SOURCE_INIT
+#undef BACKWARDS_INIT
+
+#undef PAINT_X
+#undef PAINT_Y
+#undef PAINT_WIDTH
+#undef PAINT_HEIGHT
+#undef ADAPT_TO_GRID

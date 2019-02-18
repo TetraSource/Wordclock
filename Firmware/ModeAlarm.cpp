@@ -8,7 +8,9 @@ namespace Wordclock
 
 	bool ModeAlarmBase::removeAlarm(const AlarmTime &t)
 	{
-		if ((time.weekday >= 7 || t.weekday == time.weekday) && t.hour == time.hour && t.minute == time.minute) {
+		if ((time.weekday >= 7 || t.weekday == time.weekday) &
+			t.hour == time.hour && t.minute == time.minute) {
+
 			success = true;
 			return true;
 		}

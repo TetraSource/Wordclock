@@ -1,12 +1,12 @@
 #pragma once
 
-#include "ModeColorBase.hpp"
+#include "ModeBase.hpp"
 #include "Utilities.hpp"
 #include "Wordclock.hpp"
 
 namespace Wordclock
 {
-	class ModeColorPresetBase : public ModeColorBase
+	class ModeColorPresetBase : public ModeBase
 	{
 	public:
 		void increment(const bool &inc);
@@ -18,18 +18,18 @@ namespace Wordclock
 	class ModeColorPreset : public ModeColorPresetBase
 	{
 	public:
-		void shape(Marker* marker);
+		void paint();
 	};
 
 	// implementation //
 
 	template <char letter>
-	void ModeColorPreset<letter>::shape(Marker* marker)
+	void ModeColorPreset<letter>::paint()
 	{
-		Utilities::shapeNumber(marker, Wordclock::getColorPresetIndex() + 1);
+		Utilities::printNumber(Wordclock::getColorPresetIndex() + 1);
 
 #ifdef SHOW_MODE
-		marker->mark(letter);
+		Painter::paint(letter);
 #endif
 	}
 }
