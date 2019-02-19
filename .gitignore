@@ -247,3 +247,7 @@ ModelManifest.xml
 # ignore visual studio project files
 *.sln
 *.vcxproj*
+
+# ignore visual studio code files
+
+.vscode
