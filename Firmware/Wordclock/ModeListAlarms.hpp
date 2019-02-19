@@ -4,6 +4,7 @@
 #include "Utilities.hpp"
 #include "Wordclock.hpp"
 
+#if ALARM_COUNT > 0
 namespace Wordclock
 {
 	class ModeListAlarmsBase : public ModeBase
@@ -50,3 +51,4 @@ namespace Wordclock
 #endif
 	}
 }
+#endif

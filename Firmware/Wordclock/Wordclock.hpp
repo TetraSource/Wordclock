@@ -57,13 +57,19 @@ namespace Wordclock
 
 		AlarmTime();
 
-		AlarmTime(const uint8_t &weekday,
+		AlarmTime(
+            const uint8_t &weekday,
 			const uint8_t &hour,
 			const uint8_t &minute);
 
 		AlarmTime(const AlarmTime &time);
 
-		void setTo(const AlarmTime &time);
+        void AlarmTime::setTo(
+            const uint8_t &weekday,
+            const uint8_t &hour,
+            const uint8_t &minute);
+
+        void AlarmTime::setTo(const AlarmTime &time);
 	};
 
 	typedef bool(*AlarmChecker)(const AlarmTime &time);
@@ -74,24 +80,31 @@ namespace Wordclock
 		friend class Core;
 
 	private:
-		static uint8_t times[7];
-		static AlarmTime nextAlarm;
+#if ALARM_COUNT > 0
+        // alarms[i].weekdays is a bit mask
+        static AlarmTime alarms[ALARM_COUNT];
+        // currAlarm.weekdays is the id of the day (id 7 = no alarm set).
+        static AlarmTime currAlarm;
+        static bool alarm;
+#endif
+        static uint8_t times[7];
+        static bool saveTimeRequest;
 
-		static CRGB currPreset;
+		static CRGB presets[COLOR_PRESET_COUNT];
 		static uint8_t currPresetIndex;
 
-		static ModeBase* modes[MODE_COUNT];
-		static uint8_t currMode;
+		static ModeBase *modes[MODE_COUNT];
+        static uint8_t currMode;
 
-		static bool alarm;
-		static bool repaintRequest;
-		static bool saveTimeRequest;
+        static bool repaintRequest;
 
 		static void saveTime();
 		static void loadTime();
 
-		static void extractNext(AlarmTime time);
+#if ALARM_COUNT > 0
+		static void chooseSooner(AlarmTime time);
 		static void loadNextAlarm();
+#endif
 
 		static bool setMode(const uint8_t &mode);
 
@@ -163,6 +176,7 @@ namespace Wordclock
 		/// @returns the index of the color preset
 		static uint8_t getColorPresetIndex();
 
+#if ALARM_COUNT > 0
 		/// sets an alarm for the given time.
 		/// @param time - the time the alarm shall be activated at.
 		///               Note that the value time.minute is rounded to the
@@ -188,6 +202,7 @@ namespace Wordclock
 		/// returns whether the alarm is active or not.
 		/// @returns the state of the alarm
 		static bool getAlarm();
+#endif
 
 		/// sets the general brightness of all LEDs.
 		/// @param brightness - the desired brightness. 255 means full

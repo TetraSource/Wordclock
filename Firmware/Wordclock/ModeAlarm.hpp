@@ -4,14 +4,15 @@
 #include "Utilities.hpp"
 #include "Wordclock.hpp"
 
+#if ALARM_COUNT > 0
 namespace Wordclock
 {
 	enum ModeAlarmTypes
 	{
-		AlarmWeekday,
-		AlarmHour,
-		AlarmMinute,
-		SetAlarm,
+		AlarmWeekday, // set weekday of alarm
+		AlarmHour, // set hour of alarm
+		AlarmMinute, // set minute of alarm
+		SetAlarm, // confirm alarm
 	};
 
 	class ModeAlarmBase : public ModeBase
@@ -105,3 +106,4 @@ namespace Wordclock
 #endif
 	}
 }
+#endif

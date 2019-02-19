@@ -1,5 +1,5 @@
 
-///////////////////////////// HARDWARE SETTINGS ///////////////////////////////
+///////////////////////////// HARDWARE SETTINGS ////////////////////////////////
 
 // PINS
 
@@ -31,7 +31,7 @@
 
 // the language of the time shown by the words.
 // languages
-//  0 - English
+//  0 - English (not supported jet)
 //  1 - German
 #define LANGUAGE 1           
 
@@ -75,14 +75,14 @@ namespace Wordclock
 }
 #endif
 
-/////////////////////////////// SOFTWARE SETTINGS /////////////////////////////
+/////////////////////////////// SOFTWARE SETTINGS //////////////////////////////
 
 // DEBUGGING
 
 // Baud rate for serial debug output
 #define BAUD_RATE 9600
 // Outputs debug data if given
-//#define DEBUG
+#define DEBUG
 // Outputs all marked and painted LEDs when given
 //#define DEBUG_DISPLAY
 // Utilizes the build in LED to indicate the time pulse if this setting exists
@@ -118,7 +118,7 @@ namespace Wordclock
 // ALARMS
 
 // the maximal count of times for all alarms.
-#define ALARM_COUNT 10
+#define ALARM_COUNT 0
 // stops the alarm when any button is pressed if this setting exists.
 #define STOP_ALARM_ON_PRESS
 // uses a pulse instead of a static high signal for the alarm
@@ -148,7 +148,7 @@ CRGB(CRGB::DarkCyan), \
 CRGB(CRGB::Lime), \
 CRGB(CRGB::DarkGreen), \
 
-// MODES AND EFFECTS //
+// MODES //
 
 #ifndef RESET_EEPROM_SAFELY
 // protects this section from being loaded into wrong code sections.
@@ -181,16 +181,22 @@ CRGB(CRGB::DarkGreen), \
 #include "GeneratorGradient.hpp"
 #include "GeneratorRandom.hpp"
 #include "GeneratorStatic.hpp"
-
-namespace Wordclock
-{
 #endif
+
 // ALWAYS KEEP THIS NUMBER IN SYNC WITH THE COUNT OF MODES AND
 // RESET THE EEPROM IF YOU CHANGE IT!
-#define MODE_COUNT 28
+#if ALARM_COUNT > 0
+#define ALARM_MODES_ 5
+#else
+#define ALARM_MODES_ 0
+#endif
+#define MODE_COUNT 23 + ALARM_MODES_ - 21
 #ifdef IMPORT_MODES
+namespace Wordclock
+{
 	ModeBase* Wordclock::modes[MODE_COUNT] = {
 		new ModeDefault<' '>(), // <-- don't move this mode to another index
+/*
 		new ModeTime<'W', Weekdays>(),
 		new ModeTime<'H', Hours>(),
 		new ModeTime<'M', Minutes>(),
@@ -204,12 +210,16 @@ namespace Wordclock
 		new ModeHSV<'H', Hue, 20>(),
 		new ModeHSV<'S', Saturation, 20>(),
 		new ModeHSV<'V', Value, 20>(),
+*/
+#if ALARM_COUNT > 0
 		new ModeAlarm<'W', AlarmWeekday>(),
 		new ModeAlarm<'H', AlarmHour>(),
 		new ModeAlarm<'M', AlarmMinute>(),
 		new ModeAlarm<'A', SetAlarm>(),
 		new ModeListAlarms<'V'>(),
+#endif
 
+/*
 		// uses the first five colors to show the time in five minute
 		// intervals.
 		new ModeColorChangerTime<Minutes>(new GeneratorColorPreset<ChooseByTime, 0, 4, Minutes>()),
@@ -219,7 +229,7 @@ namespace Wordclock
 
 		// fills the display from the bottom to the top to show the advancing
 		// of every minute.
-		// equal to "new EffectFiller<Bottom, Minutes, 1>"
+		// equal to "new ModeFiller<Bottom, Minutes, 1>"
 		new ModeFiller<Bottom, Seconds, 60>(),
 
 		// lets pixels fly quickly from the top, bottom and right side of the
@@ -242,6 +252,7 @@ namespace Wordclock
 		// creates a gradient from the left side to the right one using
 		// vibrant, random generated colors.
 		new ModeWaves<Left, 1000>(new GeneratorGradient<25>(new GeneratorRandom<0, 255, 191, 255, 65, 255, HSV>())),
+*/
 	};
 }
 #undef IMPORT_MODES

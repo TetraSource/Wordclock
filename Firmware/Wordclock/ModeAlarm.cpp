@@ -1,10 +1,11 @@
 
 #include "ModeAlarm.hpp"
 
+#if ALARM_COUNT > 0
 namespace Wordclock
 {
 	bool ModeAlarmBase::success = false;
-	AlarmTime ModeAlarmBase::time = { 7, 0, 0 };
+	AlarmTime ModeAlarmBase::time = AlarmTime();
 
 	bool ModeAlarmBase::removeAlarm(const AlarmTime &t)
 	{
@@ -22,3 +23,4 @@ namespace Wordclock
 		success = false;
 	}
 }
+#endif

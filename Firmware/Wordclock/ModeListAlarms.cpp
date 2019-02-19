@@ -1,6 +1,7 @@
 
 #include "ModeListAlarms.hpp"
 
+#if ALARM_COUNT > 0
 namespace Wordclock
 {
 	bool ModeListAlarmsBase::isInc = false;
@@ -55,3 +56,4 @@ namespace Wordclock
 		}
 	}
 }
+#endif
