@@ -3,6 +3,7 @@
 #include <FastLED.h>
 #include "ModeBase.hpp"
 #include "Painter.hpp"
+#include "Utilities.hpp"
 #include "Wordclock.hpp"
 #ifdef WDT
 #include <avr/wdt.h>
@@ -13,7 +14,7 @@
 #define IMPORT_MODES
 #include "Config.hpp"
 
-#if ALARM_COUNT == 0
+#if ALARM_COUNT <= 0
 #undef STOP_ALARM_ON_PRESS
 #undef ALARM_PULSE
 #endif
@@ -129,7 +130,7 @@ namespace Wordclock
 
 		modes[currMode]->deselect();
 		currMode = index;
-		EEPROM.write(MODE_INDEX, currMode);
+		EEPROM.write(MODE_INDEX, index);
 		modes[index]->select();
 		repaint();
 		return true;
@@ -257,38 +258,39 @@ namespace Wordclock
 	{
 		uint8_t weekdays = newAlarm.weekday;
 
-        if (currAlarm.weekday >= 7) {
-            currAlarm.setTo(newAlarm);
-            return;
-        }
-		for (newAlarm.weekday = 0; newAlarm.weekday < 7; newAlarm.weekday++) {
-			if (weekdays & (1 << newAlarm.weekday)) {
-				int8_t weekdaysNew = newAlarm.weekday;
-				int8_t weekdaysOld = currAlarm.weekday;
-				weekdaysNew -= times[Weekdays];
-				weekdaysOld -= times[Weekdays];
+		for (uint8_t weekday = 0; weekday < 7; weekday++) {
+			if (weekdays & (1 << weekday)) {
+                if (currAlarm.weekday >= 7) {
+                    currAlarm.setTo(newAlarm);
+                    continue;
+                }
 
-				if (weekdaysNew < 0)
-					weekdaysNew += 7;
-				if (weekdaysOld < 0)
-					weekdaysOld += 7;
+				int8_t weekdayNew = weekday;
+				int8_t weekdayOld = currAlarm.weekday;
+				weekdayNew -= times[Weekdays];
+				weekdayOld -= times[Weekdays];
+				if (weekdayNew < 0)
+					weekdayNew += 7;
+				if (weekdayOld < 0)
+					weekdayOld += 7;
 
-				if (weekdaysNew == 0 && (
+				if (weekdayNew == 0 && (
 					newAlarm.hour < times[Hours] ||
 					newAlarm.hour == times[Hours] &&
 					newAlarm.minute <= times[Minutes]))
-					weekdaysNew = 7;
-				if (weekdaysOld == 0 && (currAlarm.hour < times[Hours] ||
+					weekdayNew = 7;
+				if (weekdayOld == 0 && (currAlarm.hour < times[Hours] ||
                     currAlarm.hour == times[Hours] &&
 					currAlarm.minute <= times[Minutes]))
-					weekdaysOld = 7;
+					weekdayOld = 7;
 
-				if (weekdaysNew < weekdaysOld ||
-					(weekdaysNew == weekdaysOld &&
+				if (weekdayNew < weekdayOld ||
+					(weekdayNew == weekdayOld &&
 					(newAlarm.hour < currAlarm.hour ||
 						newAlarm.hour == currAlarm.hour &&
 						newAlarm.minute < currAlarm.minute)))
 				{
+                    newAlarm.weekday = weekday;
                     currAlarm.setTo(newAlarm);
 				}
 			}
@@ -424,6 +426,10 @@ namespace Wordclock
 	{
 	public:
 		inline static void setup();
+        inline static void checkButtons();
+        inline static void updateTime();
+        inline static void checkTimer();
+        inline static void updateLeds();
 		inline static void loop();
 	};
 
@@ -531,19 +537,16 @@ namespace Wordclock
 #endif
 	}
 
-	inline void Core::loop()
-	{
-#ifndef RESET_EEPROM_SAFELY
-		//DEBUG_OUT("\nl"); // loop
-
-		// check button lock
+    inline void Core::checkButtons()
+    {
+        // check button lock
 		static uint16_t buttonLock = 0;
 		static bool buttonsLocked = false;
 		if (buttonsLocked && ((uint16_t)(millis() - buttonLock)) >
 			BUTTON_LOCK_TIME)
 		{
-			buttonsLocked = false;
 			DEBUG_OUT("ub"); // unlock buttons
+            buttonsLocked = false;
 		}
 
 		// check buttons
@@ -551,65 +554,46 @@ namespace Wordclock
 		static bool incModePush = true, decModePush = true;
 
 		if (!buttonsLocked) {
-			if (digitalRead(INC_MODE_PIN) != incModePush) {
+            bool incButton = digitalRead(INC_MODE_PIN) != incModePush;
+			if (incButton || digitalRead(DEC_MODE_PIN) != decModePush) {
 				incModePush = !incModePush;
 				if (incModePush) {
-					DEBUG_OUT("imb"); // increment mode button
+					DEBUG_OUT("cmb"); // change mode buttons
 					buttonLock = millis();
-					buttonsLocked = true;
+		            buttonsLocked = true;
 #ifdef STOP_ALARM_ON_PRESS
 					Wordclock::setAlarm(false);
 #endif
-					Wordclock::modes[Wordclock::currMode]->increment(true);
+					Wordclock::modes[Wordclock::currMode]->increment(incButton);
 				}
 			}
-			else if (digitalRead(DEC_MODE_PIN) != decModePush) {
-				decModePush = !decModePush;
-				if (decModePush) {
-					DEBUG_OUT("dmb"); // decrement mode button
-					buttonLock = millis();
-					buttonsLocked = true;
+			else
+            {
+                incButton = digitalRead(NEXT_MODE_PIN) != nextModePush;
+                if (incButton || digitalRead(PREV_MODE_PIN) != prevModePush) {
+                    nextModePush = !nextModePush;
+                    if (nextModePush) {
+                        DEBUG_OUT("mb"); // mode buttons
+                        buttonLock = millis();
+		                buttonsLocked = true;
 #ifdef STOP_ALARM_ON_PRESS
-					Wordclock::setAlarm(false);
+                        Wordclock::setAlarm(false);
 #endif
-					Wordclock::modes[Wordclock::currMode]->increment(false);
-				}
-			}
-			else if (digitalRead(NEXT_MODE_PIN) != nextModePush) {
-				nextModePush = !nextModePush;
-				if (nextModePush) {
-					DEBUG_OUT("nmb"); // next mode button
-					buttonLock = millis();
-					buttonsLocked = true;
-#ifdef STOP_ALARM_ON_PRESS
-					Wordclock::setAlarm(false);
-#endif
-					Wordclock::setMode(Wordclock::currMode + 1 < MODE_COUNT ?
-						Wordclock::currMode + 1 : 0);
-				}
-			}
-			else if (digitalRead(PREV_MODE_PIN) != prevModePush) {
-				prevModePush = !prevModePush;
-				if (prevModePush) {
-					DEBUG_OUT("pmb"); // previous mode button
-					buttonLock = millis();
-					buttonsLocked = true;
-#ifdef STOP_ALARM_ON_PRESS
-					Wordclock::setAlarm(false);
-#endif
-					if (Wordclock::currMode == 0)
-						Wordclock::setMode(MODE_COUNT - 1);
-					else
-						Wordclock::setMode(Wordclock::currMode - 1);
-				}
+                        Wordclock::setMode(Utilities::changeValue(
+                            Wordclock::currMode, MODE_COUNT, incButton));
+                    }
+                }
 			}
 		}
+    }
 
-		if (Wordclock::saveTimeRequest) {
+    inline void Core::updateTime()
+    {
+        if (Wordclock::saveTimeRequest) {
 			Wordclock::saveTimeRequest = false;
 			Wordclock::saveTime();
 		}
-		
+
 		// update time
 		static bool pulse = false;
 
@@ -680,19 +664,23 @@ namespace Wordclock
 		Serial.println(Wordclock::times[0]);
 #endif
 */
+    }
 
-		// check timer
-		if (ModeBase::updateTime != 0
+    inline void Core::checkTimer()
+    {
+        if (ModeBase::updateTime != 0
 			&& ((uint32_t)(millis() - ModeBase::updateThreshold))
 			> ModeBase::updateTime)
 		{
 			ModeBase::updateTime = 0;
-			DEBUG_OUT("ue"); // update effect
+			DEBUG_OUT("um"); // update mode
 			Wordclock::modes[Wordclock::currMode]->timer();
 		}
+    }
 
-		// set LEDs
-		if (Wordclock::repaintRequest) {
+    inline void Core::updateLeds()
+    {
+        if (Wordclock::repaintRequest) {
 			Wordclock::repaintRequest = false;
 			DEBUG_OUT("rp"); // repaint
 			Painter::setColor(Wordclock::getCurrentPreset());
@@ -701,6 +689,16 @@ namespace Wordclock
 			Painter::arrange();
 			FastLED.show();
 		}
+    }
+
+	inline void Core::loop()
+	{
+#ifndef RESET_EEPROM_SAFELY
+		DEBUG_OUT("\nl"); // loop
+		checkButtons();
+        updateTime();
+        checkTimer();
+        updateLeds();
 #endif
 	}
 }

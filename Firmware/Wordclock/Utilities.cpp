@@ -11,9 +11,9 @@ namespace Wordclock
 		const bool &inc = true)
 	{
 		if (inc)
-			return value + 1 == limit ? 0 : value + 1;
+			return value + 1 >= limit ? 0 : value + 1;
 		else
-			return value == 0 ? limit - 1 : value - 1;
+			return value <= 0 ? limit - 1 : value - 1;
 	}
 
 	uint8_t Utilities::changeLevel(

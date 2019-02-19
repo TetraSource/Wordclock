@@ -82,7 +82,7 @@ namespace Wordclock
 // Baud rate for serial debug output
 #define BAUD_RATE 9600
 // Outputs debug data if given
-#define DEBUG
+//#define DEBUG
 // Outputs all marked and painted LEDs when given
 //#define DEBUG_DISPLAY
 // Utilizes the build in LED to indicate the time pulse if this setting exists
@@ -190,13 +190,12 @@ CRGB(CRGB::DarkGreen), \
 #else
 #define ALARM_MODES_ 0
 #endif
-#define MODE_COUNT 23 + ALARM_MODES_ - 21
+#define MODE_COUNT 23 + ALARM_MODES_
 #ifdef IMPORT_MODES
 namespace Wordclock
 {
 	ModeBase* Wordclock::modes[MODE_COUNT] = {
-		new ModeDefault<' '>(), // <-- don't move this mode to another index
-/*
+		new ModeDefault<' '>(), // Don't move this mode to another index.
 		new ModeTime<'W', Weekdays>(),
 		new ModeTime<'H', Hours>(),
 		new ModeTime<'M', Minutes>(),
@@ -210,7 +209,6 @@ namespace Wordclock
 		new ModeHSV<'H', Hue, 20>(),
 		new ModeHSV<'S', Saturation, 20>(),
 		new ModeHSV<'V', Value, 20>(),
-*/
 #if ALARM_COUNT > 0
 		new ModeAlarm<'W', AlarmWeekday>(),
 		new ModeAlarm<'H', AlarmHour>(),
@@ -218,8 +216,6 @@ namespace Wordclock
 		new ModeAlarm<'A', SetAlarm>(),
 		new ModeListAlarms<'V'>(),
 #endif
-
-/*
 		// uses the first five colors to show the time in five minute
 		// intervals.
 		new ModeColorChangerTime<Minutes>(new GeneratorColorPreset<ChooseByTime, 0, 4, Minutes>()),
@@ -252,7 +248,6 @@ namespace Wordclock
 		// creates a gradient from the left side to the right one using
 		// vibrant, random generated colors.
 		new ModeWaves<Left, 1000>(new GeneratorGradient<25>(new GeneratorRandom<0, 255, 191, 255, 65, 255, HSV>())),
-*/
 	};
 }
 #undef IMPORT_MODES
