@@ -29,6 +29,12 @@ You can set all this in the [Config.hpp file](Firmware/Wordclock/Config.hpp). Be
 ## Setup
 The display consists out off a RGB LED matrix behind a translucent plate and a plastic foil that masks the letters. In addition, the LEDs are separated by a grid so that every LED has its own lightning chamber. The LEDs are controlled by an [Arduino Nano](https://store.arduino.cc/arduino-nano). To keep better track of the time there is also a real time clock. All components are held together by a picture frame with five outlets. Four of them for the buttons and on for the power supply. All are attached at one side next to the electronic within the clock.
 
+## Changelog
+
+# v1.1
+- Convert _effects_ to _modes_
+- Cache color presets and alarms
+
 ## Uploading
 To upload the project to the Arduino Nano simply download it and open the _Wordclock_ folder within the _Firmware_ folder with the Arduino IDE. Make sure you have already installed the [FastLED library](http://fastled.io/) e.g. via the update manager and upload the program.
 
