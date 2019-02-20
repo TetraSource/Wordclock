@@ -58,18 +58,18 @@ namespace Wordclock
 		AlarmTime();
 
 		AlarmTime(
-            const uint8_t &weekday,
+			
 			const uint8_t &hour,
 			const uint8_t &minute);
 
 		AlarmTime(const AlarmTime &time);
 
-        void AlarmTime::setTo(
-            const uint8_t &weekday,
-            const uint8_t &hour,
-            const uint8_t &minute);
+		void AlarmTime::setTo(
+			const uint8_t &weekday,
+			const uint8_t &hour,
+			const uint8_t &minute);
 
-        void AlarmTime::setTo(const AlarmTime &time);
+		void AlarmTime::setTo(const AlarmTime &time);
 	};
 
 	typedef bool(*AlarmChecker)(const AlarmTime &time);
@@ -81,22 +81,22 @@ namespace Wordclock
 
 	private:
 #if ALARM_COUNT > 0
-        // alarms[i].weekdays is a bit mask
-        static AlarmTime alarms[ALARM_COUNT];
-        // currAlarm.weekdays is the id of the day (id 7 = no alarm set).
-        static AlarmTime currAlarm;
-        static bool alarm;
+		// alarms[i].weekdays is a bit mask
+		static AlarmTime alarms[ALARM_COUNT];
+		// currAlarm.weekdays is the id of the day (id 7 = no alarm set).
+		static AlarmTime currAlarm;
+		static bool alarm;
 #endif
-        static uint8_t times[7];
-        static bool saveTimeRequest;
+		static uint8_t times[7];
+		static bool saveTimeRequest;
 
 		static CRGB presets[COLOR_PRESET_COUNT];
 		static uint8_t currPresetIndex;
 
 		static ModeBase *modes[MODE_COUNT];
-        static uint8_t currMode;
+		static uint8_t currMode;
 
-        static bool repaintRequest;
+		static bool repaintRequest;
 
 		static void saveTime();
 		static void loadTime();

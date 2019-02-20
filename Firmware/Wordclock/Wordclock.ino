@@ -34,29 +34,29 @@ namespace Wordclock
 #if ALARM_COUNT > 0
 	AlarmTime::AlarmTime()
 	{
-        setTo(7, 0, 0);
-    }
+		setTo(7, 0, 0);
+	}
 
 	AlarmTime::AlarmTime(
 		const uint8_t &weekday,
 		const uint8_t &hour,
 		const uint8_t &minute)
 	{
-        setTo(weekday, hour, minute);
-    }
+		setTo(weekday, hour, minute);
+	}
 
 	AlarmTime::AlarmTime(const AlarmTime &time)
 	{
-        setTo(time.weekday, time.hour, time.minute);
-    }
+		setTo(time.weekday, time.hour, time.minute);
+	}
 
-    void AlarmTime::setTo(
-        const uint8_t &weekday,
-        const uint8_t &hour,
-        const uint8_t &minute)
-    {
-        setTo(weekday, hour, minute);
-    }
+	void AlarmTime::setTo(
+		const uint8_t &weekday,
+		const uint8_t &hour,
+		const uint8_t &minute)
+	{
+		setTo(weekday, hour, minute);
+	}
 
 	void AlarmTime::setTo(const AlarmTime &time)
 	{
@@ -65,21 +65,21 @@ namespace Wordclock
 		minute = time.minute;
 	}
 
-    AlarmTime Wordclock::alarms[ALARM_COUNT] = {};
-    AlarmTime Wordclock::currAlarm = { 0, 0, 0 };
-    bool Wordclock::alarm = false;
+	AlarmTime Wordclock::alarms[ALARM_COUNT] = {};
+	AlarmTime Wordclock::currAlarm = { 0, 0, 0 };
+	bool Wordclock::alarm = false;
 #endif
 
-    uint8_t Wordclock::times[7] = {};
-    bool Wordclock::saveTimeRequest = false;
+	uint8_t Wordclock::times[7] = {};
+	bool Wordclock::saveTimeRequest = false;
 
 	CRGB Wordclock::presets[COLOR_PRESET_COUNT] = {};
 	uint8_t Wordclock::currPresetIndex = 0;
 
-    // Wordclock::modes initialized in Config.hpp
+	// Wordclock::modes initialized in Config.hpp
 	uint8_t Wordclock::currMode = 0;
 
-    bool Wordclock::repaintRequest = false;
+	bool Wordclock::repaintRequest = false;
 
 	void Wordclock::saveTime()
 	{
@@ -140,7 +140,7 @@ namespace Wordclock
 	{
 		if (index >= COLOR_PRESET_COUNT)
 			return false;
-        presets[index] = color;
+		presets[index] = color;
 		EEPROM.put(COLOR_PRESET_INDEX + index * sizeof(CRGB), color);
 		repaint();
 		return true;
@@ -168,10 +168,10 @@ namespace Wordclock
 		if (index >= COLOR_PRESET_COUNT)
 			return false;
 		if (index != currPresetIndex) {
-            currPresetIndex = index;
-            EEPROM.write(COLOR_PRESET_INDEX_INDEX, currPresetIndex);
-            repaint();
-        }
+			currPresetIndex = index;
+			EEPROM.write(COLOR_PRESET_INDEX_INDEX, currPresetIndex);
+			repaint();
+		}
 		return true;
 	}
 
@@ -251,19 +251,19 @@ namespace Wordclock
 	}
 
 #if ALARM_COUNT > 0
-    // checks whether the newAlarm fires before the current one and sets
-    // the current one to newAlarm if it is the case.
-    // Note that newAlarm.weekday is supposed to be a bit mask.
+	// checks whether the newAlarm fires before the current one and sets
+	// the current one to newAlarm if it is the case.
+	// Note that newAlarm.weekday is supposed to be a bit mask.
 	void Wordclock::chooseSooner(AlarmTime newAlarm)
 	{
 		uint8_t weekdays = newAlarm.weekday;
 
 		for (uint8_t weekday = 0; weekday < 7; weekday++) {
 			if (weekdays & (1 << weekday)) {
-                if (currAlarm.weekday >= 7) {
-                    currAlarm.setTo(newAlarm);
-                    continue;
-                }
+				if (currAlarm.weekday >= 7) {
+					currAlarm.setTo(newAlarm);
+					continue;
+				}
 
 				int8_t weekdayNew = weekday;
 				int8_t weekdayOld = currAlarm.weekday;
@@ -280,7 +280,7 @@ namespace Wordclock
 					newAlarm.minute <= times[Minutes]))
 					weekdayNew = 7;
 				if (weekdayOld == 0 && (currAlarm.hour < times[Hours] ||
-                    currAlarm.hour == times[Hours] &&
+					currAlarm.hour == times[Hours] &&
 					currAlarm.minute <= times[Minutes]))
 					weekdayOld = 7;
 
@@ -290,8 +290,8 @@ namespace Wordclock
 						newAlarm.hour == currAlarm.hour &&
 						newAlarm.minute < currAlarm.minute)))
 				{
-                    newAlarm.weekday = weekday;
-                    currAlarm.setTo(newAlarm);
+					newAlarm.weekday = weekday;
+					currAlarm.setTo(newAlarm);
 				}
 			}
 		}
@@ -322,30 +322,30 @@ namespace Wordclock
 			return false;
 		}
 
-        // Try to stack the alarm with other ones.
-        uint8_t index = ALARM_INDEX;
+		// Try to stack the alarm with other ones.
+		uint8_t index = ALARM_INDEX;
 		for (uint8_t i = 0; i < ALARM_COUNT; i++) {
 			if (alarms[i].hour == time.hour &&
-            alarms[i].minute == time.minute) {
+			alarms[i].minute == time.minute) {
 				time.weekday |= alarms[i].weekday;
-                alarms[i].weekday = time.weekday;
-                EEPROM.put(index, time);
-                chooseSooner(alarms[i]);
+				alarms[i].weekday = time.weekday;
+				EEPROM.put(index, time);
+				chooseSooner(alarms[i]);
 				return true;
 			}
-            index += sizeof(AlarmTime);
+			index += sizeof(AlarmTime);
 		}
 
-        // Otherwise, add the alarm directly.
-        index = ALARM_INDEX;
+		// Otherwise, add the alarm directly.
+		index = ALARM_INDEX;
 		for (uint8_t i = 0; i < ALARM_COUNT; i++) {
 			if (alarms[i].weekday == 0x00) {
-                alarms[i].setTo(time);
-                EEPROM.put(index, time);
-                chooseSooner(alarms[i]);
+				alarms[i].setTo(time);
+				EEPROM.put(index, time);
+				chooseSooner(alarms[i]);
 				return true;
 			}
-            index += sizeof(AlarmTime);
+			index += sizeof(AlarmTime);
 		}
 		return false;
 	}
@@ -426,10 +426,10 @@ namespace Wordclock
 	{
 	public:
 		inline static void setup();
-        inline static void checkButtons();
-        inline static void updateTime();
-        inline static void checkTimer();
-        inline static void updateLeds();
+		inline static void checkButtons();
+		inline static void updateTime();
+		inline static void checkTimer();
+		inline static void updateLeds();
 		inline static void loop();
 	};
 
@@ -447,7 +447,7 @@ namespace Wordclock
 			Painter::leds, LED_COUNT);
 		FastLED.clear();
 
-        // init pins
+		// init pins
 		pinMode(INC_MODE_PIN, INPUT_PULLUP);
 		pinMode(DEC_MODE_PIN, INPUT_PULLUP);
 		pinMode(NEXT_MODE_PIN, INPUT_PULLUP);
@@ -464,7 +464,7 @@ namespace Wordclock
 		pinMode(LED_BUILTIN, OUTPUT);
 #endif
 
-        for (uint8_t i = 0; i <= Years; i++) {
+		for (uint8_t i = 0; i <= Years; i++) {
 			Wordclock::times[i] = 0;
 		}
 #if ALARM_COUNT > 0
@@ -473,21 +473,21 @@ namespace Wordclock
 
 #if defined(RESET_EEPROM) || defined(RESET_EEPROM_SAFELY)
 		// save data
-        Wordclock::currMode = 0;
+		Wordclock::currMode = 0;
 		EEPROM.write(MODE_INDEX, Wordclock::currMode);
-        Wordclock::currPresetIndex = 0;
+		Wordclock::currPresetIndex = 0;
 		EEPROM.write(COLOR_PRESET_INDEX_INDEX, Wordclock::currPresetIndex);
-        FastLED.setBrightness(255);
+		FastLED.setBrightness(255);
 		EEPROM.write(BRIGHTNESS_INDEX, FastLED.getBrightness());
 		{
 			CRGB defaultPresets[COLOR_PRESET_COUNT] = { DEFAULT_COLOR_PRESETS };
 
-            uint8_t index = COLOR_PRESET_INDEX;
+			uint8_t index = COLOR_PRESET_INDEX;
 			for (uint8_t i = 0; i < COLOR_PRESET_COUNT; i++) {
-                CRGB preset = defaultPresets[i];
+				CRGB preset = defaultPresets[i];
 				EEPROM.put(index, preset);
-                Wordclock::presets[i] = preset;
-                index += sizeof(AlarmTime);
+				Wordclock::presets[i] = preset;
+				index += sizeof(AlarmTime);
 			}
 		}
 #if ALARM_COUNT > 0
@@ -496,30 +496,30 @@ namespace Wordclock
 			uint8_t index = ALARM_INDEX;
 			for (uint8_t i = 0; i < ALARM_COUNT; i++) {
 				EEPROM.put(index, time);
-                Wordclock::alarms[i].setTo(time);
-                index += sizeof(AlarmTime);
+				Wordclock::alarms[i].setTo(time);
+				index += sizeof(AlarmTime);
 			}
 		}
 #endif
 #else
-        Wordclock::currMode = EEPROM.read(MODE_INDEX);
+		Wordclock::currMode = EEPROM.read(MODE_INDEX);
 		Wordclock::currPresetIndex = EEPROM.read(COLOR_PRESET_INDEX_INDEX);
 		FastLED.setBrightness(EEPROM.read(BRIGHTNESS_INDEX));
-        uint8_t index = COLOR_PRESET_INDEX;
-        for (uint8_t i = 0; i < COLOR_PRESET_COUNT; i++) {
-            CRGB color;
-            EEPROM.get(index, color);
-            Wordclock::presets[i] = color;
-            index += sizeof(CRGB);
-        }
-#if ALARM_COUNT > 0
-        index = ALARM_INDEX;
-        for (uint8_t i = 0; i < ALARM_COUNT; i++) {
-            AlarmTime time;
-            EEPROM.get(index, time);
-            Wordclock::alarms[i].setTo(time);
-            index += sizeof(AlarmTime);
-        }
+		uint8_t index = COLOR_PRESET_INDEX;
+		for (uint8_t i = 0; i < COLOR_PRESET_COUNT; i++) {
+			CRGB color;
+			EEPROM.get(index, color);
+			Wordclock::presets[i] = color;
+			index += sizeof(CRGB);
+		}
+	#if ALARM_COUNT > 0
+		index = ALARM_INDEX;
+		for (uint8_t i = 0; i < ALARM_COUNT; i++) {
+			AlarmTime time;
+			EEPROM.get(index, time);
+			Wordclock::alarms[i].setTo(time);
+			index += sizeof(AlarmTime);
+		}
 #endif
 #endif
 #ifdef RESET_EEPROM_SAFELY
@@ -537,16 +537,16 @@ namespace Wordclock
 #endif
 	}
 
-    inline void Core::checkButtons()
-    {
-        // check button lock
+	inline void Core::checkButtons()
+	{
+		// check button lock
 		static uint16_t buttonLock = 0;
 		static bool buttonsLocked = false;
 		if (buttonsLocked && ((uint16_t)(millis() - buttonLock)) >
 			BUTTON_LOCK_TIME)
 		{
 			DEBUG_OUT("ub"); // unlock buttons
-            buttonsLocked = false;
+			buttonsLocked = false;
 		}
 
 		// check buttons
@@ -554,13 +554,13 @@ namespace Wordclock
 		static bool incModePush = true, decModePush = true;
 
 		if (!buttonsLocked) {
-            bool incButton = digitalRead(INC_MODE_PIN) != incModePush;
+			bool incButton = digitalRead(INC_MODE_PIN) != incModePush;
 			if (incButton || digitalRead(DEC_MODE_PIN) != decModePush) {
 				incModePush = !incModePush;
 				if (incModePush) {
 					DEBUG_OUT("cmb"); // change mode buttons
 					buttonLock = millis();
-		            buttonsLocked = true;
+					buttonsLocked = true;
 #ifdef STOP_ALARM_ON_PRESS
 					Wordclock::setAlarm(false);
 #endif
@@ -568,28 +568,28 @@ namespace Wordclock
 				}
 			}
 			else
-            {
-                incButton = digitalRead(NEXT_MODE_PIN) != nextModePush;
-                if (incButton || digitalRead(PREV_MODE_PIN) != prevModePush) {
-                    nextModePush = !nextModePush;
-                    if (nextModePush) {
-                        DEBUG_OUT("mb"); // mode buttons
-                        buttonLock = millis();
-		                buttonsLocked = true;
+			{
+				incButton = digitalRead(NEXT_MODE_PIN) != nextModePush;
+				if (incButton || digitalRead(PREV_MODE_PIN) != prevModePush) {
+					nextModePush = !nextModePush;
+					if (nextModePush) {
+						DEBUG_OUT("mb"); // mode buttons
+						buttonLock = millis();
+						buttonsLocked = true;
 #ifdef STOP_ALARM_ON_PRESS
-                        Wordclock::setAlarm(false);
+						Wordclock::setAlarm(false);
 #endif
-                        Wordclock::setMode(Utilities::changeValue(
-                            Wordclock::currMode, MODE_COUNT, incButton));
-                    }
-                }
+						Wordclock::setMode(Utilities::changeValue(
+							Wordclock::currMode, MODE_COUNT, incButton));
+					}
+				}
 			}
 		}
-    }
+	}
 
-    inline void Core::updateTime()
-    {
-        if (Wordclock::saveTimeRequest) {
+	inline void Core::updateTime()
+	{
+		if (Wordclock::saveTimeRequest) {
 			Wordclock::saveTimeRequest = false;
 			Wordclock::saveTime();
 		}
@@ -664,11 +664,11 @@ namespace Wordclock
 		Serial.println(Wordclock::times[0]);
 #endif
 */
-    }
+	}
 
-    inline void Core::checkTimer()
-    {
-        if (ModeBase::updateTime != 0
+	inline void Core::checkTimer()
+	{
+		if (ModeBase::updateTime != 0
 			&& ((uint32_t)(millis() - ModeBase::updateThreshold))
 			> ModeBase::updateTime)
 		{
@@ -676,11 +676,11 @@ namespace Wordclock
 			DEBUG_OUT("um"); // update mode
 			Wordclock::modes[Wordclock::currMode]->timer();
 		}
-    }
+	}
 
-    inline void Core::updateLeds()
-    {
-        if (Wordclock::repaintRequest) {
+	inline void Core::updateLeds()
+	{
+		if (Wordclock::repaintRequest) {
 			Wordclock::repaintRequest = false;
 			DEBUG_OUT("rp"); // repaint
 			Painter::setColor(Wordclock::getCurrentPreset());
@@ -689,16 +689,16 @@ namespace Wordclock
 			Painter::arrange();
 			FastLED.show();
 		}
-    }
+	}
 
 	inline void Core::loop()
 	{
 #ifndef RESET_EEPROM_SAFELY
 		DEBUG_OUT("\nl"); // loop
 		checkButtons();
-        updateTime();
-        checkTimer();
-        updateLeds();
+		updateTime();
+		checkTimer();
+		updateLeds();
 #endif
 	}
 }
