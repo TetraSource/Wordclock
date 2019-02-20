@@ -31,7 +31,7 @@ The display consists out off a RGB LED matrix behind a translucent plate and a p
 
 ## Changelog
 
-# v1.1
+### v1.1
 - Convert _effects_ to _modes_
 - Cache color presets and alarms
 
