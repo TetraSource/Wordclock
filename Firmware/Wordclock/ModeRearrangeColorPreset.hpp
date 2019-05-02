@@ -13,8 +13,9 @@ namespace Wordclock
 	};
 
 	/// allows manual changing of the order of the current color preset.
-	/// @tparam letter - the letter that represents the mode.
-	template <char letter>
+	/// @tparam letter the position of the letter that represents the mode,
+	///                calculated by the POINT macro.
+	template <uint8_t letter>
 	class ModeRearrangeColorPreset : public ModeRearrangeColorPresetBase
 	{
 	public:
@@ -23,7 +24,7 @@ namespace Wordclock
 
 	// implementation //
 
-	template <char letter>
+	template <uint8_t letter>
 	void ModeRearrangeColorPreset<letter>::paint()
 	{
 		Utilities::printNumber(Wordclock::getColorPresetIndex() + 1);

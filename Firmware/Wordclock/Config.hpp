@@ -37,40 +37,35 @@
 
 // The sum of all LED stripes that form the display
 #define LED_COUNT    110
-// The length of a LED stripe
+// The length of a horizontal row that text is displayed alongside.
 #define ROW_LENGTH    11
-// Should exists if the LED stripes are laid vertically.
-// This mode hasn't been tested yet!
-//#define VERTICAL_STRIPES
-// Turns the displayed by 180 degree if this setting exists.
-//#define UPSIDE_DOWN
-// Mirrors the display horizontally if this setting exists.
-//#define MIRROR
-// This setting should exists when the LED stripes change their direction
-// in each new row so that they run conversely always.
-#define CHANGE_DIRECTION
+// The length of a vertical row is the LED_COUNT divided by the ROW_LENGTH
 
-// protects this section from being loaded into wrong code sections
-#ifdef IMPORT_LETTERS
-#undef IMPORT_LETTERS
+// Macro for calculating the virutal led position
+// of a point with the coord (x, y). Note that (0, 0)
+// specifies the top left point.
+#define POINT(x, y) (x + y * ROW_LENGTH)
+#define NO_POINT (LED_COUNT+1)
+
+// protect this section from being loaded into wrong code sections
+#ifdef IMPORT_LAYOUT
+#undef IMPORT_LAYOUT
 namespace Wordclock
 {
-	// Order of the LEDs on the display. This must always be arranged
-	// horizontally (like here) even if the stripes are installed vertically.
-	// Please replace non-ASCII letters by \0.
-	const char letters[LED_COUNT] = {
-#if LANGUAGE == 1
-		'E', 'S', 'K', 'I', 'S', 'T', 'L', 'F', '\0', 'N', 'F',
-		'Z', 'E', 'H', 'N', 'Z', 'W', 'A', 'N', 'Z', 'I', 'G',
-		'D', 'R', 'E', 'I', 'V', 'I', 'E', 'R', 'T', 'E', 'L',
-		'T', 'G', 'N', 'A', 'C', 'H', 'V', 'O', 'R', 'J', 'M',
-		'H', 'A', 'L', 'B', 'X', 'Z', 'W', '\0', 'L', 'F', 'P',
-		'Z', 'W', 'E', 'I', 'N', 'S', 'I', 'E', 'B', 'E', 'N',
-		'K', 'D', 'R', 'E', 'I', 'R', 'H', 'F', '\0', 'N', 'F',
-		'E', 'L', 'F', 'N', 'E', 'U', 'N', 'V', 'I', 'E', 'R',
-		'W', 'A', 'C', 'H', 'T', 'Z', 'E', 'H', 'N', 'R', 'S',
-		'B', 'S', 'E', 'C', 'H', 'S', 'F', 'M', 'U', 'H', 'R',
-#endif
+	// The array specifies the arrangement of the LEDs. It maps each virtual
+	// position of a LED onto its physical position. The virtual position is
+	// calculated by the macro POINT above.
+	const uint8_t arrangement[LED_COUNT] = {
+		0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+		21, 20, 19, 18, 17, 16, 15, 14, 13, 12, 11,
+		22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32,
+		43, 42, 41, 40, 39, 38, 37, 36, 35, 34, 33,
+		44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54,
+		65, 64, 63, 62, 61, 60, 59, 58, 57, 56, 55,
+		66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76,
+		87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77,
+		88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98,
+		109, 108, 107, 106, 105, 104, 103, 102, 101, 100, 99,
 	};
 }
 #endif
@@ -190,31 +185,33 @@ CRGB(CRGB::DarkGreen), \
 #else
 #define ALARM_MODES_ 0
 #endif
-#define MODE_COUNT 23 + ALARM_MODES_
+#define MODE_COUNT 3 + ALARM_MODES_ // 23
 #ifdef IMPORT_MODES
 namespace Wordclock
 {
 	ModeBase* Wordclock::modes[MODE_COUNT] = {
-		new ModeDefault<' '>(), // Don't move this mode to another index.
-		new ModeTime<'W', Weekdays>(),
-		new ModeTime<'H', Hours>(),
-		new ModeTime<'M', Minutes>(),
-		new ModeTime<'S', Seconds>(),
-		new ModeColorPreset<'P'>(),
-		new ModeRearrangeColorPreset<'J'>(),
-		new ModeBrightness<'X', 5>(),
-		new ModeRGB<'R', Red, 20>(),
-		new ModeRGB<'G', Green, 20>(),
-		new ModeRGB<'B', Blue, 20>(),
-		new ModeHSV<'H', Hue, 20>(),
-		new ModeHSV<'S', Saturation, 20>(),
-		new ModeHSV<'V', Value, 20>(),
+		new ModeDefault<NO_POINT>(), // Don't move this mode to another index.
+		/*
+		new ModeTime<POINT(5, 1), Weekdays>(), // letter is W
+		new ModeTime<POINT(2, 1), Hours>(), // letter is H
+		new ModeTime<POINT(7, 10), Minutes>(), // letter is M
+		new ModeTime<POINT(1, 0), Seconds>(), // letter is S
+		new ModeColorPreset<POINT(2, 9)>(), // letter is C
+		new ModeRearrangeColorPreset<POINT(9, 3)>(), // letter is J
+		new ModeBrightness<POINT(8, 1), 5>(), // letter is Z
+		new ModeRGB<POINT(0, 10), Red, 20>(), // letter is R
+		new ModeRGB<POINT(10, 1), Green, 20>(), // letter is G
+		new ModeRGB<POINT(10, 10), Blue, 20>(), // letter is B
+		new ModeHSV<POINT(5, 5), Hue, 20>(), // letter is H
+		new ModeHSV<POINT(5, 3), Saturation, 20>(), // letter is S
+		new ModeHSV<POINT(4, 2), Value, 20>(), // letter is V
+		*/
 #if ALARM_COUNT > 0
-		new ModeAlarm<'W', AlarmWeekday>(),
-		new ModeAlarm<'H', AlarmHour>(),
-		new ModeAlarm<'M', AlarmMinute>(),
-		new ModeAlarm<'A', SetAlarm>(),
-		new ModeListAlarms<'V'>(),
+		new ModeAlarm<POINT(0, 8), AlarmWeekday>(), // letter is W
+		new ModeAlarm<POINT(4, 10), AlarmHour>(), // letter is H
+		new ModeAlarm<POINT(7, 10), AlarmMinute>(), // letter is M
+		new ModeAlarm<POINT(1, 8), SetAlarm>(), // letter is A
+		new ModeListAlarms<POINT(1, 7)>(), // letter is L
 #endif
 		// uses the first five colors to show the time in five minute
 		// intervals.
@@ -230,10 +227,10 @@ namespace Wordclock
 
 		// lets pixels fly quickly from the top, bottom and right side of the
 		// display to the opposite ones.
-		new ModeFlyingPixels<(1 << Top) | (1 << Bottom) | (1 << Right), 200, 1, 5, 0, 12>(new GeneratorColorPreset<ChooseRandom>()),
+		new ModeFlyingPixels<DIR_ITEM(Top, DIR_ITEM(Bottom, DIR_ITEM(Right, 0))), 200, 1, 5, 0, 12>(new GeneratorColorPreset<ChooseRandom>()),
 
 		// The matrix!
-		new ModeFlyingPixels<(1 << Top), 250, 3, 5, 20, 20>(new GeneratorStatic<0, 255, 0, RGB>()),
+		new ModeFlyingPixels<DIR_ITEM(Top, 0), 150, 3, 5, 30, 40>(new GeneratorStatic<0, 255, 0, RGB>()),
 
 		// turns on pixels around activated ones to let them appear glowing.
 		new ModeGlowing<2>(),

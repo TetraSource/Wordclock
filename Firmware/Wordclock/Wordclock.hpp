@@ -23,6 +23,11 @@ Serial.print("\t"); Serial.println(c.b)
 #define ALARM_INDEX COLOR_PRESET_INDEX + COLOR_PRESET_COUNT * sizeof(CRGB)
 #define LAST_INDEX ALARM_INDEX + ALARM_COUNT * sizeof(AlarmTime)
 
+// allows to specify a collection of directions
+// e.g DIR_ITEM(Center, 0) just contains the center
+//     DIR_ITEM(Right, DIR_ITEM(Left, 0)) contains the left and right side
+#define DIR_ITEM(dir, list) ((1 << dir) | list)
+
 namespace Wordclock
 {
 	/// specifies the direction for pixel movements.

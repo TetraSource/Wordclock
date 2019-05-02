@@ -64,6 +64,13 @@ namespace Wordclock
 		static void paintAll();
 
 		/// Paints the specified pixel with the current color.
+		/// The position is the virtual position of the LED on the stripe.
+		/// You can obtain it by using the POINT macro.
+		/// @param x - the x coordinate of the pixel
+		/// @param y - the y coordinate of the pixel
+		static void paint(const uint8_t &position);
+
+		/// Paints the specified pixel with the current color.
 		/// The top left pixel has the coordinate (0, 0).
 		/// @param x - the x coordinate of the pixel
 		/// @param y - the y coordinate of the pixel
@@ -79,13 +86,6 @@ namespace Wordclock
 		static void paint(
 			const uint8_t &x, const uint8_t &y,
 			const uint8_t &w, const uint8_t &h = 1);
-
-		/// Tries to paint a pixel with the specified letter.
-		/// Letters without neighbours a prefered.
-		/// This operation might fail.
-		/// @param letter - the letter that ought to be illuminated.
-		/// @returns - whether an appropriate pixel was found and painted.
-		static bool paint(const char &letter);
 
 		/// returns true when both colors are (almost) equal.
 		/// @param c0 - the first color

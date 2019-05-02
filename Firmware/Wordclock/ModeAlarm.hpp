@@ -28,9 +28,10 @@ namespace Wordclock
 	};
 
 	/// allows to set and remove alarms manually.
-	/// @tparam letter the letter that represents the mode.
+	/// @tparam letter the position of the letter that represents the mode,
+	///                calculated by the POINT macro.
 	/// @tparam type the element that is set by the mode.
-	template <char letter, ModeAlarmTypes type>
+	template <uint8_t letter, ModeAlarmTypes type>
 	class ModeAlarm : public ModeAlarmBase
 	{
 	public:
@@ -41,7 +42,7 @@ namespace Wordclock
 
 	// implementation //
 
-	template <char letter, ModeAlarmTypes type>
+	template <uint8_t letter, ModeAlarmTypes type>
 	void ModeAlarm<letter, type>::increment(const bool &inc)
 	{
 		switch (type)
@@ -74,7 +75,7 @@ namespace Wordclock
 		Wordclock::repaint();
 	}
 
-	template <char letter, ModeAlarmTypes type>
+	template <uint8_t letter, ModeAlarmTypes type>
 	void ModeAlarm<letter, type>::paint()
 	{
 		switch (type)

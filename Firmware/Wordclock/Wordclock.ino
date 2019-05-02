@@ -686,7 +686,6 @@ namespace Wordclock
 			Painter::setColor(Wordclock::getCurrentPreset());
 			FastLED.clear();
 			Wordclock::modes[Wordclock::currMode]->paint();
-			Painter::arrange();
 			FastLED.show();
 		}
 	}

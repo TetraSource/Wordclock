@@ -7,10 +7,11 @@
 namespace Wordclock
 {
 	/// allows to set the brightness of all LEDs gradually.
-	/// @tparam letter - the letter that represents the mode.
+	/// @tparam letter the position of the letter that represents the mode,
+	///                calculated by the POINT macro.
 	/// @tparam levelCount - the count of grades of brightness the user
 	///                      can choose from.
-	template <char letter, uint8_t levelCount>
+	template <uint8_t letter, uint8_t levelCount>
 	class ModeBrightness : public ModeBase
 	{
 	public:
@@ -21,14 +22,14 @@ namespace Wordclock
 
 	// implementation //
 
-	template <char letter, uint8_t levelCount>
+	template <uint8_t letter, uint8_t levelCount>
 	void ModeBrightness<letter, levelCount>::increment(const bool &inc)
 	{
 		Wordclock::setBrightness(Utilities::changeLevel(
 			Wordclock::getBrightness(), levelCount, inc));
 	}
 
-	template <char letter, uint8_t levelCount>
+	template <uint8_t letter, uint8_t levelCount>
 	void ModeBrightness<letter, levelCount>::paint()
 	{
 		Utilities::printTime();

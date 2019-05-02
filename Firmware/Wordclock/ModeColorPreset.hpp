@@ -13,8 +13,9 @@ namespace Wordclock
 	};
 
 	/// allows manual choice of current color preset.
-	/// @tparam letter - the letter that represents the mode.
-	template <char letter>
+	/// @tparam letter the position of the letter that represents the mode,
+	///                calculated by the POINT macro.
+	template <uint8_t letter>
 	class ModeColorPreset : public ModeColorPresetBase
 	{
 	public:
@@ -23,7 +24,7 @@ namespace Wordclock
 
 	// implementation //
 
-	template <char letter>
+	template <uint8_t letter>
 	void ModeColorPreset<letter>::paint()
 	{
 		Utilities::printNumber(Wordclock::getColorPresetIndex() + 1);

@@ -25,8 +25,9 @@ namespace Wordclock
 	};
 
 	/// allows to view all set alarms.
-	/// @tparam letter - the letter that represents the mode.
-	template <char letter>
+	/// @tparam letter the position of the letter that represents the mode,
+	///                calculated by the POINT macro.
+	template <uint8_t letter>
 	class ModeListAlarms : public ModeListAlarmsBase
 	{
 	public:
@@ -35,7 +36,7 @@ namespace Wordclock
 
 	// implementation //
 
-	template <char letter>
+	template <uint8_t letter>
 	void ModeListAlarms<letter>::paint()
 	{
 		if (time.weekday > 6) {

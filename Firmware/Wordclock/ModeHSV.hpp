@@ -26,11 +26,12 @@ namespace Wordclock
 
 	/// allows to manipulate the HSV amounts of the current color preset
 	/// manually.
-	/// @tparam letter - the letter that represents the mode.
+	/// @tparam letter the position of the letter that represents the mode,
+	///                calculated by the POINT macro.
 	/// @tparam value - the element of the color that the mode changes.
 	/// @tparam levelCount - the count of grades the user can change the
 	/// color values by.
-	template <char letter, HSVColorValues value, uint8_t levelCount>
+	template <uint8_t letter, HSVColorValues value, uint8_t levelCount>
 	class ModeHSV : public ModeHSVBase
 	{
 	public:
@@ -41,7 +42,7 @@ namespace Wordclock
 
 	// implementation //
 
-	template <char letter, HSVColorValues value, uint8_t levelCount>
+	template <uint8_t letter, HSVColorValues value, uint8_t levelCount>
 	void ModeHSV<letter, value, levelCount>::increment(const bool &inc)
 	{
 		uint8_t* colorArray = (uint8_t*)&curr;
@@ -52,7 +53,7 @@ namespace Wordclock
 		Wordclock::setColorPreset(Wordclock::getColorPresetIndex(), result);
 	}
 
-	template <char letter, HSVColorValues value, uint8_t levelCount>
+	template <uint8_t letter, HSVColorValues value, uint8_t levelCount>
 	void ModeHSV<letter, value, levelCount>::paint()
 	{
 		Utilities::printTime();

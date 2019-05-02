@@ -15,9 +15,10 @@ namespace Wordclock
 
 
 	/// allows manual setting of the time.
-	/// @tparam letter - the letter that represents the mode.
+	/// @tparam letter the position of the letter that represents the mode,
+	///                calculated by the POINT macro.
 	/// @tparam timeType - the time element that is manipulated by the mode.
-	template <char letter, TimeTypes timeType>
+	template <uint8_t letter, TimeTypes timeType>
 	class ModeTime : public ModeTimeBase
 	{
 	public:
@@ -32,14 +33,14 @@ namespace Wordclock
 
 	// implementation //
 
-	template <char letter, TimeTypes timeType>
+	template <uint8_t letter, TimeTypes timeType>
 	void ModeTime<letter, timeType>::select()
 	{
 		newTime = Wordclock::getTime(timeType);
 		changed = false;
 	}
 
-	template <char letter, TimeTypes timeType>
+	template <uint8_t letter, TimeTypes timeType>
 	void ModeTime<letter, timeType>::deselect()
 	{
 		if (changed) {
@@ -47,7 +48,7 @@ namespace Wordclock
 		}
 	}
 
-	template <char letter, TimeTypes timeType>
+	template <uint8_t letter, TimeTypes timeType>
 	void ModeTime<letter, timeType>::increment(const bool &inc)
 	{
 		changed = true;
@@ -56,7 +57,7 @@ namespace Wordclock
 		Wordclock::repaint();
 	}
 
-	template <char letter, TimeTypes timeType>
+	template <uint8_t letter, TimeTypes timeType>
 	void ModeTime<letter, timeType>::paint()
 	{
 		Utilities::printNumber(

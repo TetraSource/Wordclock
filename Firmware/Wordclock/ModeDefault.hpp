@@ -7,8 +7,9 @@
 namespace Wordclock
 {
 	/// The default mode that doesn't allow to do anything.
-	/// @tparam letter - the letter that represents the mode.
-	template <char letter>
+	/// @tparam letter the position of the letter that represents the mode,
+	///                calculated by the POINT macro.
+	template <uint8_t letter>
 	class ModeDefault : public ModeBase
 	{
 	public:
@@ -17,7 +18,7 @@ namespace Wordclock
 
 	// implementation //
 
-	template <char letter>
+	template <uint8_t letter>
 	void ModeDefault<letter>::paint()
 	{
 		Utilities::printTime();
