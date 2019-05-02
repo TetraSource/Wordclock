@@ -191,7 +191,6 @@ namespace Wordclock
 {
 	ModeBase* Wordclock::modes[MODE_COUNT] = {
 		new ModeDefault<NO_POINT>(), // Don't move this mode to another index.
-		/*
 		new ModeTime<POINT(5, 1), Weekdays>(), // letter is W
 		new ModeTime<POINT(2, 1), Hours>(), // letter is H
 		new ModeTime<POINT(7, 10), Minutes>(), // letter is M
@@ -205,7 +204,6 @@ namespace Wordclock
 		new ModeHSV<POINT(5, 5), Hue, 20>(), // letter is H
 		new ModeHSV<POINT(5, 3), Saturation, 20>(), // letter is S
 		new ModeHSV<POINT(4, 2), Value, 20>(), // letter is V
-		*/
 #if ALARM_COUNT > 0
 		new ModeAlarm<POINT(0, 8), AlarmWeekday>(), // letter is W
 		new ModeAlarm<POINT(4, 10), AlarmHour>(), // letter is H
@@ -229,8 +227,8 @@ namespace Wordclock
 		// display to the opposite ones.
 		new ModeFlyingPixels<DIR_ITEM(Top, DIR_ITEM(Bottom, DIR_ITEM(Right, 0))), 200, 1, 5, 0, 12>(new GeneratorColorPreset<ChooseRandom>()),
 
-		// The matrix!
-		new ModeFlyingPixels<DIR_ITEM(Top, 0), 150, 3, 5, 30, 40>(new GeneratorStatic<0, 255, 0, RGB>()),
+		// The Matrix!
+		new ModeFlyingPixels<DIR_ITEM(Top, 0), 175, 3, 5, 30, 40>(new GeneratorStatic<0, 255, 0, RGB>()),
 
 		// turns on pixels around activated ones to let them appear glowing.
 		new ModeGlowing<2>(),

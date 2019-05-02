@@ -107,10 +107,8 @@ namespace Wordclock
 			}
 		}
 
-		if (count < maxPixelCount &&
-			((minPixelCount == maxPixelCount && count < maxPixelCount)
-				|| (minPixelCount < maxPixelCount &&
-				random(minPixelCount, maxPixelCount + 1) >= count))) {
+		while (count < maxPixelCount && (count < minPixelCount ||
+				random(minPixelCount, maxPixelCount + 1) > count)) {
 
 			ModeFlyingPixels::FlyingPixel* pixel = &pixels[count++];
 
