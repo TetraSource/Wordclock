@@ -556,8 +556,11 @@ namespace Wordclock
 		if (!buttonsLocked) {
 			bool incButton = digitalRead(INC_MODE_PIN) != incModePush;
 			if (incButton || digitalRead(DEC_MODE_PIN) != decModePush) {
-				incModePush = !incModePush;
-				if (incModePush) {
+				if (incButton)
+					incModePush = !incModePush;
+				else
+					decModePush = !decModePush;
+				if (incModePush && decModePush) {
 					DEBUG_OUT("cmb"); // change mode buttons
 					buttonLock = millis();
 					buttonsLocked = true;
@@ -571,8 +574,11 @@ namespace Wordclock
 			{
 				incButton = digitalRead(NEXT_MODE_PIN) != nextModePush;
 				if (incButton || digitalRead(PREV_MODE_PIN) != prevModePush) {
-					nextModePush = !nextModePush;
-					if (nextModePush) {
+					if (incButton)
+						nextModePush = !nextModePush;
+					else
+						prevModePush = !prevModePush;
+					if (nextModePush && prevModePush) {
 						DEBUG_OUT("mb"); // mode buttons
 						buttonLock = millis();
 						buttonsLocked = true;

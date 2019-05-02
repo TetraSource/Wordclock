@@ -185,7 +185,7 @@ CRGB(CRGB::DarkGreen), \
 #else
 #define ALARM_MODES_ 0
 #endif
-#define MODE_COUNT 3 + ALARM_MODES_ // 23
+#define MODE_COUNT 23 + ALARM_MODES_
 #ifdef IMPORT_MODES
 namespace Wordclock
 {
@@ -193,22 +193,22 @@ namespace Wordclock
 		new ModeDefault<NO_POINT>(), // Don't move this mode to another index.
 		new ModeTime<POINT(5, 1), Weekdays>(), // letter is W
 		new ModeTime<POINT(2, 1), Hours>(), // letter is H
-		new ModeTime<POINT(7, 10), Minutes>(), // letter is M
+		new ModeTime<POINT(7, 9), Minutes>(), // letter is M
 		new ModeTime<POINT(1, 0), Seconds>(), // letter is S
-		new ModeColorPreset<POINT(2, 9)>(), // letter is C
+		new ModeColorPreset<POINT(3, 9)>(), // letter is C
 		new ModeRearrangeColorPreset<POINT(9, 3)>(), // letter is J
 		new ModeBrightness<POINT(8, 1), 5>(), // letter is Z
-		new ModeRGB<POINT(0, 10), Red, 20>(), // letter is R
+		new ModeRGB<POINT(0, 9), Red, 20>(), // letter is R
 		new ModeRGB<POINT(10, 1), Green, 20>(), // letter is G
-		new ModeRGB<POINT(10, 10), Blue, 20>(), // letter is B
+		new ModeRGB<POINT(10, 9), Blue, 20>(), // letter is B
 		new ModeHSV<POINT(5, 5), Hue, 20>(), // letter is H
 		new ModeHSV<POINT(5, 3), Saturation, 20>(), // letter is S
 		new ModeHSV<POINT(4, 2), Value, 20>(), // letter is V
 #if ALARM_COUNT > 0
-		new ModeAlarm<POINT(0, 8), AlarmWeekday>(), // letter is W
-		new ModeAlarm<POINT(4, 10), AlarmHour>(), // letter is H
-		new ModeAlarm<POINT(7, 10), AlarmMinute>(), // letter is M
-		new ModeAlarm<POINT(1, 8), SetAlarm>(), // letter is A
+		new ModeAlarm<POINT(5, 1), AlarmWeekday>(), // letter is W
+		new ModeAlarm<POINT(1, 9), AlarmHour>(), // letter is H
+		new ModeAlarm<POINT(7, 9), AlarmMinute>(), // letter is M
+		new ModeAlarm<POINT(6, 1), SetAlarm>(), // letter is A
 		new ModeListAlarms<POINT(1, 7)>(), // letter is L
 #endif
 		// uses the first five colors to show the time in five minute
