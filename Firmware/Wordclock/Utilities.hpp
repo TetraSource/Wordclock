@@ -43,7 +43,7 @@ namespace Wordclock
 		/// marks the current time on the display (with "ES IST").
 		static void printTime();
 
-		/// marks a on digit number with the size of 7*5 at some position on
+		/// marks a digit with the size of 7*5 at some position on
 		/// the display.
 		/// @param number - the number to be marked.
 		/// @param x - the x coordinate of the number.
@@ -53,9 +53,13 @@ namespace Wordclock
 			const uint8_t &x,
 			const uint8_t &y);
 
-		/// marks a two digit number on the display.
+		/// marks a two digit decimal number on the display.
 		/// @param number - the number to be marked.
 		static void printNumber(const uint8_t &number);
+
+		/// marks a two digit hexadecimal number on the display.
+		/// @param number - the number to be marked.
+		static void printHex(const uint8_t &number);
 
 		/// either marks an arrow or an cross depending on the input.
 		/// @param answer - whether to use an arrow or not.

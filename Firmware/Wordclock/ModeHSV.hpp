@@ -56,7 +56,8 @@ namespace Wordclock
 	template <uint8_t letter, HSVColorValues value, uint8_t levelCount>
 	void ModeHSV<letter, value, levelCount>::paint()
 	{
-		Utilities::printTime();
+		uint8_t* colorArray = (uint8_t*)&curr;
+		Utilities::printHex(colorArray[value]);
 
 #ifdef SHOW_MODE
 		Painter::paint(letter);

@@ -203,7 +203,7 @@ namespace Wordclock
 		new ModeRGB<POINT(10, 9), Blue, 20>(), // letter is B
 		new ModeHSV<POINT(5, 5), Hue, 20>(), // letter is H
 		new ModeHSV<POINT(5, 3), Saturation, 20>(), // letter is S
-		new ModeHSV<POINT(4, 2), Value, 20>(), // letter is V
+		new ModeHSV<POINT(7, 7), Value, 20>(), // letter is V
 #if ALARM_COUNT > 0
 		new ModeAlarm<POINT(5, 1), AlarmWeekday>(), // letter is W
 		new ModeAlarm<POINT(1, 9), AlarmHour>(), // letter is H

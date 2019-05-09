@@ -39,7 +39,8 @@ namespace Wordclock
 	template <uint8_t letter, RGBColorValues value, uint8_t levelCount>
 	void ModeRGB<letter, value, levelCount>::paint()
 	{
-		Utilities::printTime();
+		Utilities::printHex(Wordclock::getColorPreset(
+			Wordclock::getColorPresetIndex()));
 
 #ifdef SHOW_MODE
 		Painter::paint(letter);

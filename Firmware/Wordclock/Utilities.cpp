@@ -203,11 +203,47 @@ namespace Wordclock
 			Painter::paint(x + 3, y + 5);
 			Painter::paint(x + 1, y + 6, 2);
 		}
-		else { // Invalid number. Show an "E"
-			Painter::paint(x + 0, y + 0, 1, 7);
-			Painter::paint(x + 1, y + 0, 4);
+		else if (number == 10) {
+			Painter::paint(x + 2, y + 0);
+			Painter::paint(x + 1, y + 1);
+			Painter::paint(x + 0, y + 2, 1, 5);
+			Painter::paint(x + 4, y + 2, 1, 5);
+			Painter::paint(x + 1, y + 3, 3);
+		}
+		else if (number == 11) {
+			Painter::paint(x + 0, y + 1, 3);
+			Painter::paint(x + 0, y + 1, 1, 5);
+			Painter::paint(x + 3, y + 1, 1, 2);
+			Painter::paint(x + 1, y + 3, 3);
+			Painter::paint(x + 4, y + 4, 1, 2);
+			Painter::paint(x + 0, y + 6, 4);
+		}
+		else if (number == 12) {
+			Painter::paint(x + 1, y + 0, 3);
+			Painter::paint(x + 0, y + 1, 1, 5);
+			Painter::paint(x + 1, y + 6, 3);
+			Painter::paint(x + 4, y + 1);
+			Painter::paint(x + 4, y + 5);
+		}
+		else if (number == 13) {
+			Painter::paint(x + 0, y + 0, 4);
+			Painter::paint(x + 0, y + 1, 1, 5);
+			Painter::paint(x + 0, y + 6, 4);
+			Painter::paint(x + 4, y + 1, 1, 5);
+		}
+		else if (number == 14) {
+			Painter::paint(x + 0, y + 1, 1, 5);
+			Painter::paint(x + 0, y + 0, 5);
 			Painter::paint(x + 1, y + 3, 4);
-			Painter::paint(x + 1, y + 6, 4);
+			Painter::paint(x + 0, y + 6, 5);
+		}
+		else if (number == 15) {
+			Painter::paint(x + 0, y + 1, 1, 6);
+			Painter::paint(x + 0, y + 0, 5);
+			Painter::paint(x + 1, y + 3, 4);
+		}
+		else { // Invalid number. Print an "-"
+			Painter::paint(x + 1, y + 3, 3);
 		}
 	}
 
@@ -215,6 +251,12 @@ namespace Wordclock
 	{
 		Utilities::printNumber((number / 10) % 10, 0, 2);
 		Utilities::printNumber(number % 10, 6, 2);
+	}
+
+	void Utilities::printHex(const uint8_t &number)
+	{
+		Utilities::printNumber((number >> 4) % 16, 0, 2);
+		Utilities::printNumber(number % 16, 6, 2);
 	}
 
 	void Utilities::printAnswere(const bool &answer)
