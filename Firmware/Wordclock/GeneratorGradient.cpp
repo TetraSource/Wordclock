@@ -28,7 +28,7 @@ namespace Wordclock
 			select();
 		lastGen = gen;
 
-		static uint16_t rVec = 0, gVec = 0, rVec = 0;
+		static int16_t rVec = 0, gVec = 0, bVec = 0;
 		while (rep == 0) {
 			CRGB color = gen->nextColor();
 			rVec = (color.r << 7) - rVal;
