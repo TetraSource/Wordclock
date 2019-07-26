@@ -216,7 +216,7 @@ namespace Wordclock
 		new ModeColorChangerTime<Minutes>(new GeneratorColorPreset<ChooseByTime, 0, 4, Minutes>()),
 
 		// uses a timer and a gradient to generate a fader.
-		new ModeColorChangerTimer<250>(new GeneratorGradient<2>(new GeneratorColorPreset<ChooseNext>())),
+		new ModeColorChangerTimer<250>(new GeneratorGradient<150>(new GeneratorColorPreset<ChooseNext>())),
 
 		// fills the display from the bottom to the top to show the advancing
 		// of every minute.
@@ -242,7 +242,7 @@ namespace Wordclock
 
 		// creates a gradient from the left side to the right one using
 		// vibrant, random generated colors.
-		new ModeWaves<Left, 1000>(new GeneratorGradient<25>(new GeneratorRandom<0, 255, 191, 255, 65, 255, HSV>())),
+		new ModeWaves<Left, 1000>(new GeneratorGradient<220>(new GeneratorRandom<0, 255, 191, 255, 65, 255, HSV>())),
 	};
 }
 #undef IMPORT_MODES

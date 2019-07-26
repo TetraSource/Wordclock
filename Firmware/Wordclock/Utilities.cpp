@@ -255,8 +255,8 @@ namespace Wordclock
 
 	void Utilities::printHex(const uint8_t &number)
 	{
-		Utilities::printNumber((number >> 4) % 16, 0, 2);
-		Utilities::printNumber(number % 16, 6, 2);
+		Utilities::printNumber((number >> 4) & 0xf, 0, 2);
+		Utilities::printNumber(number & 0xf, 6, 2);
 	}
 
 	void Utilities::printAnswere(const bool &answer)

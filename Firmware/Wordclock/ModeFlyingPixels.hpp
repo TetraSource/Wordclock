@@ -12,16 +12,16 @@ namespace Wordclock
 	protected:
 		struct FlyingPixel
 		{
-			/// position of the axis alongside which the pixel moves.
-			int8_t axisPos;
-			/// position of the pixel on the axis.
-			int8_t pos;
-			/// tail length
-			uint8_t len;
-			/// direction
-			uint8_t dir;
 			/// color of the head of the pixel
 			CRGB color;
+			/// position of the axis alongside which the pixel moves.
+			int8_t axisPos : 5;
+			/// position of the pixel on the axis.
+			int8_t pos : 5;
+			/// tail length
+			uint8_t len: 4;
+			/// direction of pixel
+			Directions dir : 2;
 		};
 
 		static FlyingPixel* pixels;
