@@ -6,6 +6,10 @@ namespace Wordclock
 	CHSV ModeHSVBase::curr = { 0, 0, 0 };
 	CRGB ModeHSVBase::result = { 0, 0, 0 };
 
+	ModeHSVBase::ModeHSVBase()
+		: ModeBase()
+	{}
+
 	void ModeHSVBase::select()
 	{
 		if (isInTransition()) {

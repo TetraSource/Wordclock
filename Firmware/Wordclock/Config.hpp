@@ -117,7 +117,7 @@ namespace Wordclock
 
 // Resets the EEPROM whenever the Wordclock is powered using the
 // default values.
-#define RESET_EEPROM
+//#define RESET_EEPROM
 
 // Initialising the EEPROM might require more RAM than the normal operational
 // Wordclock status. When you think, reseting the EEPROM might crash the
@@ -205,19 +205,17 @@ CRGB(CRGB::DarkGreen), \
 // RESET THE EEPROM IF YOU CHANGE IT!
 namespace Wordclock
 {
-	const uint8_t Wordclock::modeCount = 23;
+	const uint8_t Wordclock::modeCount = 9; // 21
 	const ModeBase *Wordclock::modes[Wordclock::modeCount] = {
 		new ModeWordclock(),
-		new ModeTime<Weekdays>(),
 		new ModeTime<Hours>(),
 		new ModeTime<Minutes>(),
 		new ModeTime<Seconds>(),
 		new ModeColorPreset(),
-		new ModeRearrangeColorPreset(),
 		new ModeBrightness<5>(),
 		new ModeRGB<Red, 20>(),
 		new ModeRGB<Green, 20>(),
-		new ModeRGB<Blue, 20>(),
+		new ModeRGB<Blue, 20>(), /*
 		new ModeHSV<Hue, 20>(),
 		new ModeHSV<Saturation, 20>(),
 		new ModeHSV<Value, 20>(),
@@ -255,7 +253,7 @@ namespace Wordclock
 		// creates a gradient from the left side to the right one using
 		// vibrant, random generated colors.
 		new ModeWaves<GeneratorGradient<GeneratorRGBAdapter<GeneratorRandom
-			<0, 255, 191, 255, 65, 255>>, 220>, Left, 1000>(),
+			<0, 255, 191, 255, 65, 255>>, 220>, Left, 1000>(), */
 	};
 }
 #undef IMPORT_MODES

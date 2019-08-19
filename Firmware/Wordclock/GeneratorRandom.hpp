@@ -34,7 +34,10 @@ namespace Wordclock
 	CRGB GeneratorRandom<value0Min, value0Max, value1Min, value1Max,
 		value2Min, value2Max>::next()
 	{
-		return CRGB(random(value0Min, value0Max + 1),
-			random(value1Min, value1Max + 1), random(value2Min, value2Max + 1));
+		return CRGB(
+			value0Min == value0Max ? value0Min : random(value0Min, value0Max + 1),
+			value1Min == value1Max ? value1Min : random(value1Min, value1Max + 1),
+			value2Min == value2Max ? value2Min : random(value2Min, value2Max + 1)
+		);
 	}
 }

@@ -16,6 +16,8 @@ namespace Wordclock
 
 		static void paintSlice(const CRGB &color,
 			uint32_t rec, uint32_t maxSecs);
+		
+		ModeTimeSliceBase();
 	};
 
 	/// shows the time using a time slice.

@@ -6,6 +6,10 @@ namespace Wordclock
 {
 	CRGB **ModeGlowingBase::glowing = nullptr;
 
+	ModeGlowingBase::ModeGlowingBase()
+		: ModeBase()
+	{}
+
 	void ModeGlowingBase::setGlow(const uint8_t &x, const uint8_t &y,
 		const CRGB &color)
 	{

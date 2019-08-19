@@ -21,6 +21,7 @@ namespace Wordclock
 			CRGB color, const uint8_t &strength, const uint8_t &maxStrength);
 		
 		static void glowPaint(const uint8_t &radius);
+		ModeGlowingBase();
 	};
 
 	/// turns on the LEDs around the activated ones using the a dimmed color

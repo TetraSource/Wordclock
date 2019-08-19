@@ -5,6 +5,10 @@
 
 namespace Wordclock
 {
+	ModeTimeSliceBase::ModeTimeSliceBase()
+		: ModeBaseInterval<1000>()
+	{}
+
 	uint8_t ModeTimeSliceBase::calcLength(
 		const uint32_t &l,
 		const uint8_t &column,

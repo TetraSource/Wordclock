@@ -4,8 +4,14 @@
 
 namespace Wordclock
 {
-	void modeFillerPaint(const CRGB &color, const Directions &,
-		const TimeTypes &, uint8_t);
+	class ModeFillerUtilities
+	{
+	private:
+		static void modeFillerPaint(const CRGB &color, const Directions &,
+			const TimeTypes &, uint8_t maxSecs);
+	
+	template <class, Directions, TimeTypes, uint8_t> friend class ModeFiller;
+	};
 
 	/// Shows the time by turning on a certain amount of the display.
 	/// The current and the two next color presets are used thereby.
@@ -43,6 +49,7 @@ namespace Wordclock
 		if (isInTransition())
 			ModeBase::paint();
 		else
-			modeFillerPaint(gen.next(), direction, timeType, scope);
+			ModeFillerUtilities::modeFillerPaint(
+				gen.next(), direction, timeType, scope);
 	}
 }

@@ -4,8 +4,8 @@
 
 namespace Wordclock
 {
-	void modeFillerPaint(const CRGB &color, const Directions &direction,
-		const TimeTypes &timeType, uint8_t maxSecs)
+	void ModeFillerUtilities::modeFillerPaint(const CRGB &color,
+		const Directions &direction, const TimeTypes &timeType, uint8_t maxSecs)
 	{
 		if (timeType < Years) {
 			uint32_t maxMaxSecs = maxSecs;

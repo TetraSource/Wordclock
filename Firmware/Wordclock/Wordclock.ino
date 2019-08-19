@@ -1,5 +1,4 @@
-
-#include <EEPROM.h>
+#include "EepromAccess.hpp"
 #include <FastLED.h>
 #include "ModeBase.hpp"
 #include "Painter.hpp"
@@ -19,6 +18,7 @@ namespace Wordclock
 
 	class Core {
 	private:
+		static EepromAccess<uint8_t> brightnessSlot;
 		static uint32_t currMillis;
 #ifndef INTERNAL_TIME
 		static bool saveTimeRequest;
@@ -52,10 +52,12 @@ namespace Wordclock
 
 	uint8_t Wordclock::times[7] = {};
 
-	uint8_t Wordclock::currMode = 0;
+	EepromVariable<uint8_t> Wordclock::currMode = EepromVariable<uint8_t>();
 
-	CRGB Wordclock::presets[COLOR_PRESET_COUNT] = {};
-	uint8_t Wordclock::currPresetIndex = 0;
+	EepromArray<CRGB, COLOR_PRESET_COUNT> Wordclock::presets =
+		EepromArray<CRGB, COLOR_PRESET_COUNT>();
+	EepromVariable<uint8_t> Wordclock::currPresetIndex =
+		EepromVariable<uint8_t>();
 
 	TimerHeap<TIMER_COUNT_TYPE> Wordclock::timers =
 		TimerHeap<TIMER_COUNT_TYPE>();
@@ -65,13 +67,12 @@ namespace Wordclock
 	{
 		if (index >= modeCount)
 			return false;
-		if (index == currMode)
+		if (index == currMode.get())
 			return true;
 
-		modes[currMode]->deselect();
-		currMode = index;
-		EEPROM.write(MODE_INDEX, currMode);
-		modes[currMode]->select();
+		modes[currMode.get()]->deselect();
+		currMode.set(index);
+		modes[currMode.get()]->select();
 		repaint();
 		return true;
 	}
@@ -80,8 +81,7 @@ namespace Wordclock
 	{
 		if (index >= COLOR_PRESET_COUNT)
 			return false;
-		presets[index] = color;
-		EEPROM.put(COLOR_PRESET_INDEX + index * sizeof(CRGB), color);
+		presets.set(index, color);
 		repaint();
 		return true;
 	}
@@ -90,16 +90,15 @@ namespace Wordclock
 	{
 		if (index >= COLOR_PRESET_COUNT)
 			return CRGB(CRGB::Black);
-		return presets[index];
+		return presets.get(index);
 	}
 
 	bool Wordclock::setColorPresetIndex(const uint8_t &index)
 	{
 		if (index >= COLOR_PRESET_COUNT)
 			return false;
-		if (index != currPresetIndex) {
-			currPresetIndex = index;
-			EEPROM.write(COLOR_PRESET_INDEX_INDEX, currPresetIndex);
+		if (index != currPresetIndex.get()) {
+			currPresetIndex.set(index);
 			repaint();
 		}
 		return true;
@@ -182,7 +181,7 @@ namespace Wordclock
 	{
 		if (brightness != FastLED.getBrightness()) {
 			FastLED.setBrightness(brightness);
-			EEPROM.put(BRIGHTNESS_INDEX, brightness);
+			Core::brightnessSlot.set(brightness);
 			repaint();
 		}
 	}
@@ -197,6 +196,7 @@ namespace Wordclock
 {
 	// CORE IMPLEMENTATION //
 
+	EepromAccess<uint8_t> Core::brightnessSlot = EepromAccess<uint8_t>();
 	uint32_t Core::currMillis = 0;
 
 #ifndef INTERNAL_TIME
@@ -270,41 +270,22 @@ namespace Wordclock
 		pinMode(LED_BUILTIN, OUTPUT);
 #endif
 
+		// initialize variables
 		for (uint8_t i = 0; i < 7; i++) {
 			Wordclock::times[i] = 0;
 		}
 
-#ifdef RESET_EEPROM
-		// save data
-		Wordclock::currMode = 0;
-		EEPROM.write(MODE_INDEX, Wordclock::currMode);
-		Wordclock::currPresetIndex = 0;
-		EEPROM.write(COLOR_PRESET_INDEX_INDEX, Wordclock::currPresetIndex);
-		FastLED.setBrightness(255);
-		EEPROM.write(BRIGHTNESS_INDEX, FastLED.getBrightness());
-		{
-			CRGB defaultPresets[COLOR_PRESET_COUNT] = { DEFAULT_COLOR_PRESETS };
+		Wordclock::currMode.setDefault(0);
+		Wordclock::currPresetIndex.setDefault(0);
 
-			uint8_t index = COLOR_PRESET_INDEX;
-			for (uint8_t i = 0; i < COLOR_PRESET_COUNT; i++) {
-				CRGB preset = defaultPresets[i];
-				EEPROM.put(index, preset);
-				Wordclock::presets[i] = preset;
-				index += sizeof(CRGB);
-			}
-		}
-#else
-		Wordclock::currMode = EEPROM.read(MODE_INDEX);
-		Wordclock::currPresetIndex = EEPROM.read(COLOR_PRESET_INDEX_INDEX);
-		FastLED.setBrightness(EEPROM.read(BRIGHTNESS_INDEX));
-		uint8_t index = COLOR_PRESET_INDEX;
-		for (uint8_t i = 0; i < COLOR_PRESET_COUNT; i++) {
-			CRGB color;
-			EEPROM.get(index, color);
-			Wordclock::presets[i] = color;
-			index += sizeof(CRGB);
-		}
-#endif
+		CRGB defaultPresets[COLOR_PRESET_COUNT] = { DEFAULT_COLOR_PRESETS };
+		Wordclock::presets.setDefault(defaultPresets);
+
+		uint8_t brightness = 255;
+		
+		brightnessSlot.setDefault(brightness);
+		FastLED.setBrightness(brightness);
+
 #ifdef JUST_INITIALIZE
 		while (true);
 #else
@@ -313,7 +294,7 @@ namespace Wordclock
 #endif
 
 		// init configuration and LED mode
-		Wordclock::modes[Wordclock::currMode]->select();
+		Wordclock::modes[Wordclock::currMode.get()]->select();
 		Wordclock::repaint();
 #endif
 	}
@@ -353,7 +334,7 @@ namespace Wordclock
 					DEBUG_OUT("cmb"); // change mode buttons
 					bs.buttonLock = millis();
 					bs.buttonsLocked = true;
-					Wordclock::modes[Wordclock::currMode]->
+					Wordclock::modes[Wordclock::currMode.get()]->
 						actionButton(incButton);
 				}
 			}
@@ -370,7 +351,7 @@ namespace Wordclock
 						DEBUG_OUT("mb"); // mode buttons
 						bs.buttonLock = millis();
 						bs.buttonsLocked = true;
-						Wordclock::modes[Wordclock::currMode]->
+						Wordclock::modes[Wordclock::currMode.get()]->
 							modeButton(incButton);
 					}
 				}
@@ -452,7 +433,7 @@ namespace Wordclock
 			DEBUG_OUT("rp"); // repaint
 			Painter::setColor(Wordclock::getCurrentPreset());
 			FastLED.clear();
-			Wordclock::modes[Wordclock::currMode]->paint();
+			Wordclock::modes[Wordclock::currMode.get()]->paint();
 			FastLED.show();
 		}
 	}

@@ -11,12 +11,18 @@ namespace Wordclock
 	{
 	protected:
 		typedef ModeBase super;
+		ModeBaseInterval();
 
 	public:
 		void select();
 		void deselect();
 		uint32_t timer(const uint8_t&);
 	};
+
+	template<uint32_t interval>
+	ModeBaseInterval<interval>::ModeBaseInterval()
+		: ModeBase()
+	{}
 
 	template<uint32_t interval>
 	void ModeBaseInterval<interval>::select()

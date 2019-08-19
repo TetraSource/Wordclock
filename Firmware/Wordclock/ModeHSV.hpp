@@ -20,6 +20,7 @@ namespace Wordclock
 		typedef ModeBase super;
 		static CHSV curr;
 		static CRGB result;
+		ModeHSVBase();
 	public:
 		void select();
 	};

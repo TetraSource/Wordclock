@@ -2,6 +2,8 @@
 
 #include <Arduino.h>
 #include "Config.hpp"
+#include "EepromArray.hpp"
+#include "EepromVariable.hpp"
 #include <FastLED.h>
 #include "ModeBase.hpp"
 #include "Timer.hpp"
@@ -60,10 +62,10 @@ namespace Wordclock
 		static uint8_t times[7];
 
 		static const ModeBase *modes[];
-		static uint8_t currMode;
+		static EepromVariable<uint8_t> currMode;
 
-		static CRGB presets[COLOR_PRESET_COUNT];
-		static uint8_t currPresetIndex;
+		static EepromArray<CRGB, COLOR_PRESET_COUNT> presets;
+		static EepromVariable<uint8_t> currPresetIndex;
 
 		static TimerHeap<TIMER_COUNT_TYPE> timers;
 		static bool repaintRequest;
@@ -213,7 +215,7 @@ namespace Wordclock
 
 	inline uint8_t Wordclock::getMode()
 	{
-		return currMode;
+		return currMode.get();
 	}
 
 	inline ModeBase *Wordclock::accessMode(const uint8_t &index)
@@ -223,17 +225,18 @@ namespace Wordclock
 
 	inline CRGB Wordclock::getCurrentPreset()
 	{
-		return presets[currPresetIndex];
+		return presets.get(currPresetIndex.get());
 	}
 
 	inline CRGB Wordclock::getCurrentPreset(const uint8_t &offset)
 	{
-		return presets[(currPresetIndex + offset) % COLOR_PRESET_COUNT];
+		return presets.get(
+			(currPresetIndex.get() + offset) % COLOR_PRESET_COUNT);
 	}
 
 	inline uint8_t Wordclock::getColorPresetIndex()
 	{
-		return currPresetIndex;
+		return currPresetIndex.get();
 	}
 
 	inline uint8_t Wordclock::getTime(const TimeTypes &timeType)
