@@ -4,6 +4,7 @@
 #include "Config.hpp"
 #include <FastLED.h>
 #include "ModeBase.hpp"
+#include "Timer.hpp"
 
 #ifdef DEBUG
 #define DEBUG_OUT(s) Serial.println(s)
@@ -20,8 +21,7 @@ Serial.print("\t"); Serial.println(c.b)
 #define COLOR_PRESET_INDEX_INDEX 1
 #define BRIGHTNESS_INDEX 2
 #define COLOR_PRESET_INDEX 3
-#define ALARM_INDEX COLOR_PRESET_INDEX + COLOR_PRESET_COUNT * sizeof(CRGB)
-#define LAST_INDEX ALARM_INDEX + ALARM_COUNT * sizeof(AlarmTime)
+#define LAST_INDEX COLOR_PRESET_INDEX + COLOR_PRESET_COUNT * sizeof(CRGB)
 
 // allows to specify a collection of directions
 // e.g DIR_ITEM(Center, 0) just contains the center
@@ -53,105 +53,74 @@ namespace Wordclock
 		Years,    /// time in years as of 2000.
 	};
 
-	/// used to set and retrieve alarms.
-	struct AlarmTime
-	{
-		uint8_t weekday;
-		uint8_t hour;
-		uint8_t minute;
-
-		AlarmTime();
-
-		AlarmTime(
-			
-			const uint8_t &hour,
-			const uint8_t &minute);
-
-		AlarmTime(const AlarmTime &time);
-
-		void AlarmTime::setTo(
-			const uint8_t &weekday,
-			const uint8_t &hour,
-			const uint8_t &minute);
-
-		void AlarmTime::setTo(const AlarmTime &time);
-	};
-
-	typedef bool(*AlarmChecker)(const AlarmTime &time);
-
 	/// Access class to the core of the Wordclock.
 	class Wordclock
 	{
-		friend class Core;
-
 	private:
-#if ALARM_COUNT > 0
-		// alarms[i].weekdays is a bit mask
-		static AlarmTime alarms[ALARM_COUNT];
-		// currAlarm.weekdays is the id of the day (id 7 = no alarm set).
-		static AlarmTime currAlarm;
-		static bool alarm;
-#endif
 		static uint8_t times[7];
-		static bool saveTimeRequest;
+
+		static const ModeBase *modes[];
+		static uint8_t currMode;
 
 		static CRGB presets[COLOR_PRESET_COUNT];
 		static uint8_t currPresetIndex;
 
-		static ModeBase *modes[MODE_COUNT];
-		static uint8_t currMode;
-
+		static TimerHeap<TIMER_COUNT_TYPE> timers;
 		static bool repaintRequest;
 
-		static void saveTime();
-		static void loadTime();
-
-#if ALARM_COUNT > 0
-		static void chooseSooner(AlarmTime time);
-		static void loadNextAlarm();
-#endif
-
-		static bool setMode(const uint8_t &mode);
-
 	protected:
-		inline static uint8_t getDaysOfMonth();
+		static uint8_t getDaysOfMonth();
 
 	public:
+		static const uint8_t modeCount;
+
+		/// Sets the current mode.
+		/// @param mode - the new mode to switch to.
+		static bool setMode(const uint8_t &mode);
+
+		/// Returns the current mode.
+		/// @returns the currently active mode.
+		inline static uint8_t getMode();
+
+		/// Returns a reference to the current mode.
+		/// @returns the reference to the current mode.
+		inline static ModeBase *accessMode(const uint8_t &mode);
+
 		/// sets the specified time for the specified time type.
 		/// @param timeType - specifies the unit of the time
 		///                   (see enum Wordclock::TimeTypes).
 		/// @param time - the new time
 		/// @returns whether the time was a valid one or not.
-		static bool setTime(const uint8_t &timeType, uint8_t time);
+		static bool setTime(const TimeTypes &timeType, uint8_t time);
 
 		/// returns the current time of the current time type.
 		/// @param timeType - specifies the unit of the time
 		///                   (see enum Wordclock::TimeTypes).
 		/// @params - the current time
-		static uint8_t getTime(const uint8_t &timeType);
+		inline static uint8_t getTime(const TimeTypes &timeType);
 
 		/// returns the valid maximum for the specified time type.
 		/// @param timeType - specifies the unit of the time
 		///                   (see enum Wordclock::TimeTypes).
 		/// @returns the maximal value
-		static uint8_t getMaximumTime(const uint8_t &timeType);
+		static uint8_t getMaximumTime(const TimeTypes &timeType);
 
 		/// returns the count of seconds since the given time type advanced
 		/// last.
 		/// @param timeType - the time type that advances last
 		///                   (see enum Wordclock::TimeTypes).
 		/// @returns the count of seconds.
-		static uint32_t getSeconds(const uint8_t &timeType);
+		static uint32_t getSeconds(const TimeTypes &timeType);
 
 		/// returns the count of seconds that one unit of the given time type
 		/// takes (e.g. an hour takes at most 3600s).
 		/// The result is influenced by the current time and may cause
 		/// different results at different times
-		/// (e.g. the count of days in Juli in higher than in June).
+		/// (e.g. July has more days than June).
 		/// @param timeType - specifies the unit of the time
 		///                   (see enum Wordclock::TimeTypes).
 		/// @returns the count of seconds.
-		static uint32_t getUnitSeconds(const uint8_t &timeType);
+		static uint32_t getUnitSeconds(const TimeTypes &timeType);
 
 		/// set the color of the color preset at the given index.
 		/// @param color - the new color for the preset.
@@ -164,13 +133,10 @@ namespace Wordclock
 		static CRGB getColorPreset(const uint8_t &index);
 
 		/// returns the color of the current color preset.
-		/// @returns the color of the preset.
-		static CRGB getCurrentPreset();
-
-		/// returns the color of the current color preset.
 		/// @param offset - the offset of the chosen index.
 		/// @returns the color of the preset.
-		static CRGB getCurrentPreset(const uint8_t &offset);
+		inline static CRGB getCurrentPreset();
+		inline static CRGB getCurrentPreset(const uint8_t &offset);
 
 		/// sets the index of the current color preset.
 		/// @param index - the new index of the color preset.
@@ -179,35 +145,7 @@ namespace Wordclock
 
 		/// returns the index of the current color preset.
 		/// @returns the index of the color preset
-		static uint8_t getColorPresetIndex();
-
-#if ALARM_COUNT > 0
-		/// sets an alarm for the given time.
-		/// @param time - the time the alarm shall be activated at.
-		///               Note that the value time.minute is rounded to the
-		///               next five minute interval.
-		///               Additionally, the value time.weekday can either be a
-		///               single day or a bit mask representing a set of days.
-		///               In this case the eighth bit of the mask has to be
-		///               set to 1.
-		/// @returns whether the alarm could be set successfully or not.
-		///          Note, that there is an internal limit of alarms.
-		static bool addAlarm(AlarmTime time);
-
-		/// allows to get and remove set alarms.
-		/// @param checker - the function that is called with all existing
-		///                  alarms. If it return true, the alarm will be
-		///                  removed.
-		static void listAlarms(AlarmChecker checker);
-
-		/// sets whether the alarm is active or not.
-		/// @param newAlarm - the new state of the alarm
-		static void setAlarm(const bool &newAlarm);
-
-		/// returns whether the alarm is active or not.
-		/// @returns the state of the alarm
-		static bool getAlarm();
-#endif
+		inline static uint8_t getColorPresetIndex();
 
 		/// sets the general brightness of all LEDs.
 		/// @param brightness - the desired brightness. 255 means full
@@ -217,10 +155,119 @@ namespace Wordclock
 		/// returns the general brightness of all LEDs.
 		/// @returns the current brightness. 255 means full brightness and
 		///          0 none.
-		static uint8_t getBrightness();
+		inline static uint8_t getBrightness();
 
 		/// requests an update of the current LEDs by a call to the paint
-		/// function of the current mode.
-		static void repaint();
+		/// function of the current mode. Each mode has to call this
+		/// function if it changes its appearance.
+		inline static void repaint();
+
+		/// Starts a timer with the given runtime. After it expires
+		/// mode->timer(channel) is called with the given channel.
+		/// channel is not accessed by the timer system and also has no
+		/// fixed usage except channel 255 which cannot used.
+		/// Note that TIMER_COUNT_TYPE specifies the maximal count of running
+		/// timers at a time (see Config.hpp). However, you can have running
+		/// multiple timers with the same callback and channel.
+		/// In addition, the timer does not use the RTC but the Arduino
+		/// clock. If you need to trigger something at a certain time
+		/// you should just use the timer to check repeatedly whether it
+		/// is that time or not.
+		/// @param callback - the mode to be called when the timer expires.
+		/// @param time - the runtime of the timer in milliseconds. This value
+		///               must not exceed 2^32 - 8192.
+		/// @param channel - value for custom use. 255 is invalid.
+		inline static void startTimer(const ModeBase *callback,
+			const uint32_t &time, const uint8_t &channel);
+		
+		/// Cancels the timer with the given callback and channel, if it exists.
+		/// Elsewise, this function does not do anything. Note that if there
+		/// are multiple timers with the same callback and channel and all is
+		/// false, just one of them is cancelled. If all is true, all these
+		/// timers are canceled however.
+		/// @param callback - the mode of the timer (see startTimer).
+		/// @param channel - the channel of the timer (see startTimer).
+		/// @param all - whether to delete all or just one of the matching
+		///              timers. Note that setting the mode to 255 mathes
+		///              all timers that match the callback.
+		inline static void cancelTimer(const ModeBase *callback,
+			const uint8_t &channel = 255, const bool &all = false);
+		
+		/// Extends the runtime of the timer with the given callback and
+		/// channel, if it exists. Elsewise, the function does not do
+		/// anything. Note that if there are multiple timers with the same
+		/// callback and channel and all is false, just one of them gets
+		/// extended. If all is true, all these timers get extended however.
+		/// @param callback - the mode of the timer (see startTimer).
+		/// @param time - the runtime the timer is extended by in milliseconds.
+		/// @param channel - the channel of the timer (see startTimer).
+		/// @param all - whether to extend all or just one of the matching
+		///              timers. Note that setting the mode to 255 matches
+		///              all timers that match the callback.
+		inline static void extendTimer(const ModeBase *callback,
+			const uint32_t &time, const uint8_t &channel = 255,
+			const bool &all = false);
+
+	friend class Core;
 	};
+
+	inline uint8_t Wordclock::getMode()
+	{
+		return currMode;
+	}
+
+	inline ModeBase *Wordclock::accessMode(const uint8_t &index)
+	{
+		return modes[index];
+	}
+
+	inline CRGB Wordclock::getCurrentPreset()
+	{
+		return presets[currPresetIndex];
+	}
+
+	inline CRGB Wordclock::getCurrentPreset(const uint8_t &offset)
+	{
+		return presets[(currPresetIndex + offset) % COLOR_PRESET_COUNT];
+	}
+
+	inline uint8_t Wordclock::getColorPresetIndex()
+	{
+		return currPresetIndex;
+	}
+
+	inline uint8_t Wordclock::getTime(const TimeTypes &timeType)
+	{
+		return times[timeType];
+	}
+
+	inline uint8_t Wordclock::getBrightness()
+	{
+		return FastLED.getBrightness();
+	}
+
+	inline void Wordclock::repaint()
+	{
+		DEBUG_OUT("rpr"); // repaint request
+		repaintRequest = true;
+	}
+
+	inline void Wordclock::startTimer(const ModeBase *callback,
+		const uint32_t &time, const uint8_t &channel)
+	{
+		timers.start(callback, channel, time);
+	}
+
+	inline void Wordclock::cancelTimer(const ModeBase *callback,
+		const uint8_t &channel, const bool &all)
+	{
+		timers.cancel(callback, channel, all);
+	}
+
+	inline void Wordclock::extendTimer(const ModeBase *callback,
+		const uint32_t &time, const uint8_t &channel,
+		const bool &all)
+	{
+		timers.extend(time, callback, channel, all);
+	}
 }

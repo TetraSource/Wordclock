@@ -43,15 +43,15 @@ namespace Wordclock
 
 		/// returns the color for the next painting operations.
 		/// @returns the current color
-		static CRGB getColor();
+		inline static CRGB getColor();
 
 		/// returns true if the current color is every color except black.
 		/// @returns whether the current color is not equal (0, 0, 0)
-		static bool hasColor();
+		inline static bool hasColor();
 
 		/// sets the color for the next painting operations.
 		/// @param - the new color
-		static void setColor(const CRGB &color);
+		inline static void setColor(const CRGB &color);
 
 		/// Returns the color of the pixel at the specified position.
 		/// The top left pixel has the coordinate (0, 0).
@@ -93,4 +93,19 @@ namespace Wordclock
 		/// @returns whether they are identical or not.
 		static bool areIdentical(CRGB c0, CRGB c1);
 	};
+
+	CRGB Painter::getColor()
+	{
+		return curr;
+	}
+
+	bool Painter::hasColor()
+	{
+		return curr.r != 0 || curr.g != 0 || curr.b != 0;
+	}
+
+	void Painter::setColor(const CRGB &color)
+	{
+		curr = color;
+	}
 }

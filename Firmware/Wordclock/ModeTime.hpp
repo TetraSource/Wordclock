@@ -1,70 +1,66 @@
 #pragma once
 
-#include "ModeBase.hpp"
+#include "ModeBaseInterval.hpp"
 #include "Utilities.hpp"
 #include "Wordclock.hpp"
 
 namespace Wordclock
 {
-	class ModeTimeBase : public ModeBase
+	/// allows manual setting of the time.
+	/// @tparam timeType - the time element that is manipulated by the mode.
+	template <TimeTypes timeType>
+	class ModeTime : public ModeBaseInterval<1000>
 	{
 	protected:
-		static uint8_t newTime;
-		static bool changed;
-	};
-
-
-	/// allows manual setting of the time.
-	/// @tparam letter the position of the letter that represents the mode,
-	///                calculated by the POINT macro.
-	/// @tparam timeType - the time element that is manipulated by the mode.
-	template <uint8_t letter, TimeTypes timeType>
-	class ModeTime : public ModeTimeBase
-	{
+		typedef ModeBaseInterval<1000> super;
+		uint8_t newTime;
 	public:
 		void select();
-
 		void deselect();
-
-		void increment(const bool &inc);
-
+		void actionButton(const bool &inc);
 		void paint();
 	};
 
-	// implementation //
-
-	template <uint8_t letter, TimeTypes timeType>
-	void ModeTime<letter, timeType>::select()
+	template <TimeTypes timeType>
+	void ModeTime<timeType>::select()
 	{
-		newTime = Wordclock::getTime(timeType);
-		changed = false;
+		if (isInTransition()) {
+			ModeBase::select();
+		}
+		else {
+			newTime = Wordclock::getTime(timeType);
+			setState(1, false);
+		}
 	}
 
-	template <uint8_t letter, TimeTypes timeType>
-	void ModeTime<letter, timeType>::deselect()
+	template <TimeTypes timeType>
+	void ModeTime<timeType>::deselect()
 	{
-		if (changed) {
+		if (isInTransition()) {
+			ModeBase::deselect();
+		}
+		else if (getState(1)) {
+			// Time was chaned. Save that changes.
 			Wordclock::setTime(timeType, newTime);
 		}
 	}
 
-	template <uint8_t letter, TimeTypes timeType>
-	void ModeTime<letter, timeType>::increment(const bool &inc)
+	template <TimeTypes timeType>
+	void ModeTime<timeType>::actionButton(const bool &inc)
 	{
-		changed = true;
+		setState(1, true);
 		newTime = Utilities::changeValue(newTime,
 			Wordclock::getMaximumTime(timeType), inc);
 		Wordclock::repaint();
 	}
 
-	template <uint8_t letter, TimeTypes timeType>
-	void ModeTime<letter, timeType>::paint()
+	template <TimeTypes timeType>
+	void ModeTime<timeType>::paint()
 	{
-		Utilities::printNumber(
-			newTime == 0 ? Wordclock::getMaximumTime(timeType) : newTime);
-
-#ifdef SHOW_MODE
-		Painter::paint(letter);
-#endif
+		if (isInTransition())
+			ModeBase::paint();
+		else
+			Utilities::printNumber(
+				newTime == 0 ? Wordclock::getMaximumTime(timeType) : newTime);
 	}
 }

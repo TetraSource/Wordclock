@@ -1,57 +1,44 @@
 #pragma once
 
-#include "ModeColorBase.hpp"
 #include "GeneratorBase.hpp"
-#include "Utilities.hpp"
 #include "Wordclock.hpp"
 
 namespace Wordclock
 {
 	/// automatically changes the color once the timer elapses.
+	/// @tparam Generator - the color generator that selects a new color
+	///                     when necessary.
 	/// @tparam time - the time between each selection of the next.
-	template <uint32_t time>
-	class ModeColorChangerTimer : public ModeColorBase
+	template <class Generator, uint32_t time>
+	class ModeColorChangerTimer : public ModeColorChangerBase
 	{
 	protected:
-		GeneratorBase* gen;
+		typedef ModeColorChangerBase super;
+		Generator gen;
 
 	public:
-		/// initializes the effect.
-		/// @param generator - the color generator that select a new color when necessary.
-		ModeColorChangerTimer(GeneratorBase* generator);
-
-		void select();
-
-		void timer();
-
-		void paint();
+		ModeColorChangerTimer();
+		uint32_t timer(const uint8_t &);
 	};
 
-	template <uint32_t time>
-	ModeColorChangerTimer<time>::ModeColorChangerTimer(
-		GeneratorBase* generator)
+	template <class Generator, uint32_t time>
+	ModeColorChangerTimer<Generator, time>::ModeColorChangerTimer()
+		: ModeColorChangerBase()
 	{
-		gen = generator;
+		gen = Generator();
 	}
 
-	template <uint32_t time>
-	void ModeColorChangerTimer<time>::select()
+	template <class Generator, uint32_t time>
+	uint32_t ModeColorChangerTimer<Generator, time>::timer(
+		const uint8_t &channel)
 	{
-		timer();
-	}
-
-	template <uint32_t time>
-	void ModeColorChangerTimer<time>::timer()
-	{
-		currColor = gen->nextRGBColor();
-		Wordclock::repaint();
-		startTimer(time);
-	}
-
-	template <uint32_t time>
-	void ModeColorChangerTimer<time>::paint()
-	{
-		Painter::setColor(currColor);
-		Utilities::printTime();
+		if (isInTransition()) {
+			return ModeBase::timer(channel);
+		}
+		else {
+			currColor = gen.next();
+			Wordclock::repaint();
+			return time;
+		}
 	}
 }

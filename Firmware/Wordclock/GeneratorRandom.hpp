@@ -1,6 +1,6 @@
 #pragma once
 
-#include "GeneratorBase.hpp"
+#include "ModeBase.hpp"
 
 namespace Wordclock
 {
@@ -11,25 +11,30 @@ namespace Wordclock
 	/// @tparam value1Max - the maximum green amount or saturation of the color.
 	/// @tparam value2Min - the minimum blue amount or value of the color.
 	/// @tparam value3Max - the maximum blue amount or value of the color.
-	/// @tparam colorType - the color space of the color.
-	template <uint8_t value0Min = 0, uint8_t value0Max = 255, uint8_t value1Min = 0, uint8_t value1Max = 255, uint8_t value2Min = 0, uint8_t value2Max = 255, ColorTypes colorType = RGB>
+	template <uint8_t value0Min = 0, uint8_t value0Max = 255,
+		uint8_t value1Min = 0, uint8_t value1Max = 255,
+		uint8_t value2Min = 0, uint8_t value2Max = 255>
 	class GeneratorRandom : public GeneratorBase
 	{
+	protected:
+		typedef GeneratorBase super;
 	public:
-		CRGB nextColor();
-
-		ColorTypes getColorType();
+		GeneratorRandom();
+		CRGB next();
 	};
 
-	template <uint8_t value0Min, uint8_t value0Max, uint8_t value1Min, uint8_t value1Max, uint8_t value2Min, uint8_t value2Max, ColorTypes colorType>
-	CRGB GeneratorRandom<value0Min, value0Max, value1Min, value1Max, value2Min, value2Max, colorType>::nextColor()
-	{
-		return CRGB(random(value0Min, value0Max + 1), random(value1Min, value1Max + 1), random(value2Min, value2Max + 1));
-	}
+	template <uint8_t value0Min, uint8_t value0Max, uint8_t value1Min,
+		uint8_t value1Max, uint8_t value2Min, uint8_t value2Max>
+	GeneratorRandom<value0Min, value0Max, value1Min, value1Max,
+		value2Min, value2Max>::GeneratorRandom()
+	{}
 
-	template <uint8_t value0Min, uint8_t value0Max, uint8_t value1Min, uint8_t value1Max, uint8_t value2Min, uint8_t value2Max, ColorTypes colorType>
-	ColorTypes GeneratorRandom<value0Min, value0Max, value1Min, value1Max, value2Min, value2Max, colorType>::getColorType()
+	template <uint8_t value0Min, uint8_t value0Max, uint8_t value1Min,
+		uint8_t value1Max, uint8_t value2Min, uint8_t value2Max>
+	CRGB GeneratorRandom<value0Min, value0Max, value1Min, value1Max,
+		value2Min, value2Max>::next()
 	{
-		return colorType;
+		return CRGB(random(value0Min, value0Max + 1),
+			random(value1Min, value1Max + 1), random(value2Min, value2Max + 1));
 	}
 }

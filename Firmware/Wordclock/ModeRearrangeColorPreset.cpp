@@ -1,10 +1,9 @@
-
 #include <FastLED.h>
 #include "ModeRearrangeColorPreset.hpp"
 
 namespace Wordclock
 {
-	void ModeRearrangeColorPresetBase::increment(const bool &inc)
+	void ModeRearrangeColorPreset::actionButton(const bool &inc)
 	{
 		uint8_t oldIndex = Wordclock::getColorPresetIndex();
 		uint8_t newIndex =
@@ -17,5 +16,13 @@ namespace Wordclock
 		Wordclock::setColorPreset(newIndex, temp);
 
 		Wordclock::setColorPresetIndex(newIndex);
+	}
+
+	void ModeRearrangeColorPreset::paint()
+	{
+		if (isInTransition())
+			ModeBase::paint();
+		else
+			Utilities::printNumber(Wordclock::getColorPresetIndex() + 1);
 	}
 }

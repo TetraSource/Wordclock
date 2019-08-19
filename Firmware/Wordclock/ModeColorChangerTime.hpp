@@ -1,83 +1,68 @@
 #pragma once
 
-#include "GeneratorBase.hpp"
-#include "ModeColorBase.hpp"
+#include "ModeColorChangerBase.hpp"
 #include "Utilities.hpp"
 #include "Wordclock.hpp"
 
-// the amount of milliseconds that pass between each update of the
-// current color.
-#define UPDATE_INTERVAL 1000
+#define UPDATE_INTERVAL 500
 
 namespace Wordclock
 {
-	class ModeColorChangerTimeBase : public ModeColorBase
-	{
-	protected:
-		static uint8_t lastTime;
-		static uint8_t advances;
-	};
-
 	/// automatically changes the color once a certain time type advances.
-	/// @tparam timeType - the unit of the time type that has to advance
-	///                    in order to change the color preset.
+	/// @tparam Generator - the color generator that select a new color
+	///                     when necessary.
 	/// @tparam threshold - how often the time has to advance before the
 	///                     color preset changes.
-	template <TimeTypes timeType = Minutes, uint8_t threshold = 1>
-	class ModeColorChangerTime : public ModeColorChangerTimeBase
+	/// @tparam timeType - the unit of the time type that has to advance
+	///                    in order to change the color preset.
+	/// If threshold == 5 and timeType == Minutes, the color changes all
+	/// five minutes for example.
+	template <class Generator, uint8_t threshold, TimeTypes timeType>
+	class ModeColorChangerTime : public ModeColorChangerBase
 	{
 	protected:
-		GeneratorBase* gen;
+		typedef ModeColorChangerBase super;
+		Generator gen;
+		uint8_t lastTime;
 
 	public:
-		/// initializes the effect.
-		/// @param generator - the color generator that select a new color
-		///                    when necessary.
-		ModeColorChangerTime(GeneratorBase* generator);
-
+		ModeColorChangerTime();
 		void select();
-
-		void timer();
-
-		void paint();
+		uint32_t timer(const uint8_t &channel);
 	};
 
-	template <TimeTypes timeType, uint8_t threshold>
-	ModeColorChangerTime<timeType, threshold>::ModeColorChangerTime(
-		GeneratorBase* generator)
+	template <class Generator, uint8_t threshold, TimeTypes timeType>
+	ModeColorChangerTime<Generator, threshold, timeType>::ModeColorChangerTime()
+		: ModeColorChangerBase()
 	{
-		gen = generator;
+		gen = Generator();
 	}
 
-	template <TimeTypes timeType, uint8_t threshold>
-	void ModeColorChangerTime<timeType, threshold>::select()
+	template <class Generator, uint8_t threshold, TimeTypes timeType>
+	void ModeColorChangerTime<Generator, threshold, timeType>::select()
 	{
-		lastTime = Wordclock::getTime(timeType);
-		advances = 0;
-		currColor = gen->nextRGBColor();
-		startTimer(UPDATE_INTERVAL);
-	}
-
-	template <TimeTypes timeType, uint8_t threshold>
-	void ModeColorChangerTime<timeType, threshold>::timer()
-	{
-		if ((Wordclock::getTime(timeType) - lastTime) > 0) {
-			lastTime = Wordclock::getTime(timeType);
-			if (++advances >= threshold) {
-				advances = 0;
-				currColor = gen->nextRGBColor();
-				Wordclock::repaint();
-			}
+		if (isInTransition()) {
+			ModeBase::select();
 		}
-		startTimer(UPDATE_INTERVAL);
+		else {
+			currColor = gen.next();
+			lastTime = Wordclock::getTime(timeType);
+			Wordclock::startTimer(this, UPDATE_INTERVAL, 0);
+		}
 	}
 
-	template <TimeTypes timeType, uint8_t threshold>
-	void ModeColorChangerTime<timeType, threshold>::paint()
+	template <class Generator, uint8_t threshold, TimeTypes timeType>
+	uint32_t ModeColorChangerTime<Generator, threshold, timeType>::timer(
+		const uint8_t &channel)
 	{
-		Painter::setColor(currColor);
-		Utilities::printTime();
+		if (isInTransition()) {
+			return ModeBase::timer(channel);
+		}
+		if ((Wordclock::getTime(timeType) - lastTime) >= threshold) {
+			lastTime = Wordclock::getTime(timeType);
+			currColor = gen.next();
+			Wordclock::repaint();
+		}
+		return UPDATE_INTERVAL;
 	}
 }
-
-#undef UPDATE_INTERVAL

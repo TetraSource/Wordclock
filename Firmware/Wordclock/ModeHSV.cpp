@@ -8,6 +8,10 @@ namespace Wordclock
 
 	void ModeHSVBase::select()
 	{
+		if (isInTransition()) {
+			ModeBase::select();
+			return;
+		}
 		if (!Painter::areIdentical(result,
 			Wordclock::getColorPreset(Wordclock::getColorPresetIndex())))
 		{

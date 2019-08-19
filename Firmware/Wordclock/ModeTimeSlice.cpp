@@ -16,7 +16,8 @@ namespace Wordclock
 		return (uint8_t)length;
 	}
 
-	void ModeTimeSliceBase::paintSlice(uint32_t rec, uint32_t maxSecs)
+	void ModeTimeSliceBase::paintSlice(const CRGB &color,
+		uint32_t rec, uint32_t maxSecs)
 	{
 		const uint8_t hWidth = Painter::width >> 1;
 		const uint8_t hHeight = Painter::height >> 1;
@@ -30,7 +31,7 @@ namespace Wordclock
 		rec <<= 16; // rectangle = (rectangle) * (unit of rectangle)
 		rec /= maxSecs;
 
-		Painter::setColor(Wordclock::getCurrentPreset(1));
+		Painter::setColor(color);
 
 		if (rec == 0x10000) {
 			// Paint the entire display if the slice fills it completly.
@@ -87,16 +88,5 @@ namespace Wordclock
 					hHeight - length, 1, length);
 			}
 		}
-	}
-
-	void ModeTimeSliceBase::select()
-	{
-		timer();
-	}
-
-	void ModeTimeSliceBase::timer()
-	{
-		Wordclock::repaint();
-		startTimer(1000);
 	}
 }

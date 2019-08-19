@@ -1,41 +1,49 @@
 #pragma once
 
-#include "ModeDefault.hpp"
+#include "ModeBase.hpp"
 #include "Utilities.hpp"
 #include "Wordclock.hpp"
 
 namespace Wordclock
 {
 	/// allows to set the brightness of all LEDs gradually.
-	/// @tparam letter the position of the letter that represents the mode,
-	///                calculated by the POINT macro.
 	/// @tparam levelCount - the count of grades of brightness the user
 	///                      can choose from.
-	template <uint8_t letter, uint8_t levelCount>
+	template <uint8_t levelCount>
 	class ModeBrightness : public ModeBase
 	{
+	protected:
+		typedef ModeBase super;
 	public:
-		void increment(const bool &inc);
-
+		ModeBrightness();
+		void actionButton(const bool &inc);
 		void paint();
 	};
 
 	// implementation //
 
-	template <uint8_t letter, uint8_t levelCount>
-	void ModeBrightness<letter, levelCount>::increment(const bool &inc)
+	template <uint8_t levelCount>
+	ModeBrightness<levelCount>::ModeBrightness()
+		: ModeBase()
+	{}
+
+	template <uint8_t levelCount>
+	void ModeBrightness<levelCount>::actionButton(const bool &inc)
 	{
-		Wordclock::setBrightness(Utilities::changeLevel(
-			Wordclock::getBrightness(), levelCount, inc));
+		if (!isInTransition())
+			Wordclock::setBrightness(Utilities::changeLevel(
+				Wordclock::getBrightness(), levelCount, inc));
 	}
 
-	template <uint8_t letter, uint8_t levelCount>
-	void ModeBrightness<letter, levelCount>::paint()
+	template <uint8_t levelCount>
+	void ModeBrightness<levelCount>::paint()
 	{
-		Utilities::printTime();
-
-#ifdef SHOW_MODE
-		Painter::paint(letter);
-#endif
+		if (isInTransition()) {
+			ModeBase::paint();
+		}
+		else {
+			Utilities::printHex(
+				Utilities::getLevel(Wordclock::getBrightness(), levelCount)+1);
+		}
 	}
 }

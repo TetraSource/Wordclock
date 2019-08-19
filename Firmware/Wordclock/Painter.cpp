@@ -14,21 +14,6 @@ namespace Wordclock
 	const uint8_t Painter::height = HEIGHT;
 	const uint8_t Painter::maxLength = MAX_LENGTH;
 
-	CRGB Painter::getColor()
-	{
-		return curr;
-	}
-
-	bool Painter::hasColor()
-	{
-		return curr.r != 0 && curr.g != 0 && curr.b != 0;
-	}
-
-	void Painter::setColor(const CRGB &color)
-	{
-		curr = color;
-	}
-
 	CRGB Painter::getPixel(const uint8_t &x, const uint8_t &y)
 	{
 		if (x >= ROW_LENGTH) return;

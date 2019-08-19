@@ -17,33 +17,30 @@ namespace Wordclock
 	class ModeHSVBase : public ModeBase
 	{
 	protected:
+		typedef ModeBase super;
 		static CHSV curr;
 		static CRGB result;
-
 	public:
 		void select();
 	};
 
 	/// allows to manipulate the HSV amounts of the current color preset
 	/// manually.
-	/// @tparam letter the position of the letter that represents the mode,
-	///                calculated by the POINT macro.
 	/// @tparam value - the element of the color that the mode changes.
 	/// @tparam levelCount - the count of grades the user can change the
 	/// color values by.
-	template <uint8_t letter, HSVColorValues value, uint8_t levelCount>
+	template <HSVColorValues value, uint8_t levelCount>
 	class ModeHSV : public ModeHSVBase
 	{
+	protected:
+		typedef ModeHSVBase super;
 	public:
-		void increment(const bool &inc);
-
+		void actionButton(const bool &inc);
 		void paint();
 	};
 
-	// implementation //
-
-	template <uint8_t letter, HSVColorValues value, uint8_t levelCount>
-	void ModeHSV<letter, value, levelCount>::increment(const bool &inc)
+	template <HSVColorValues value, uint8_t levelCount>
+	void ModeHSV<value, levelCount>::actionButton(const bool &inc)
 	{
 		uint8_t* colorArray = (uint8_t*)&curr;
 		colorArray[value] = Utilities::changeLevel(
@@ -53,14 +50,15 @@ namespace Wordclock
 		Wordclock::setColorPreset(Wordclock::getColorPresetIndex(), result);
 	}
 
-	template <uint8_t letter, HSVColorValues value, uint8_t levelCount>
-	void ModeHSV<letter, value, levelCount>::paint()
+	template <HSVColorValues value, uint8_t levelCount>
+	void ModeHSV<value, levelCount>::paint()
 	{
-		uint8_t* colorArray = (uint8_t*)&curr;
-		Utilities::printHex(colorArray[value]);
-
-#ifdef SHOW_MODE
-		Painter::paint(letter);
-#endif
+		if (isInTransition()) {
+			ModeBase::paint();
+		}
+		else {
+			uint8_t* colorArray = (uint8_t*)&curr;
+			Utilities::printHex(colorArray[value]);
+		}
 	}
 }

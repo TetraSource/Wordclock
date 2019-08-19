@@ -21,7 +21,7 @@ namespace Wordclock
 		const uint8_t &levelCount,
 		const bool &inc = true)
 	{
-		int8_t level = (value * levelCount) >> 8;
+		int8_t level = Utilities::getLevel(value, levelCount);
 		level = inc ? level + 1 : level - 1;
 		if (level >= levelCount)
 			level = 0;

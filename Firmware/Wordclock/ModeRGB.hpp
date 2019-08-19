@@ -14,36 +14,37 @@ namespace Wordclock
 	};
 
 	/// allows to manipulate the RGB amounts of the current color preset manually.
-	/// @tparam letter the position of the letter that represents the mode,
-	///                calculated by the POINT macro.
 	/// @tparam value - the element of the color that the mode changes.
 	/// @tparam levelCount - the count of grades the user can change the color values by.
-	template <uint8_t letter, RGBColorValues value, uint8_t levelCount>
+	template <RGBColorValues value, uint8_t levelCount>
 	class ModeRGB : public ModeBase
 	{
+	protected:
+		typedef ModeBase super;
 	public:
-		void increment(const bool &inc);
-
+		void actionButton(const bool &inc);
 		void paint();
 	};
 
-	template <uint8_t letter, RGBColorValues value, uint8_t levelCount>
-	void ModeRGB<letter, value, levelCount>::increment(const bool &inc)
+	template <RGBColorValues value, uint8_t levelCount>
+	void ModeRGB<value, levelCount>::actionButton(const bool &inc)
 	{
 		CRGB color = Wordclock::getColorPreset(
 			Wordclock::getColorPresetIndex());
 		color[value] = Utilities::changeLevel(color[value], levelCount, inc);
 		Wordclock::setColorPreset(Wordclock::getColorPresetIndex(), color);
+		Wordclock::repaint();
 	}
 
-	template <uint8_t letter, RGBColorValues value, uint8_t levelCount>
-	void ModeRGB<letter, value, levelCount>::paint()
+	template <RGBColorValues value, uint8_t levelCount>
+	void ModeRGB<value, levelCount>::paint()
 	{
-		Utilities::printHex(Wordclock::getColorPreset(
-			Wordclock::getColorPresetIndex()));
-
-#ifdef SHOW_MODE
-		Painter::paint(letter);
-#endif
+		if (isInTransition()) {
+			ModeBase::paint();
+		}
+		else {
+			Utilities::printHex(Wordclock::getColorPreset(
+				Wordclock::getColorPresetIndex())[value]);
+		}
 	}
 }

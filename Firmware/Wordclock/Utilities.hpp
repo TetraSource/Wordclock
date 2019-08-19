@@ -22,6 +22,15 @@ namespace Wordclock
 			const uint8_t &value,
 			const uint8_t &limit,
 			const bool &inc = true);
+		
+		/// returns the level of the given value if it is seperated into
+		/// levelCount units instead of 255 units.
+		/// @param value - the value in in a 255 unit system.
+		/// @param levelCount - the count of units in the target system.
+		/// @returns - the unit in the target system, aka the level.
+		inline static uint8_t getLevel(
+			const uint8_t &value,
+			const uint8_t &levelCount);
 
 		/// returns a incrementation or decrementation a value in range from 0
 		/// to 255 in levels.
@@ -65,4 +74,10 @@ namespace Wordclock
 		/// @param answer - whether to use an arrow or not.
 		static void printAnswere(const bool &answer);
 	};
+
+	inline uint8_t Utilities::getLevel(
+		const uint8_t &value, const uint8_t &levelCount)
+	{
+		return (value * levelCount) >> 8;
+	}
 }

@@ -1,18 +1,11 @@
 #pragma once
 
-#include "ModeBase.hpp"
-#include "Utilities.hpp"
-#include "Wordclock.hpp"
+#include "ModeBaseInterval.hpp"
 
 namespace Wordclock
 {
-	class ModeFillerBase : public ModeBase
-	{
-	public:
-		void select();
-
-		void timer();
-	};
+	void modeFillerPaint(const CRGB &color, const Directions &,
+		const TimeTypes &, uint8_t);
 
 	/// Shows the time by turning on a certain amount of the display.
 	/// The current and the two next color presets are used thereby.
@@ -24,73 +17,32 @@ namespace Wordclock
 	///                 This value never exceeds the maximal possible time for
 	///                 the given time type. You can safely pass 255 to use
 	///                 the maximal possible scope always.
-	template <Directions direction,
-		TimeTypes timeType = Minutes,
-		uint8_t scope = 255>
-	class ModeFiller : public ModeFillerBase
+	template <class Generator, Directions direction,
+		TimeTypes timeType = Minutes, uint8_t scope = 255>
+	class ModeFiller : public ModeBaseInterval<1000>
 	{
+	protected:
+		typedef ModeBaseInterval<1000> super;
+		Generator gen;
 	public:
+		ModeFiller();
 		void paint();
 	};
 
-	template <Directions direction, TimeTypes timeType, uint8_t scope>
-	void ModeFiller<direction, timeType, scope>::paint()
+	template <class Generator, Directions direction,
+		TimeTypes timeType, uint8_t scope>
+	ModeFiller<Generator, direction, timeType, scope>::ModeFiller()
 	{
-		uint32_t maxSecs = scope;
-		if (timeType < Years) {
-			maxSecs = Wordclock::getUnitSeconds(timeType + 1);
-			if (maxSecs > ((uint32_t)scope) *
-				Wordclock::getUnitSeconds(timeType))
-			{
-				maxSecs = ((uint32_t)scope) *
-					Wordclock::getUnitSeconds(timeType);
-			}
-		}
+		gen = Generator();
+	}
 
-		uint32_t amount = Wordclock::getSeconds(timeType) % maxSecs + 1;
-		while (amount > 0xffffff) {
-			amount >>= 1;
-			maxSecs >>= 1;
-		}
-
-		Painter::setColor(Wordclock::getCurrentPreset(1));
-		if (direction == Border) {
-			Painter::paintAll();
-			Painter::setColor(CRGB(0, 0, 0));
-		}
-
-		if (direction == Top) {
-			uint8_t filled = (amount * Painter::height) / maxSecs;
-			Painter::paint(0, 0, Painter::width, filled);
-		}
-		else if (direction == Bottom) {
-			uint8_t filled = (amount * Painter::height) / maxSecs;
-			Painter::paint(
-				0, Painter::height - filled, Painter::width, filled);
-		}
-		else if (direction == Left) {
-			uint8_t filled = (amount * Painter::height) / maxSecs;
-			Painter::paint(
-				0, 0, filled, Painter::height);
-		}
-		else if (direction == Right) {
-			uint8_t filled = (amount * Painter::height) / maxSecs;
-			Painter::paint(
-				Painter::width - filled, 0, filled, Painter::height);
-		}
-		else if (direction == Center || direction == Border) {
-			uint8_t filledW = ((amount * Painter::width) / maxSecs);
-			uint8_t filledH = ((amount * Painter::height) / maxSecs);
-			filledW = Painter::width % 2 ? filledW | 0x01 : filledW & 0xfe;
-			filledH = Painter::height % 2 ? filledH | 0x01 : filledH & 0xfe;
-			Painter::paint(
-				(Painter::width - filledW) >> 1,
-				(Painter::height - filledH) >> 1,
-				filledW, filledH);
-		}
-
-		// Paint time
-		Painter::setColor(Wordclock::getCurrentPreset());
-		Utilities::printTime();
+	template <class Generator, Directions direction,
+		TimeTypes timeType, uint8_t scope>
+	void ModeFiller<Generator, direction, timeType, scope>::paint()
+	{
+		if (isInTransition())
+			ModeBase::paint();
+		else
+			modeFillerPaint(gen.next(), direction, timeType, scope);
 	}
 }

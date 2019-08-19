@@ -1,6 +1,5 @@
 #pragma once
 
-#include "GeneratorBase.hpp"
 #include "ModeBase.hpp"
 #include "Utilities.hpp"
 #include "Wordclock.hpp"
@@ -10,137 +9,127 @@ namespace Wordclock
 	class ModeWavesBase : public ModeBase
 	{
 	protected:
-		static CRGB* colors;
+		typedef ModeBase super;
+		static CRGB *colors;
 		static uint8_t count;
 
-		GeneratorBase* gen;
-
 		void nextColor();
-		void init(const uint8_t &count);
-
-	public:
-		ModeWavesBase(GeneratorBase* gen);
-
-		void deselect();
+		void printCenterWaves();
+		void printBorderWaves();
+		ModeWavesBase();
 	};
 
 	/// moves color a infinite succession of colored stripes across the
 	/// display.
+	/// @tparam Generator - the color generator that selects a new color
+	///                     when necessary.
 	/// @tparam direction - the direction whence the waves come to simulate
 	///                     the tunnel effect.
 	/// @tparam interval - the time between each movement of the waves in
 	///                    milliseconds.
-	template <Directions direction = Center, uint32_t interval = 500>
+	template <class Generator, Directions direction, uint32_t interval>
 	class ModeWaves : public ModeWavesBase
 	{
+	protected:
+		typedef ModeWavesBase super;
+		Generator gen;
 	public:
-		/// initializes the effect.
-		/// @param generator - the color generator that chooses the colors
-		///                    for the waves.
-		ModeWaves(GeneratorBase* generator);
-
+		ModeWaves();
 		void select();
-
-		void timer();
-
+		void deselect();
+		uint32_t timer(const uint8_t &channel);
 		void paint();
 	};
 
-	template <Directions direction, uint32_t interval>
-	ModeWaves<direction, interval>::ModeWaves(GeneratorBase* generator)
-		: ModeWavesBase(generator)
-	{}
-
-	template <Directions direction, uint32_t interval>
-	void ModeWaves<direction, interval>::select()
+	template <class Generator, Directions direction, uint32_t interval>
+	ModeWaves<Generator, direction, interval>::ModeWaves()
+		: ModeWavesBase()
 	{
-		init((direction == Center || direction == Border) ?
-			(Painter::maxLength + 1) >> 1 : Painter::maxLength);
+		gen = Generator();
 	}
 
-	template <Directions direction, uint32_t interval>
-	void ModeWaves<direction, interval>::timer()
+	template <class Generator, Directions direction, uint32_t interval>
+	void ModeWaves<Generator, direction, interval>::select()
 	{
+		if (isInTransition()) {
+			ModeBase::select();
+			return;
+		}
+		if (direction == Center || direction == Border)
+			count = (Painter::maxLength + 1) >> 1;
+		else
+			count = Painter::maxLength;
+		colors = new CRGB[count];
+
+		uint8_t i = count-1;
+		do {
+			colors[i] = gen.next();
+		} while(i-- != 0);
+
+		Wordclock::startTimer(this, interval, 0);
+	}
+
+	template <class Generator, Directions direction, uint32_t interval>
+	void ModeWaves<Generator, direction, interval>::deselect()
+	{
+		if (isInTransition()) {
+			ModeBase::deselect();
+			return;
+		}
+		count = 0;
+		delete[] colors;
+		Wordclock::cancelTimer(this, 0);
+	}
+
+	template <class Generator, Directions direction, uint32_t interval>
+	uint32_t ModeWaves<Generator, direction, interval>::timer(
+		const uint8_t &channel)
+	{
+		if (isInTransition())
+			return ModeBase::timer(channel);
 		nextColor();
-		startTimer(interval);
+		colors[0] = gen.next();
+		return interval;
 	}
 
-	template <Directions direction, uint32_t interval>
-	void ModeWaves<direction, interval>::paint()
+	template <class Generator, Directions direction, uint32_t interval>
+	void ModeWaves<Generator, direction, interval>::paint()
 	{
-		if (direction == Top) {
+		if (isInTransition()) {
+			ModeBase::paint();
+			return;
+		}
+		switch(direction)
+		{
+		case Top:
 			for (uint8_t y = 0; y < HEIGHT; y++) {
 				Painter::setColor(colors[y % count]);
 				Painter::paint(0, y, WIDTH, 1);
 			}
-		}
-		else if (direction == Bottom) {
+			break;
+		case Bottom:
 			for (uint8_t y = 0; y < HEIGHT; y++) {
 				Painter::setColor(colors[y % count]);
 				Painter::paint(0, HEIGHT - y - 1, WIDTH, 1);
 			}
-		}
-		else if (direction == Left) {
+			break;
+		case Left:
 			for (uint8_t x = 0; x < WIDTH; x++) {
 				Painter::setColor(colors[x % count]);
 				Painter::paint(x, 0, 1, HEIGHT);
 			}
-		}
-		else if (direction == Right) {
+			break;
+		case Right:
 			for (uint8_t x = 0; x < WIDTH; x++) {
 				Painter::setColor(colors[x % count]);
 				Painter::paint(WIDTH - x - 1, 0, 1, HEIGHT);
 			}
+			break;
+		case Center:
+			printCenterWaves();
+			break;
+		case Border:
+			printBorderWaves();
 		}
-		else if (direction == Center) {
-			uint8_t x0 = (WIDTH - 1) >> 1;
-			uint8_t y0 = (HEIGHT - 1) >> 1;
-			uint8_t ringCount =
-				WIDTH >= HEIGHT ? (WIDTH + 1) >> 1 : (HEIGHT + 1) >> 1;
-
-			for (uint8_t i = 0; i < ringCount; i++) {
-				Painter::setColor(colors[i % count]);
-
-				uint8_t x1 = WIDTH - x0 - 1;
-				uint8_t y1 = HEIGHT - y0 - 1;
-
-				for (uint8_t x = x0; x <= x1; x++) {
-					Painter::paint(x, y0);
-					Painter::paint(x, y1);
-				}
-				for (uint8_t y = y0 + 1; y < y1; y++) {
-					Painter::paint(x0, y);
-					Painter::paint(x1, y);
-				}
-
-				x0--;
-				y0--;
-			}
-		}
-		else if (direction == Border) {
-			uint8_t ringCount =
-				WIDTH >= HEIGHT ? (WIDTH + 1) >> 1 : (HEIGHT + 1) >> 1;
-
-			for (uint8_t i = 0; i < ringCount; i++) {
-				Painter::setColor(colors[i % count]);
-
-				uint8_t &x0 = i;
-				uint8_t &y0 = i;
-				uint8_t x1 = WIDTH - x0 - 1;
-				uint8_t y1 = HEIGHT - y0 - 1;
-
-				for (uint8_t x = x0; x <= x1; x++) {
-					Painter::paint(x, y0);
-					Painter::paint(x, y1);
-				}
-				for (uint8_t y = y0 + 1; y < y1; y++) {
-					Painter::paint(x0, y);
-					Painter::paint(x1, y);
-				}
-			}
-		}
-
-		Painter::setColor(Wordclock::getCurrentPreset());
-		Utilities::printTime();
 	}
 }

@@ -1,30 +1,25 @@
 
 ///////////////////////////// HARDWARE SETTINGS ////////////////////////////////
 
-// PINS
+// PINS //
 
 // Don't use the SDA (data line) or SCL (clock line)
 // but for connecting it to the RTC.
 
-// Digital button input pin for picking the next mode.
-#define NEXT_MODE_PIN 8
-// Digital button input pin for picking the previous mode.
-#define PREV_MODE_PIN 9
-// Digital button input pin for incrementing the current mode.
-#define INC_MODE_PIN 10
-// Digital button input pin for decrementing the current mode.
-#define DEC_MODE_PIN 11
+// Digital button input pin for picking modes.
+#define NEXT_MODE_BUTTON_PIN 9
+#define PREV_MODE_BUTTON_PIN 8
+// Digital button input pin for triggering actions of the current focused mode.
+#define INC_BUTTON_PIN 11
+#define DEC_BUTTON_PIN 10
 // Digital LED stripe connection.
 #define LED_DATA_PIN 5
 // Digital input pin for RTC pulse.
 #define RTC_PULSE_PIN 4
-// The digital output pin for the alarm.
-// Is turned on and off once per second when the alarm is active.
-#define ALARM_PIN 6
 // A free analog input pin.
 #define FREE_ANALOG_PIN 0
 
-// DISPLAY
+// DISPLAY //
 
 #define CHIPSET  WS2812B   // the LED stripe type
 #define COLOR_ORDER GRB    // the color order or the LED stripe
@@ -41,7 +36,7 @@
 #define ROW_LENGTH    11
 // The length of a vertical row is the LED_COUNT divided by the ROW_LENGTH
 
-// Macro for calculating the virutal led position
+// Macro for calculating the virtual LED position
 // of a point with the coord (x, y). Note that (0, 0)
 // specifies the top left point.
 #define POINT(x, y) (x + y * ROW_LENGTH)
@@ -72,53 +67,73 @@ namespace Wordclock
 
 /////////////////////////////// SOFTWARE SETTINGS //////////////////////////////
 
-// DEBUGGING
+// DEBUGGING //
 
 // Baud rate for serial debug output
 #define BAUD_RATE 9600
+
 // Outputs debug data if given
 //#define DEBUG
+
 // Outputs all marked and painted LEDs when given
 //#define DEBUG_DISPLAY
+
 // Utilizes the build in LED to indicate the time pulse if this setting exists
 //#define SHOW_PULSE
 
-// RTC
+// RTC //
 
 // Lets the Arduino simulate the RTC pulse if this setting exists.
 #define INTERNAL_PULSE
-// Lets the Arduino simulate the time incrementation if this setting exists.
+
+// If this setting is set, the clock of the Arduino is used instead of the RTC.
 // Becomes inaccurate easily.
 //#define INTERNAL_TIME
 
-// EEPROM
+// TIMERS //
+
+// The type of the variable used to save the (maximal) count of running timers.
+// Thus this value determines the maximal count of running timers but also
+// increases the amount of RAM used by the timers.
+// The following types are possible:
+//   uint8_t  => 1 byte  => max. 2^8-1 = 255 timers
+//   uint16_t => 2 bytes => max. 2^16-1 = 65535 timers
+//   uint32_t => 4 bytes => max. 2^32-1 = 4294967295 timers
+//   uint64_t => 8 bytes => max. 2^64-1 timers
+#define TIMER_COUNT_TYPE uint8_t
+
+// Specifies the maximal count of milliseconds that may pass between a timer
+// elapses and the time it is triggered. This is necessary as the timers are
+// not checked constantly. If a timer elapses and timerHeap.update is called
+// at least TRIGGER_ZONE milliseconds afterward, the timer can still be
+// triggered. However, it also lessons the maximal interval to
+// 2^32 - TRIGGER_ZONE.
+#define TRIGGER_ZONE 8192
+
+// EEPROM //
 
 // Enable those settings if you upload the program the first time or if you
 // changed certain settings such as the modes.
 
 // Resets the EEPROM whenever the Wordclock is powered using the
 // default values.
-//#define RESET_EEPROM
-// More robust type of RESET_EEPROM.
-// Note that the Wordclock appears to be dead when this mode is enabled.
-//#define RESET_EEPROM_SAFELY
+#define RESET_EEPROM
 
-// MISCELLANEOUS
+// Initialising the EEPROM might require more RAM than the normal operational
+// Wordclock status. When you think, reseting the EEPROM might crash the
+// Wordclock activate this setting. It just allows the Wordclock to get
+// initialized and disables all its modes so that they don't take the RAM.
+// The Wordclock is not going to work if this is set of course.
+//#define JUST_INITIALIZE
+
+// MISCELLANEOUS //
 
 // the time a button is locked before it can be used again in milliseconds.
-#define BUTTON_LOCK_TIME 250
+// This value must not exceed 2047.
+#define BUTTON_LOCK_TIME 500
+
 // Just shows the current configuration mode if this setting exists.
 #define SHOW_MODE
-
-// ALARMS
-
-// the maximal count of times for all alarms.
-#define ALARM_COUNT 0
-// stops the alarm when any button is pressed if this setting exists.
-#define STOP_ALARM_ON_PRESS
-// uses a pulse instead of a static high signal for the alarm
-// if this setting exists.
-#define ALARM_PULSE
 
 // COLOR PRESETS //
 
@@ -145,19 +160,17 @@ CRGB(CRGB::DarkGreen), \
 
 // MODES //
 
-#ifndef RESET_EEPROM_SAFELY
+#ifndef JUST_INITIALIZE
 // protects this section from being loaded into wrong code sections.
 #ifdef IMPORT_MODES
 
 // default mode
-#include "ModeDefault.hpp"
+#include "ModeWordclock.hpp"
 
 // configuration modes
-#include "ModeAlarm.hpp"
 #include "ModeBrightness.hpp"
 #include "ModeColorPreset.hpp"
 #include "ModeHSV.hpp"
-#include "ModeListAlarms.hpp"
 #include "ModeRearrangeColorPreset.hpp"
 #include "ModeRGB.hpp"
 #include "ModeTime.hpp"
@@ -166,83 +179,83 @@ CRGB(CRGB::DarkGreen), \
 #include "ModeColorChangerTime.hpp"
 #include "ModeColorChangerTimer.hpp"
 #include "ModeFiller.hpp"
-#include "ModeFlyingPixels.hpp"
+#include "ModePixelRain.hpp"
 #include "ModeGlowing.hpp"
 #include "ModeTimeSlice.hpp"
 #include "ModeWaves.hpp"
 
 // color generators
+#include "GeneratorAlternating.hpp"
 #include "GeneratorColorPreset.hpp"
 #include "GeneratorGradient.hpp"
+#include "GeneratorHSVAdapter.hpp"
 #include "GeneratorRandom.hpp"
+#include "GeneratorRGBAdapter.hpp"
 #include "GeneratorStatic.hpp"
-#endif
+#include "GeneratorUnion.hpp"
+
+// selectors
+#include "SelectorRandom.hpp"
+#include "SelectorSuccessive.hpp"
+#include "SelectorTime.hpp"
+
+#define PresetGenerator GeneratorColorPreset<SelectorSuccessive<0, COLOR_PRESET_COUNT, 1, 0>>
 
 // ALWAYS KEEP THIS NUMBER IN SYNC WITH THE COUNT OF MODES AND
 // RESET THE EEPROM IF YOU CHANGE IT!
-#if ALARM_COUNT > 0
-#define ALARM_MODES_ 5
-#else
-#define ALARM_MODES_ 0
-#endif
-#define MODE_COUNT 23 + ALARM_MODES_
-#ifdef IMPORT_MODES
 namespace Wordclock
 {
-	ModeBase* Wordclock::modes[MODE_COUNT] = {
-		new ModeDefault<NO_POINT>(), // Don't move this mode to another index.
-		new ModeTime<POINT(5, 1), Weekdays>(), // letter is W
-		new ModeTime<POINT(2, 1), Hours>(), // letter is H
-		new ModeTime<POINT(7, 9), Minutes>(), // letter is M
-		new ModeTime<POINT(1, 0), Seconds>(), // letter is S
-		new ModeColorPreset<POINT(3, 9)>(), // letter is C
-		new ModeRearrangeColorPreset<POINT(9, 3)>(), // letter is J
-		new ModeBrightness<POINT(8, 1), 5>(), // letter is Z
-		new ModeRGB<POINT(0, 9), Red, 20>(), // letter is R
-		new ModeRGB<POINT(10, 1), Green, 20>(), // letter is G
-		new ModeRGB<POINT(10, 9), Blue, 20>(), // letter is B
-		new ModeHSV<POINT(5, 5), Hue, 20>(), // letter is H
-		new ModeHSV<POINT(5, 3), Saturation, 20>(), // letter is S
-		new ModeHSV<POINT(7, 7), Value, 20>(), // letter is V
-#if ALARM_COUNT > 0
-		new ModeAlarm<POINT(5, 1), AlarmWeekday>(), // letter is W
-		new ModeAlarm<POINT(1, 9), AlarmHour>(), // letter is H
-		new ModeAlarm<POINT(7, 9), AlarmMinute>(), // letter is M
-		new ModeAlarm<POINT(6, 1), SetAlarm>(), // letter is A
-		new ModeListAlarms<POINT(1, 7)>(), // letter is L
-#endif
+	const uint8_t Wordclock::modeCount = 23;
+	const ModeBase *Wordclock::modes[Wordclock::modeCount] = {
+		new ModeWordclock(),
+		new ModeTime<Weekdays>(),
+		new ModeTime<Hours>(),
+		new ModeTime<Minutes>(),
+		new ModeTime<Seconds>(),
+		new ModeColorPreset(),
+		new ModeRearrangeColorPreset(),
+		new ModeBrightness<5>(),
+		new ModeRGB<Red, 20>(),
+		new ModeRGB<Green, 20>(),
+		new ModeRGB<Blue, 20>(),
+		new ModeHSV<Hue, 20>(),
+		new ModeHSV<Saturation, 20>(),
+		new ModeHSV<Value, 20>(),
+
 		// uses the first five colors to show the time in five minute
 		// intervals.
-		new ModeColorChangerTime<Minutes>(new GeneratorColorPreset<ChooseByTime, 0, 4, Minutes>()),
+		new ModeColorChangerTime<GeneratorColorPreset<SelectorTime<Minutes, 0, 6, 5>>, 5, Minutes>(),
 
 		// uses a timer and a gradient to generate a fader.
-		new ModeColorChangerTimer<250>(new GeneratorGradient<150>(new GeneratorColorPreset<ChooseNext>())),
-
-		// fills the display from the bottom to the top to show the advancing
-		// of every minute.
-		// equal to "new ModeFiller<Bottom, Minutes, 1>"
-		new ModeFiller<Bottom, Seconds, 60>(),
-
-		// lets pixels fly quickly from the top, bottom and right side of the
-		// display to the opposite ones.
-		new ModeFlyingPixels<DIR_ITEM(Top, DIR_ITEM(Bottom, DIR_ITEM(Right, 0))), 200, 1, 5, 0, 12>(new GeneratorColorPreset<ChooseRandom>()),
-
-		// The Matrix!
-		new ModeFlyingPixels<DIR_ITEM(Top, 0), 175, 3, 5, 30, 40>(new GeneratorStatic<0, 255, 0, RGB>()),
+		new ModeColorChangerTimer<GeneratorGradient<PresetGenerator, 150>, 250>(),
 
 		// turns on pixels around activated ones to let them appear glowing.
 		new ModeGlowing<2>(),
 
 		// shows a time slice in the background to show the time in five
 		// minute intervals.
-		new ModeTimeSlice<Minutes, 5>(),
+		new ModeTimeSlice<GeneratorStatic<255, 255, 0>, Minutes, 5>(),
+
+		// fills the display from the bottom to the top to show the advancing
+		// of every minute.
+		// equal to "new ModeFiller<Bottom, Minutes, 1>"
+		new ModeFiller<GeneratorStatic<255, 100, 0>, Bottom, Seconds, 60>(),
+
+		// lets pixels fly quickly from the top, bottom and right side of the
+		// display to the opposite ones.
+		new ModePixelRain<GeneratorColorPreset<SelectorRandom<0, COLOR_PRESET_COUNT>>,
+			DIR_ITEM(Top, DIR_ITEM(Bottom, DIR_ITEM(Right, 0))), 150, 1, 5, 0, 12>(),
+
+		// The Matrix!
+		new ModePixelRain<GeneratorStatic<0, 255, 0>, DIR_ITEM(Top, 0), 150, 3, 5, 30, 40>(),
 
 		// Tunnel effect with all colors!
-		new ModeWaves<Center, 500>(new GeneratorRandom<0, 255, 0, 255, 0, 255, RGB>()),
+		new ModeWaves<GeneratorRandom<0, 255, 0, 255, 0, 255>, Center, 500>(),
 
 		// creates a gradient from the left side to the right one using
 		// vibrant, random generated colors.
-		new ModeWaves<Left, 1000>(new GeneratorGradient<220>(new GeneratorRandom<0, 255, 191, 255, 65, 255, HSV>())),
+		new ModeWaves<GeneratorGradient<GeneratorRGBAdapter<GeneratorRandom
+			<0, 255, 191, 255, 65, 255>>, 220>, Left, 1000>(),
 	};
 }
 #undef IMPORT_MODES
@@ -250,10 +263,12 @@ namespace Wordclock
 
 #else
 
-#define MODE_COUNT 0
 #ifdef IMPORT_MODES
 #include "ModeBase.hpp"
-Wordclock::ModeBase* Wordclock::Wordclock::modes[MODE_COUNT] = {};
+namespace Worclock {
+	const uint8_t Wordclock::modeCount = 0;
+	ModeBase *Wordclock::modes[Wordclock::modeCount] = {};
+}
 #undef IMPORT_MODES
 #endif
 
