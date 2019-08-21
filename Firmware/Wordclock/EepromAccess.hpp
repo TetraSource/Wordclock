@@ -21,9 +21,9 @@ namespace Wordclock
 		EEPROM_SIZE_TYPE slot;
 	public:
 		EepromAccess();
-		void setDefault(T &default_);
-		void get(T &var);
-		void set(const T &value_);
+		inline void setDefault(T &val);
+		inline void get(T &val) const;
+		inline void set(const T &val) const;
 	};
 
 	template <class T>
@@ -34,27 +34,25 @@ namespace Wordclock
 	}
 
 	template <class T>
-	void EepromAccess<T>::setDefault(T &default_)
+	inline void EepromAccess<T>::setDefault(T &val)
 	{
 #ifdef RESET_EEPROM
-		EEPROM.put(slot, default_);
+		set(val);
 #else
-		EEPROM.get(slot, default_);
+		get(val);
 #endif
 	}
 
 	template <class T>
-	void EepromAccess<T>::get(T &var)
+	inline void EepromAccess<T>::get(T &val) const
 	{
-		EEPROM.get(slot, var);
+		EEPROM.get(slot, val);
 	}
 
 	template <class T>
-	void EepromAccess<T>::set(const T &value_)
+	inline void EepromAccess<T>::set(const T &val) const
 	{
-#ifndef RESET_EEPROM
-		EEPROM.put(slot, value_);
-#endif
+		EEPROM.put(slot, val);
 	}
 
 	template <class T, uint8_t size>
@@ -64,9 +62,9 @@ namespace Wordclock
 		EEPROM_SIZE_TYPE slot;
 	public:
 		EepromArrayAccess();
-		void setDefault(T *default_);
-		void get(const uint8_t &idx, T &val);
-		void set(const uint8_t &idx, const T &val);
+		inline void setDefault(const uint8_t &idx, T &val);
+		void get(const uint8_t &idx, T &val) const;
+		void set(const uint8_t &idx, const T &val) const;
 	};
 
 	template <class T, uint8_t size>
@@ -77,34 +75,25 @@ namespace Wordclock
 	}
 
 	template <class T, uint8_t size>
-	void EepromArrayAccess<T, size>::setDefault(T *default_)
+	inline void EepromArrayAccess<T, size>::setDefault(
+		const uint8_t &idx, T &val)
 	{
-		EEPROM_SIZE_TYPE currSlot = slot;
-		for (uint8_t i = 0; i < size; i++) {
 #ifdef RESET_EEPROM
-			EEPROM.put(currSlot, default_[i]);
+		set(idx, val);
 #else
-			EEPROM.get(currSlot, default_[i]);
+		get(idx, val);
 #endif
-			currSlot += sizeof(T);
-		}
 	}
 
 	template <class T, uint8_t size>
-	void EepromArrayAccess<T, size>::get(const uint8_t &idx, T &val)
+	void EepromArrayAccess<T, size>::get(const uint8_t &idx, T &val) const
 	{
-#ifdef RESET_EEPROM
-		EEPROM.put(slot + idx * sizeof(T), val);
-#else
 		EEPROM.get(slot + idx * sizeof(T), val);
-#endif
 	}
 
 	template <class T, uint8_t size>
-	void EepromArrayAccess<T, size>::set(const uint8_t &idx, const T &val)
-	{
-#ifndef RESET_EEPROM
+	void EepromArrayAccess<T, size>::set(const uint8_t &idx, const T &val) const
+	{ 
 		EEPROM.put(slot + idx * sizeof(T), val);
-#endif
 	}
 }

@@ -48,9 +48,11 @@ namespace Wordclock
 	template<uint32_t interval>
 	uint32_t ModeBaseInterval<interval>::timer(const uint8_t &channel)
 	{
-		if (isInTransition())
+		if (channel != 0)
 			return ModeBase::timer(channel);
 		Wordclock::repaint();
 		return interval;
 	}
+
+	typedef ModeBaseInterval<500> ModeTimeBound;
 }

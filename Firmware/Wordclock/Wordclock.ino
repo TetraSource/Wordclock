@@ -12,6 +12,13 @@
 #include <Wire.h>
 #endif
 
+#if MODE_COUNT <= 0
+#error Mode count needs to be 1 at least.
+#endif
+#if LAYER_COUNT <= 0
+#error Layer count needs to be 1 at least
+#endif
+
 namespace Wordclock
 {
 	// CORE DEFINITION
@@ -52,29 +59,58 @@ namespace Wordclock
 
 	uint8_t Wordclock::times[7] = {};
 
-	EepromVariable<uint8_t> Wordclock::currMode = EepromVariable<uint8_t>();
+	const EepromArray<uint8_t, LAYER_COUNT> Wordclock::currModes =
+		EepromArray<uint8_t, LAYER_COUNT>();
 
-	EepromArray<CRGB, COLOR_PRESET_COUNT> Wordclock::presets =
+	const EepromArray<CRGB, COLOR_PRESET_COUNT> Wordclock::presets =
 		EepromArray<CRGB, COLOR_PRESET_COUNT>();
-	EepromVariable<uint8_t> Wordclock::currPresetIndex =
+	const EepromVariable<uint8_t> Wordclock::currPresetIndex =
 		EepromVariable<uint8_t>();
 
 	TimerHeap<TIMER_COUNT_TYPE> Wordclock::timers =
 		TimerHeap<TIMER_COUNT_TYPE>();
 	bool Wordclock::repaintRequest = false;
 
-	bool Wordclock::setMode(const uint8_t &index)
+	bool Wordclock::setMode(const uint8_t &layer, const uint8_t &index,
+		const bool &activateTransition)
 	{
-		if (index >= modeCount)
+		if (index >= MODE_COUNT || layer >= LAYER_COUNT)
 			return false;
-		if (index == currMode.get())
+		if (index == currModes.get(layer))
 			return true;
 
-		modes[currMode.get()]->deselect();
-		currMode.set(index);
-		modes[currMode.get()]->select();
+		modes[currModes.get(layer)]->deselect();
+
+		currModes.set(layer, index);
+		if (activateTransition) {
+			ModeBase::inTransition = true;
+			startTimer(modes[currModes.get(layer)],
+				ModeBase::transitionTime, ModeBase::transitionChannel);
+		}
+		modes[currModes.get(layer)]->select();
 		repaint();
 		return true;
+	}
+
+	uint8_t Wordclock::getNextMode(const uint8_t &layer, const bool &inc,
+		const uint8_t &lower, uint8_t upper)
+	{
+		if (layer >= LAYER_COUNT)
+			return 0;
+		if (upper > MODE_COUNT)
+			upper = MODE_COUNT;
+		upper -= lower;
+		uint8_t newMode = currModes.get(layer);
+		uint8_t i = 0;
+		do {
+			bool valid = true;
+			newMode = Utilities::changeValue(newMode - lower, upper, inc) + lower;
+			for (uint8_t j = 0; valid && j < LAYER_COUNT; j++)
+				valid = j == layer || currModes.get(j) != newMode;
+			if (valid)
+				return newMode;
+		} while (++i != MODE_COUNT);
+		return currModes.get(layer);
 	}
 
 	bool Wordclock::setColorPreset(const uint8_t &index, const CRGB &color)
@@ -190,7 +226,14 @@ namespace Wordclock
 }
 
 #define IMPORT_MODES
+#ifdef JUST_INITIALIZE
+#define MODE_COUNT 0
+#define LAYER_COUNT 0
+const Wordclock::ModeBase *Wordclock::Wordclock::modes[MODE_COUNT] = {};
+#else
 #include "Config.hpp"
+#endif
+#undef IMPORT_MODES
 
 namespace Wordclock
 {
@@ -275,14 +318,16 @@ namespace Wordclock
 			Wordclock::times[i] = 0;
 		}
 
-		Wordclock::currMode.setDefault(0);
 		Wordclock::currPresetIndex.setDefault(0);
 
+		uint8_t defaultModes[LAYER_COUNT] = { DEFAULT_MODES };
 		CRGB defaultPresets[COLOR_PRESET_COUNT] = { DEFAULT_COLOR_PRESETS };
-		Wordclock::presets.setDefault(defaultPresets);
+		for (uint8_t layer = 0; layer < LAYER_COUNT; layer++)
+			Wordclock::currModes.setDefault(layer, defaultModes[layer]);
+		for (uint8_t i = 0; i < COLOR_PRESET_COUNT; i++)
+			Wordclock::presets.setDefault(i, defaultPresets[i]);
 
 		uint8_t brightness = 255;
-		
 		brightnessSlot.setDefault(brightness);
 		FastLED.setBrightness(brightness);
 
@@ -294,7 +339,8 @@ namespace Wordclock
 #endif
 
 		// init configuration and LED mode
-		Wordclock::modes[Wordclock::currMode.get()]->select();
+		for (uint8_t i = 0; i < LAYER_COUNT; i++)
+			Wordclock::modes[Wordclock::currModes.get(i)]->select();
 		Wordclock::repaint();
 #endif
 	}
@@ -334,7 +380,7 @@ namespace Wordclock
 					DEBUG_OUT("cmb"); // change mode buttons
 					bs.buttonLock = millis();
 					bs.buttonsLocked = true;
-					Wordclock::modes[Wordclock::currMode.get()]->
+					Wordclock::modes[Wordclock::currModes.get(0)]->
 						actionButton(incButton);
 				}
 			}
@@ -351,7 +397,7 @@ namespace Wordclock
 						DEBUG_OUT("mb"); // mode buttons
 						bs.buttonLock = millis();
 						bs.buttonsLocked = true;
-						Wordclock::modes[Wordclock::currMode.get()]->
+						Wordclock::modes[Wordclock::currModes.get(0)]->
 							modeButton(incButton);
 					}
 				}
@@ -431,9 +477,10 @@ namespace Wordclock
 		if (Wordclock::repaintRequest) {
 			Wordclock::repaintRequest = false;
 			DEBUG_OUT("rp"); // repaint
-			Painter::setColor(Wordclock::getCurrentPreset());
 			FastLED.clear();
-			Wordclock::modes[Wordclock::currMode.get()]->paint();
+			for (uint8_t i = LAYER_COUNT; i != 0;) {
+				Wordclock::modes[Wordclock::currModes.get(--i)]->paint();
+			}
 			FastLED.show();
 		}
 	}
@@ -453,7 +500,6 @@ namespace Wordclock
 
 void setup()
 {
-	Serial.begin(9600);
 	Wordclock::Core::setup();
 }
 

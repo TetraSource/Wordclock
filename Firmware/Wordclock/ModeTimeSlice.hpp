@@ -5,10 +5,10 @@
 
 namespace Wordclock
 {
-	class ModeTimeSliceBase : public ModeBaseInterval<1000>
+	class ModeTimeSliceBase : public ModeTimeBound
 	{
 	protected:
-		typedef ModeBaseInterval<1000> super;
+		typedef ModeTimeBound super;
 		static uint8_t calcLength(
 			const uint32_t &l,
 			const uint8_t &column,

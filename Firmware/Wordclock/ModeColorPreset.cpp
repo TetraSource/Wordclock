@@ -15,7 +15,9 @@ namespace Wordclock
 	{
 		if (isInTransition())
 			ModeBase::paint();
-		else
+		else {
+			Painter::setColor(Wordclock::getCurrentPreset());
 			Utilities::printNumber(Wordclock::getColorPresetIndex() + 1);
+		}
 	}
 }

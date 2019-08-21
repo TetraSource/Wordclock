@@ -61,11 +61,11 @@ namespace Wordclock
 	private:
 		static uint8_t times[7];
 
-		static const ModeBase *modes[];
-		static EepromVariable<uint8_t> currMode;
+		const static ModeBase *modes[];
+		const static EepromArray<uint8_t, LAYER_COUNT> currModes;
 
-		static EepromArray<CRGB, COLOR_PRESET_COUNT> presets;
-		static EepromVariable<uint8_t> currPresetIndex;
+		const static EepromArray<CRGB, COLOR_PRESET_COUNT> presets;
+		const static EepromVariable<uint8_t> currPresetIndex;
 
 		static TimerHeap<TIMER_COUNT_TYPE> timers;
 		static bool repaintRequest;
@@ -74,15 +74,31 @@ namespace Wordclock
 		static uint8_t getDaysOfMonth();
 
 	public:
-		static const uint8_t modeCount;
-
-		/// Sets the current mode.
+		/// Sets the current mode of a layer.
+		/// @param layer - the layer the mode is changed on.
 		/// @param mode - the new mode to switch to.
-		static bool setMode(const uint8_t &mode);
+		/// @param activateTransition - whether the the index of the mode
+		///                             should be displayed briefly before
+		///                             activating the mode. This process is
+		///                             concurrent.
+		static bool setMode(const uint8_t &layer, const uint8_t &mode,
+			const bool &activateTransition = false);
 
-		/// Returns the current mode.
+		/// Returns the current mode of a layer.
+		/// @param layer - the layer the mode is active on.
 		/// @returns the currently active mode.
-		inline static uint8_t getMode();
+		inline static uint8_t getMode(const uint8_t &layer);
+
+		/// Returns the next mode that that is not active on any other layer.
+		/// You should always use this function for setting new modes as
+		/// many modes must not run on two layers simultaneous.
+		/// @param layer - the layer of the new mode
+		/// @param inc - whether the next (inc = true) or previous (inc = false)
+		///              mode should be searched.
+		/// @param lower - the smallest allowed result.
+		/// @param upper - the biggest allowed result.
+		static uint8_t getNextMode(const uint8_t &layer, const bool &inc = true,
+			const uint8_t &lower = 0, uint8_t upper = 255);
 
 		/// Returns a reference to the current mode.
 		/// @returns the reference to the current mode.
@@ -213,9 +229,9 @@ namespace Wordclock
 	friend class Core;
 	};
 
-	inline uint8_t Wordclock::getMode()
+	inline uint8_t Wordclock::getMode(const uint8_t &layer)
 	{
-		return currMode.get();
+		return currModes.get(layer);
 	}
 
 	inline ModeBase *Wordclock::accessMode(const uint8_t &index)

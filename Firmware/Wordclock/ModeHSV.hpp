@@ -58,6 +58,7 @@ namespace Wordclock
 			ModeBase::paint();
 		}
 		else {
+			Painter::setColor(Wordclock::getCurrentPreset());
 			uint8_t* colorArray = (uint8_t*)&curr;
 			Utilities::printHex(colorArray[value]);
 		}

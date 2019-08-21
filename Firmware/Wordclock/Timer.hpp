@@ -31,7 +31,7 @@ namespace Wordclock
 	protected:
 		typedef Heap<SizeType, TimerItem, true> super;
 	public:
-		// Time may be at most 2^32 - TRIGGER_ZONE instead of 2^32.
+		// Time may be at most 2^32 - MAX_TRIGGER_DELAY instead of 2^32.
 		void start(const ModeBase *callback, const uint8_t &channel,
 			const uint32_t &time);
 		// If channel == 255, all timers with the given callback are canceled
@@ -43,7 +43,7 @@ namespace Wordclock
 		void extend(const uint32_t &time, const ModeBase *callback,
 			const uint8_t &channel, const bool &all);
 		// Triggers all expired timers. This method must be called at least
-		// once all TRIGGER_ZONE milliseconds.
+		// once all MAX_TRIGGER_DELAY milliseconds.
 		void update();
 	};
 
@@ -54,8 +54,8 @@ namespace Wordclock
 		if (time_ == 0 || channel_ == 255)
 			return;
 		insert(TimerItem(callback_, channel_, internalMillis() +
-			(time_ > (uint32_t)(0 - TRIGGER_ZONE) ?
-			(uint32_t)(0 - TRIGGER_ZONE) : time_)));
+			(time_ > (uint32_t)(0 - MAX_TRIGGER_DELAY) ?
+			(uint32_t)(0 - MAX_TRIGGER_DELAY) : time_)));
 #ifdef HEAP_DEBUG
 		Serial.println("i"); print(&printItem);
 #endif
@@ -107,7 +107,7 @@ namespace Wordclock
 		while (true) {
 			TimerItem *item = this->items[0];
 			if (isEmpty() ||
-				(uint32_t)(internalMillis() - item->end) >= TRIGGER_ZONE)
+				(uint32_t)(internalMillis() - item->end) >= MAX_TRIGGER_DELAY)
 				return;
 			uint32_t refresh = item->callback->timer(item->channel);
 			if (refresh == 0) {

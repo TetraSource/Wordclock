@@ -6,7 +6,7 @@
 namespace Wordclock
 {
 	ModeTimeSliceBase::ModeTimeSliceBase()
-		: ModeBaseInterval<1000>()
+		: ModeTimeBound()
 	{}
 
 	uint8_t ModeTimeSliceBase::calcLength(
@@ -42,7 +42,7 @@ namespace Wordclock
 			Painter::paintAll();
 			return;
 		}
-		// Paint all completly filled quarters of the slice.
+		// Paint all completely filled quarters of the slice.
 		if (rec >= 0x4000) {
 			Painter::paint(
 				hWidth, 0,

@@ -247,16 +247,16 @@ namespace Wordclock
 		}
 	}
 
-	void Utilities::printNumber(const uint8_t &number)
+	void Utilities::printNumber(const uint8_t &number, const uint8_t &y)
 	{
-		Utilities::printNumber((number / 10) % 10, 0, 2);
-		Utilities::printNumber(number % 10, 6, 2);
+		Utilities::printNumber((number / 10) % 10, 0, y);
+		Utilities::printNumber(number % 10, 6, y);
 	}
 
-	void Utilities::printHex(const uint8_t &number)
+	void Utilities::printHex(const uint8_t &number, const uint8_t &y)
 	{
-		Utilities::printNumber((number >> 4) & 0xf, 0, 2);
-		Utilities::printNumber(number & 0xf, 6, 2);
+		Utilities::printNumber((number >> 4) & 0xf, 0, y);
+		Utilities::printNumber(number & 0xf, 6, y);
 	}
 
 	void Utilities::printAnswere(const bool &answer)

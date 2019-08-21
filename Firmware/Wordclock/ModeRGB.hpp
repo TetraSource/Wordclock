@@ -43,6 +43,7 @@ namespace Wordclock
 			ModeBase::paint();
 		}
 		else {
+			Painter::setColor(Wordclock::getCurrentPreset());
 			Utilities::printHex(Wordclock::getColorPreset(
 				Wordclock::getColorPresetIndex())[value]);
 		}

@@ -20,7 +20,7 @@ namespace Wordclock
 		uint32_t ms = internalMillis();
 		// If the current timer is up, assume it is smaller than all
 		// other timers. Hence the first expression.
-		return (uint32_t)(ms - end) < TRIGGER_ZONE ||
+		return (uint32_t)(ms - end) < MAX_TRIGGER_DELAY ||
 			(uint32_t)(end - ms) < (uint32_t)(timer.end - ms);
 	}
 

@@ -25,10 +25,10 @@ namespace Wordclock
 	///                 the maximal possible scope always.
 	template <class Generator, Directions direction,
 		TimeTypes timeType = Minutes, uint8_t scope = 255>
-	class ModeFiller : public ModeBaseInterval<1000>
+	class ModeFiller : public ModeTimeBound
 	{
 	protected:
-		typedef ModeBaseInterval<1000> super;
+		typedef ModeTimeBound super;
 		Generator gen;
 	public:
 		ModeFiller();

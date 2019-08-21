@@ -42,6 +42,7 @@ namespace Wordclock
 			ModeBase::paint();
 		}
 		else {
+			Painter::setColor(Wordclock::getCurrentPreset());
 			Utilities::printHex(
 				Utilities::getLevel(Wordclock::getBrightness(), levelCount)+1);
 		}

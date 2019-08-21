@@ -12,16 +12,15 @@ namespace Wordclock
 	protected:
 		const static uint8_t transitionChannel;
 		const static uint16_t transitionTime;
-		uint8_t state;
-		ModeBase();
+		static bool inTransition;
 
-		inline bool setInTransition(const bool &transition);
-		inline bool isInTransition();
-
-		inline void setState(const uint8_t &bit, const bool &value);
-		inline bool getState(const uint8_t &bit);
+		/// Always delegate all control over paint, timer, select and deselect
+		/// to ModeBase if this function returns true!
+		bool isInTransition();
 
 	public:
+		ModeBase();
+
 		/// is called whenever the object of this class is selected.
 		virtual void select();
 
@@ -61,26 +60,6 @@ namespace Wordclock
 		/// to request the core to call this method.
 		virtual void paint();
 	
-	friend class Core;
+	friend class Wordclock;
 	};
-
-	inline void ModeBase::setState(const uint8_t &bit, const bool &value)
-	{
-		state = value ? state | (1 << bit) : state & (1 << bit);
-	}
-
-	inline bool ModeBase::getState(const uint8_t &bit)
-	{
-		return state & (1 << bit);
-	}
-
-	inline bool ModeBase::setInTransition(const bool &transition)
-	{
-		setState(0, transition);
-	}
-
-	inline bool ModeBase::isInTransition()
-	{
-		return getState(0);
-	}
 }

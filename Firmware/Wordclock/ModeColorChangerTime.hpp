@@ -55,9 +55,8 @@ namespace Wordclock
 	uint32_t ModeColorChangerTime<Generator, threshold, timeType>::timer(
 		const uint8_t &channel)
 	{
-		if (isInTransition()) {
+		if (channel != 0)
 			return ModeBase::timer(channel);
-		}
 		if ((Wordclock::getTime(timeType) - lastTime) >= threshold) {
 			lastTime = Wordclock::getTime(timeType);
 			currColor = gen.next();

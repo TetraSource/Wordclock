@@ -28,8 +28,11 @@ namespace Wordclock
 
 		static CRGB leds[LED_COUNT];
 		static CRGB curr;
+		static uint8_t *replace;
+		static bool replacing;
 		
 		static void arrange();
+		static void paintPixel(const uint8_t &position);
 
 	public:
 		/// the width of the display.
@@ -64,13 +67,6 @@ namespace Wordclock
 		static void paintAll();
 
 		/// Paints the specified pixel with the current color.
-		/// The position is the virtual position of the LED on the stripe.
-		/// You can obtain it by using the POINT macro.
-		/// @param x - the x coordinate of the pixel
-		/// @param y - the y coordinate of the pixel
-		static void paint(const uint8_t &position);
-
-		/// Paints the specified pixel with the current color.
 		/// The top left pixel has the coordinate (0, 0).
 		/// @param x - the x coordinate of the pixel
 		/// @param y - the y coordinate of the pixel
@@ -92,6 +88,19 @@ namespace Wordclock
 		/// @param c1 - the second color
 		/// @returns whether they are identical or not.
 		static bool areIdentical(CRGB c0, CRGB c1);
+
+		/// Prepares the paint methods for masking. All paint methods called
+		/// after this function are not going to paint but mark a pixel.
+		/// The current color has no effect on the masking. Once the
+		/// masking finished, you have to call setReplacing.
+		static void prepareReplacing();
+
+		/// Before calling the method you must have called prepareReplacing.
+		/// Call this method with true first, then paint the screen. Just
+		/// the previous masked pixels get painted thereby.
+		/// Finally, call this method with false, to reset the Painter to
+		/// its normal state.
+		static void setReplacing(const bool &);
 	};
 
 	CRGB Painter::getColor()

@@ -6,9 +6,12 @@ namespace Wordclock
 {
 	void ModeWordclock::paint()
 	{
-		if (isInTransition())
+		if (isInTransition()) {
 			ModeBase::paint();
-		else
+		}
+		else {
+			Painter::setColor(Wordclock::getCurrentPreset());
 			Utilities::printTime();
+		}
 	}
 }

@@ -32,13 +32,10 @@ namespace Wordclock
 	uint32_t ModeColorChangerTimer<Generator, time>::timer(
 		const uint8_t &channel)
 	{
-		if (isInTransition()) {
+		if (channel != 0)
 			return ModeBase::timer(channel);
-		}
-		else {
-			currColor = gen.next();
-			Wordclock::repaint();
-			return time;
-		}
+		currColor = gen.next();
+		Wordclock::repaint();
+		return time;
 	}
 }

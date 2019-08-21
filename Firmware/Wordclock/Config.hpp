@@ -41,6 +41,7 @@
 // specifies the top left point.
 #define POINT(x, y) (x + y * ROW_LENGTH)
 #define NO_POINT (LED_COUNT+1)
+#define HEX(n) n & 0xff0000, n & 0x00ff00, n & 0x0000ff
 
 // protect this section from being loaded into wrong code sections
 #ifdef IMPORT_LAYOUT
@@ -105,10 +106,10 @@ namespace Wordclock
 // Specifies the maximal count of milliseconds that may pass between a timer
 // elapses and the time it is triggered. This is necessary as the timers are
 // not checked constantly. If a timer elapses and timerHeap.update is called
-// at least TRIGGER_ZONE milliseconds afterward, the timer can still be
+// at least MAX_TRIGGER_DELAY milliseconds afterward, the timer can still be
 // triggered. However, it also lessons the maximal interval to
-// 2^32 - TRIGGER_ZONE.
-#define TRIGGER_ZONE 8192
+// 2^32 - MAX_TRIGGER_DELAY.
+#define MAX_TRIGGER_DELAY 8192
 
 // EEPROM //
 
@@ -117,7 +118,7 @@ namespace Wordclock
 
 // Resets the EEPROM whenever the Wordclock is powered using the
 // default values.
-//#define RESET_EEPROM
+#define RESET_EEPROM
 
 // Initialising the EEPROM might require more RAM than the normal operational
 // Wordclock status. When you think, reseting the EEPROM might crash the
@@ -160,12 +161,22 @@ CRGB(CRGB::DarkGreen), \
 
 // MODES //
 
-#ifndef JUST_INITIALIZE
-// protects this section from being loaded into wrong code sections.
-#ifdef IMPORT_MODES
+// The count of modes of the Wordclock. Keep it in sync with the count of
+// modes in the list below.
+#define MODE_COUNT 13
 
-// default mode
-#include "ModeWordclock.hpp"
+// The count of layers of the Wordclock i.e. the count of modes the Wordclock
+// runs simultaneous. This needs to be at least one
+#define LAYER_COUNT 2
+
+// The selected modes on the layers 0 to LAYER_COUNT after initialization.
+#define DEFAULT_MODES 0, 10
+
+// All modes from 0 to SELECTABLE_MODES-1 are selectable with the mode buttons
+// Set it to MODE_COUNT to not limit the selection.
+#define SELECTABLE_MODES 9
+
+#ifdef IMPORT_MODES
 
 // configuration modes
 #include "ModeBrightness.hpp"
@@ -176,13 +187,24 @@ CRGB(CRGB::DarkGreen), \
 #include "ModeTime.hpp"
 
 // effect modes
+#include "ModeCoffee.hpp"
 #include "ModeColorChangerTime.hpp"
 #include "ModeColorChangerTimer.hpp"
+#include "ModeExternalPulse.hpp"
+#include "ModeFlashlight.hpp"
 #include "ModeFiller.hpp"
-#include "ModePixelRain.hpp"
 #include "ModeGlowing.hpp"
+#include "ModeMaskWordclock.hpp"
+#include "ModePixelRain.hpp"
+#include "ModeSuspended.hpp"
 #include "ModeTimeSlice.hpp"
 #include "ModeWaves.hpp"
+#include "ModeWordclock.hpp"
+
+// mode managing modes
+#include "ModeAlarm.hpp"
+#include "ModeLayerMode.hpp"
+#include "ModeLayerModeSwitcher.hpp"
 
 // color generators
 #include "GeneratorAlternating.hpp"
@@ -195,79 +217,41 @@ CRGB(CRGB::DarkGreen), \
 #include "GeneratorUnion.hpp"
 
 // selectors
+#include "SelectorColorPreset.hpp"
 #include "SelectorRandom.hpp"
 #include "SelectorSuccessive.hpp"
+#include "SelectorStatic.hpp"
 #include "SelectorTime.hpp"
 
-#define PresetGenerator GeneratorColorPreset<SelectorSuccessive<0, COLOR_PRESET_COUNT, 1, 0>>
-
-// ALWAYS KEEP THIS NUMBER IN SYNC WITH THE COUNT OF MODES AND
-// RESET THE EEPROM IF YOU CHANGE IT!
 namespace Wordclock
 {
-	const uint8_t Wordclock::modeCount = 9; // 21
-	const ModeBase *Wordclock::modes[Wordclock::modeCount] = {
-		new ModeWordclock(),
+	// here you can define some shorthands
+	typedef ModeBase ModeEmpty;
+	typedef GeneratorColorPreset<SelectorColorPreset<>> CurrColor;
+	typedef GeneratorColorPreset<SelectorSuccessive<0, COLOR_PRESET_COUNT, 1, 0>
+		> PresetGenerator;
+
+	typedef GeneratorRGBAdapter<GeneratorGradient<
+		GeneratorRandom<0xaa, 0xff, 0xff, 0xff, 0xff, 0xff>, 150>
+		> RedNeonGenerator;
+
+	// ALWAYS KEEP THIS NUMBER IN SYNC WITH THE COUNT OF MODES AND
+	// RESET THE EEPROM IF YOU CHANGE ANYTHING!
+	const ModeBase *Wordclock::modes[MODE_COUNT] = {
+		new ModeSuspended<>(),
+		new ModeLayerMode<1, SELECTABLE_MODES>(),
+		new ModeAlarm<1, SELECTABLE_MODES>(),
+		new ModeColorPreset(),
+		new ModeBrightness<8>(),
 		new ModeTime<Hours>(),
 		new ModeTime<Minutes>(),
 		new ModeTime<Seconds>(),
-		new ModeColorPreset(),
-		new ModeBrightness<5>(),
-		new ModeRGB<Red, 20>(),
-		new ModeRGB<Green, 20>(),
-		new ModeRGB<Blue, 20>(), /*
-		new ModeHSV<Hue, 20>(),
-		new ModeHSV<Saturation, 20>(),
-		new ModeHSV<Value, 20>(),
-
-		// uses the first five colors to show the time in five minute
-		// intervals.
-		new ModeColorChangerTime<GeneratorColorPreset<SelectorTime<Minutes, 0, 6, 5>>, 5, Minutes>(),
-
-		// uses a timer and a gradient to generate a fader.
-		new ModeColorChangerTimer<GeneratorGradient<PresetGenerator, 150>, 250>(),
-
-		// turns on pixels around activated ones to let them appear glowing.
 		new ModeGlowing<2>(),
-
-		// shows a time slice in the background to show the time in five
-		// minute intervals.
-		new ModeTimeSlice<GeneratorStatic<255, 255, 0>, Minutes, 5>(),
-
-		// fills the display from the bottom to the top to show the advancing
-		// of every minute.
-		// equal to "new ModeFiller<Bottom, Minutes, 1>"
-		new ModeFiller<GeneratorStatic<255, 100, 0>, Bottom, Seconds, 60>(),
-
-		// lets pixels fly quickly from the top, bottom and right side of the
-		// display to the opposite ones.
-		new ModePixelRain<GeneratorColorPreset<SelectorRandom<0, COLOR_PRESET_COUNT>>,
-			DIR_ITEM(Top, DIR_ITEM(Bottom, DIR_ITEM(Right, 0))), 150, 1, 5, 0, 12>(),
-
-		// The Matrix!
-		new ModePixelRain<GeneratorStatic<0, 255, 0>, DIR_ITEM(Top, 0), 150, 3, 5, 30, 40>(),
-
-		// Tunnel effect with all colors!
-		new ModeWaves<GeneratorRandom<0, 255, 0, 255, 0, 255>, Center, 500>(),
-
-		// creates a gradient from the left side to the right one using
-		// vibrant, random generated colors.
-		new ModeWaves<GeneratorGradient<GeneratorRGBAdapter<GeneratorRandom
-			<0, 255, 191, 255, 65, 255>>, 220>, Left, 1000>(), */
+		new ModeEmpty(),
+		new ModeWordclock(),
+		new ModeCoffee<ModeWaves<RedNeonGenerator, Bottom, 500>, 1500>(),
+		new ModePixelRain<GeneratorStatic<0x00, 0xff, 0x00>, DIR_ITEM(Top, 0),
+			150, 3, 5, 30, 40>(),
 	};
 }
-#undef IMPORT_MODES
-#endif
-
-#else
-
-#ifdef IMPORT_MODES
-#include "ModeBase.hpp"
-namespace Worclock {
-	const uint8_t Wordclock::modeCount = 0;
-	ModeBase *Wordclock::modes[Wordclock::modeCount] = {};
-}
-#undef IMPORT_MODES
-#endif
-
 #endif

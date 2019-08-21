@@ -35,14 +35,6 @@ namespace Wordclock
 
 	void ModeGlowingBase::glowPaint(const uint8_t &radius)
 	{
-		Painter::setColor(Wordclock::getColorPreset(random(0, COLOR_PRESET_COUNT)));
-		Utilities::printTime();
-		for (uint8_t i = 0; i < 10; i++) {
-			Painter::setColor(Wordclock::getColorPreset(random(0, COLOR_PRESET_COUNT)));
-			Painter::paint(random(0, WIDTH), random(0, HEIGHT));
-		}
-
-
 		// Init the matrix glowing.
 		glowing = new CRGB*[HEIGHT];
 		for (uint8_t y = 0; y < HEIGHT; y++) {

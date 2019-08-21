@@ -18,7 +18,7 @@ namespace Wordclock
 		T array[size];
 	public:
 		EepromArray();
-		void setDefault(const T *default_);
+		inline void setDefault(const uint8_t &idx, const T &val);
 		inline T &get(const uint8_t &idx);
 		inline void set(const uint8_t &idx, const T val);
 	};
@@ -29,11 +29,11 @@ namespace Wordclock
 	{}
 
 	template <class T, uint8_t size>
-	void EepromArray<T, size>::setDefault(const T *default_)
+	inline void EepromArray<T, size>::setDefault(
+		const uint8_t &idx, const T &val)
 	{
-		for (uint8_t i = 0; i < size; i++)
-			array[i] = default_[i];
-		super::setDefault(array);
+		array[idx] = val;
+		super::setDefault(idx, array[idx]);
 	}
 
 	template <class T, uint8_t size>

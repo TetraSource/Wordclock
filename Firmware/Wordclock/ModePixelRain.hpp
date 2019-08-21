@@ -105,7 +105,7 @@ namespace Wordclock
 	uint32_t ModePixelRain<Generator, directions, interval, minLength,
 		maxLength, minPixelCount, maxPixelCount>::timer(const uint8_t &channel)
 	{
-		if (isInTransition())
+		if (channel != 0)
 			return ModeBase::timer(channel);
 		movePixels();
 		while (count < maxPixelCount && (count < minPixelCount ||

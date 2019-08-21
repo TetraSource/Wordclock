@@ -64,11 +64,11 @@ namespace Wordclock
 
 		/// marks a two digit decimal number on the display.
 		/// @param number - the number to be marked.
-		static void printNumber(const uint8_t &number);
+		static void printNumber(const uint8_t &number, const uint8_t &y = 2);
 
 		/// marks a two digit hexadecimal number on the display.
 		/// @param number - the number to be marked.
-		static void printHex(const uint8_t &number);
+		static void printHex(const uint8_t &number, const uint8_t &y = 2);
 
 		/// either marks an arrow or an cross depending on the input.
 		/// @param answer - whether to use an arrow or not.

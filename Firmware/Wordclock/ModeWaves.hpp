@@ -85,7 +85,7 @@ namespace Wordclock
 	uint32_t ModeWaves<Generator, direction, interval>::timer(
 		const uint8_t &channel)
 	{
-		if (isInTransition())
+		if (channel != 0)
 			return ModeBase::timer(channel);
 		nextColor();
 		colors[0] = gen.next();
