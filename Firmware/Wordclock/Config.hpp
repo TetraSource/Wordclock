@@ -250,7 +250,7 @@ namespace Wordclock
 		new ModeTime<Seconds>(),
 		new ModeEmpty(),
 		new ModeWordclock(),
-		new ModeCoffee<ModeWaves<RedNeonGenerator, Bottom, 500>, 800>(),
+		new ModeCoffee<ModeWaves<RedNeonGenerator, Bottom, 500>, 2000>(),
 		new ModePixelRain<GeneratorStatic<0x00, 0xff, 0x00>, DIR_ITEM(Top, 0),
 			150, 3, 5, 30, 40>(),
 	};

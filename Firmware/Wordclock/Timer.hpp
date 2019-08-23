@@ -8,8 +8,6 @@ namespace Wordclock
 {
 	class TimerItem
 	{
-	private:
-		static uint32_t *lastMillis;
 	public:
 		uint32_t end;
 		uint8_t channel;
@@ -78,7 +76,8 @@ namespace Wordclock
 				i++;
 		}
 #ifdef HEAP_DEBUG
-		Serial.print("c "); Serial.println(channel); print(&printItem);
+		Serial.print("c\'"); Serial.println(channel);
+		print(&printItem);
 #endif
 	}
 
@@ -97,7 +96,8 @@ namespace Wordclock
 			}
 		}
 #ifdef HEAP_DEBUG
-		Serial.print("e "); Serial.println(channel); print(&printItem);
+		Serial.print(time); Serial.print(" e\'"); Serial.println(channel);
+		print(&printItem);
 #endif
 	}
 
@@ -107,8 +107,12 @@ namespace Wordclock
 		while (true) {
 			TimerItem *item = this->items[0];
 			if (isEmpty() ||
-				(uint32_t)(internalMillis() - item->end) >= MAX_TRIGGER_DELAY)
+				((uint32_t)(internalMillis() - item->end)) >= MAX_TRIGGER_DELAY)
 				return;
+#ifdef HEAP_DEBUG
+			Serial.print("u "); Serial.println(internalMillis());
+			print(&printItem);
+#endif
 			uint32_t refresh = item->callback->timer(item->channel);
 			if (refresh == 0) {
 				cancel(item->callback, item->channel, false);
@@ -116,9 +120,6 @@ namespace Wordclock
 			else {
 				extend(refresh, item->callback, item->channel, false);
 			}
-#ifdef HEAP_DEBUG
-			Serial.println("u"); print(&printItem);
-#endif
 		}
 	}
 }

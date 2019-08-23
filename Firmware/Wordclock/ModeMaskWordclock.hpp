@@ -11,10 +11,11 @@ namespace Wordclock
 	/// @tparam Mode - the mode used to print the "background".
 	///                This mode must no inherit from another masing mode.
 	template <class Mode>
-	class ModeMaskWordclock : public ModeMaskBase<Mode, 500>
+	class ModeMaskWordclock
+		: public ModeMaskBase<ModeMaskWordclock<Mode>, Mode, 500>
 	{
 	protected:
-		typedef ModeMaskBase<Mode, 500> super;
+		typedef ModeMaskBase<ModeMaskWordclock, Mode, 500> super;
 	public:
 		ModeMaskWordclock();
 		void mask();
@@ -22,7 +23,7 @@ namespace Wordclock
 
 	template <class Mode>
 	ModeMaskWordclock<Mode>::ModeMaskWordclock()
-		: ModeMaskBase<Mode, 500>()
+		: ModeMaskBase<ModeMaskWordclock, Mode, 500>()
 	{}
 
 	template <class Mode>

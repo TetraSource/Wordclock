@@ -359,7 +359,7 @@ namespace Wordclock
 	{
 		// check button lock
 		static ButtonState bs = {0, false, true, true, true, true};
-		if (bs.buttonsLocked && ((uint16_t)(millis() - bs.buttonLock)) >
+		if (bs.buttonsLocked && ((uint16_t)(currMillis - bs.buttonLock)) >
 			BUTTON_LOCK_TIME)
 		{
 			DEBUG_OUT("ub"); // unlock buttons
@@ -378,7 +378,7 @@ namespace Wordclock
 					bs.decModePush = !bs.decModePush;
 				if (bs.incModePush && bs.decModePush) {
 					DEBUG_OUT("cmb"); // change mode buttons
-					bs.buttonLock = millis();
+					bs.buttonLock = currMillis;
 					bs.buttonsLocked = true;
 					Wordclock::modes[Wordclock::currModes.get(0)]->
 						actionButton(incButton);
@@ -395,7 +395,7 @@ namespace Wordclock
 						bs.prevModePush = !bs.prevModePush;
 					if (bs.nextModePush && bs.prevModePush) {
 						DEBUG_OUT("mb"); // mode buttons
-						bs.buttonLock = millis();
+						bs.buttonLock = currMillis;
 						bs.buttonsLocked = true;
 						Wordclock::modes[Wordclock::currModes.get(0)]->
 							modeButton(incButton);
@@ -419,13 +419,13 @@ namespace Wordclock
 
 #ifdef INTERNAL_PULSE
 		static uint16_t timeUpdateThreshold = 0;
-		if (((uint16_t)(millis() - timeUpdateThreshold)) >= 500)
+		if (((uint16_t)(currMillis - timeUpdateThreshold)) >= 500)
 #else
 		if (digitalRead(RTC_PULSE_PIN) != pulse)
 #endif
 		{
 #ifdef INTERNAL_PULSE
-			timeUpdateThreshold = millis();
+			timeUpdateThreshold = currMillis;
 #endif
 			pulse = !pulse;
 #ifdef SHOW_PULSE
@@ -489,9 +489,9 @@ namespace Wordclock
 	{
 #ifndef JUST_INITIALIZE
 		DEBUG_OUT("\nl"); // loop
+		currMillis = millis();
 		checkButtons();
 		updateTime();
-		currMillis = millis();
 		Wordclock::timers.update();
 		updateLEDs();
 #endif

@@ -20,10 +20,10 @@ namespace Wordclock
 	/// @tparam speed - the time between each movement of the steam in
 	///                 milliseconds.
 	template <class Mode, uint32_t speed>
-	class ModeCoffee : public ModeMaskBase<Mode, speed>
+	class ModeCoffee : public ModeMaskBase<ModeCoffee<Mode, speed>, Mode, speed>
 	{
 	protected:
-		typedef ModeMaskBase<Mode, speed> super;
+		typedef ModeMaskBase<ModeCoffee, Mode, speed> super;
 
 		ModeCoffeeImpl self;
 	public:
@@ -34,7 +34,7 @@ namespace Wordclock
 
 	template <class Mode, uint32_t speed>
 	ModeCoffee<Mode, speed>::ModeCoffee()
-		: ModeMaskBase<Mode, speed>()
+		: ModeMaskBase<ModeCoffee, Mode, speed>()
 	{
 		self = ModeCoffeeImpl();
 	}

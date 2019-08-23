@@ -4,8 +4,6 @@
 
 namespace Wordclock
 {
-	uint32_t *TimerItem::lastMillis = nullptr;
-
 	TimerItem::TimerItem(const ModeBase *callback_, const uint8_t &channel_,
 		const uint32_t &time)
 		: end(time), channel(channel_), callback(callback_)
@@ -20,8 +18,8 @@ namespace Wordclock
 		uint32_t ms = internalMillis();
 		// If the current timer is up, assume it is smaller than all
 		// other timers. Hence the first expression.
-		return (uint32_t)(ms - end) < MAX_TRIGGER_DELAY ||
-			(uint32_t)(end - ms) < (uint32_t)(timer.end - ms);
+		return (uint32_t)(end - ms + MAX_TRIGGER_DELAY - 1) <
+			(uint32_t)(timer.end - ms + MAX_TRIGGER_DELAY - 1);
 	}
 
 #ifdef HEAP_DEBUG
