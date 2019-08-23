@@ -118,7 +118,7 @@ namespace Wordclock
 
 // Resets the EEPROM whenever the Wordclock is powered using the
 // default values.
-#define RESET_EEPROM
+//#define RESET_EEPROM
 
 // Initialising the EEPROM might require more RAM than the normal operational
 // Wordclock status. When you think, reseting the EEPROM might crash the
@@ -163,18 +163,18 @@ CRGB(CRGB::DarkGreen), \
 
 // The count of modes of the Wordclock. Keep it in sync with the count of
 // modes in the list below.
-#define MODE_COUNT 13
+#define MODE_COUNT 12
 
 // The count of layers of the Wordclock i.e. the count of modes the Wordclock
 // runs simultaneous. This needs to be at least one
 #define LAYER_COUNT 2
 
 // The selected modes on the layers 0 to LAYER_COUNT after initialization.
-#define DEFAULT_MODES 0, 10
+#define DEFAULT_MODES 0, 9
 
 // All modes from 0 to SELECTABLE_MODES-1 are selectable with the mode buttons
 // Set it to MODE_COUNT to not limit the selection.
-#define SELECTABLE_MODES 9
+#define SELECTABLE_MODES 8
 
 #ifdef IMPORT_MODES
 
@@ -237,6 +237,8 @@ namespace Wordclock
 
 	// ALWAYS KEEP THIS NUMBER IN SYNC WITH THE COUNT OF MODES AND
 	// RESET THE EEPROM IF YOU CHANGE ANYTHING!
+	// BESIDES, YOU SHOULD NOT USE MORE THAN 70% RAM AND 80% OF PROGRAM
+	// FLASH MEMORY.
 	const ModeBase *Wordclock::modes[MODE_COUNT] = {
 		new ModeSuspended<>(),
 		new ModeLayerMode<1, SELECTABLE_MODES>(),
@@ -246,10 +248,9 @@ namespace Wordclock
 		new ModeTime<Hours>(),
 		new ModeTime<Minutes>(),
 		new ModeTime<Seconds>(),
-		new ModeGlowing<2>(),
 		new ModeEmpty(),
 		new ModeWordclock(),
-		new ModeCoffee<ModeWaves<RedNeonGenerator, Bottom, 500>, 1500>(),
+		new ModeCoffee<ModeWaves<RedNeonGenerator, Bottom, 500>, 800>(),
 		new ModePixelRain<GeneratorStatic<0x00, 0xff, 0x00>, DIR_ITEM(Top, 0),
 			150, 3, 5, 30, 40>(),
 	};

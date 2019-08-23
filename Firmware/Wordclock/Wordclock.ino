@@ -84,10 +84,10 @@ namespace Wordclock
 		currModes.set(layer, index);
 		if (activateTransition) {
 			ModeBase::inTransition = true;
-			startTimer(modes[currModes.get(layer)],
+			startTimer(modes[index],
 				ModeBase::transitionTime, ModeBase::transitionChannel);
 		}
-		modes[currModes.get(layer)]->select();
+		modes[index]->select();
 		repaint();
 		return true;
 	}

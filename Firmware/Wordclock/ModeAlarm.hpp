@@ -2,6 +2,7 @@
 
 #include "EepromVariable.hpp"
 #include "ModeBaseInterval.hpp"
+#include "Utilities.hpp"
 #include "Wordclock.hpp"
 
 namespace Wordclock
@@ -13,21 +14,20 @@ namespace Wordclock
 
 		struct Alarm
 		{
-			uint8_t mode;
 			uint8_t minute : 6;
 			uint8_t hour : 5;
 			bool active : 1;
 		};
 
-		uint8_t currAspect : 2;
+		uint8_t currAspect : 4;
 		bool triggered : 1;
 		EepromVariable<Alarm> alarm;
 
-		ModeAlarmBase(const uint8_t &initMode);
-		uint8_t incAspect(uint8_t val, const uint8_t &max,
+		ModeAlarmBase();
+		uint8_t incVal(uint8_t val, const uint8_t &max,
 			const uint8_t &increment, const bool &inc);
-		void internalActionButton(const bool &inc, const int8_t &increment,
-			const uint8_t &minMode, const uint8_t &maxMode);
+		void internalActionButton(const bool &inc, const int8_t &increment);
+		void internalModeButton(const bool &inc, const uint8_t &max);
 
 	public:
 		void modeButton(const bool &inc);
@@ -61,28 +61,56 @@ namespace Wordclock
 	{
 	protected:
 		typedef ModeAlarmBase super;
+		EepromVariable<uint8_t> mode;
 		
 	public:
 		ModeAlarm();
 		void actionButton(const bool &inc);
+		void modeButton(const bool &inc);
 		void trigger();
+		void paint();
 	};
 
 	template <uint8_t layer, uint8_t minMode, uint8_t maxMode, uint8_t increment>
 	ModeAlarm<layer, minMode, maxMode, increment>::ModeAlarm()
-		: ModeAlarmBase(minMode)
-	{}
+		: ModeAlarmBase()
+	{
+		mode = EepromVariable<uint8_t>();
+		mode.setDefault(minMode);
+	}
 
 	template <uint8_t layer, uint8_t minMode, uint8_t maxMode, uint8_t increment>
 	void ModeAlarm<layer, minMode, maxMode, increment>::actionButton(
 		const bool &inc)
 	{
-		internalActionButton(inc, increment, minMode, maxMode);
+		Wordclock::repaint();
+		if (currAspect == 3) {
+			mode.set(incVal(mode.get() - minMode,
+				(maxMode > MODE_COUNT ? MODE_COUNT : maxMode) - minMode,
+				1, inc) + minMode);
+		}
+		else
+			internalActionButton(inc, increment);
+	}
+
+	template <uint8_t layer, uint8_t minMode, uint8_t maxMode, uint8_t increment>
+	void ModeAlarm<layer, minMode, maxMode, increment>::modeButton(
+		const bool &inc)
+	{
+		internalModeButton(inc, 3);
+	}
+
+	template <uint8_t layer, uint8_t minMode, uint8_t maxMode, uint8_t increment>
+	void ModeAlarm<layer, minMode, maxMode, increment>::paint()
+	{
+		super::paint();
+		if (!isInTransition() && currAspect == 3)
+			Utilities::printNumber(mode.get() + 1);
 	}
 
 	template <uint8_t layer, uint8_t minMode, uint8_t maxMode, uint8_t increment>
 	void ModeAlarm<layer, minMode, maxMode, increment>::trigger()
 	{
-		Wordclock::setMode(layer, alarm.get().mode);
+		Wordclock::setMode(layer, mode.get());
 	}
 }
