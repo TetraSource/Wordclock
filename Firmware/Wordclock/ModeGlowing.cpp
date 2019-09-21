@@ -36,17 +36,17 @@ namespace Wordclock
 	void ModeGlowingBase::glowPaint(const uint8_t &radius)
 	{
 		// Init the matrix glowing.
-		glowing = new CRGB*[HEIGHT];
-		for (uint8_t y = 0; y < HEIGHT; y++) {
-			glowing[y] = new CRGB[WIDTH];
-			for (uint8_t x = 0; x < WIDTH; x++) {
+		glowing = new CRGB*[Painter::height];
+		for (uint8_t y = 0; y < Painter::height; y++) {
+			glowing[y] = new CRGB[Painter::width];
+			for (uint8_t x = 0; x < Painter::width; x++) {
 				glowing[y][x] = CRGB(0, 0, 0);
 			}
 		}
 		
 		// Fill the matrix with the new content to be displayed.
-		for (uint8_t y = 0; y < HEIGHT; y++) {
-			for (uint8_t x = 0; x < WIDTH; x++) {
+		for (uint8_t y = 0; y < Painter::height; y++) {
+			for (uint8_t x = 0; x < Painter::width; x++) {
 				CRGB pixel = Painter::getPixel(x, y);
 				if (pixel.r == 0 && pixel.g == 0 && pixel.b == 0)
 					continue;
@@ -63,17 +63,17 @@ namespace Wordclock
 
 						px = x + j;
 						py = y + j - i;
-						if (px < WIDTH && py >= 0)
+						if (px < Painter::width && py >= 0)
 							setGlowingPixel(px, py, pixel, glow, radius);
 
 						px = x + i - j;
 						py = y + j;
-						if (px < WIDTH && py < HEIGHT)
+						if (px < Painter::width && py < Painter::height)
 							setGlowingPixel(px, py, pixel, glow, radius);
 
 						px = x - j;
 						py = y + i - j;
-						if (px >= 0 && py < HEIGHT)
+						if (px >= 0 && py < Painter::height)
 							setGlowingPixel(px, py, pixel, glow, radius);
 					}
 				}
@@ -81,9 +81,9 @@ namespace Wordclock
 		}
 
 		// Print the colors stored in the matrix glowing to the screen.
-		for (int8_t y = 0; y < HEIGHT; y++) {
+		for (int8_t y = 0; y < Painter::height; y++) {
 			CRGB *row = glowing[y];
-			for (int8_t x = 0; x < WIDTH; x++) {
+			for (int8_t x = 0; x < Painter::width; x++) {
 				Painter::setColor(row[x]);
 				if (Painter::hasColor())
 					Painter::paint(x, y);

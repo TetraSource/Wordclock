@@ -102,27 +102,27 @@ namespace Wordclock
 		switch(direction)
 		{
 		case Top:
-			for (uint8_t y = 0; y < HEIGHT; y++) {
+			for (uint8_t y = 0; y < Painter::height; y++) {
 				Painter::setColor(colors[y % count]);
-				Painter::paint(0, y, WIDTH, 1);
+				Painter::paint(0, y, Painter::width, 1);
 			}
 			break;
 		case Bottom:
-			for (uint8_t y = 0; y < HEIGHT; y++) {
+			for (uint8_t y = 0; y < Painter::height; y++) {
 				Painter::setColor(colors[y % count]);
-				Painter::paint(0, HEIGHT - y - 1, WIDTH, 1);
+				Painter::paint(0, Painter::height - y - 1, Painter::width, 1);
 			}
 			break;
 		case Left:
-			for (uint8_t x = 0; x < WIDTH; x++) {
+			for (uint8_t x = 0; x < Painter::width; x++) {
 				Painter::setColor(colors[x % count]);
-				Painter::paint(x, 0, 1, HEIGHT);
+				Painter::paint(x, 0, 1, Painter::height);
 			}
 			break;
 		case Right:
-			for (uint8_t x = 0; x < WIDTH; x++) {
+			for (uint8_t x = 0; x < Painter::width; x++) {
 				Painter::setColor(colors[x % count]);
-				Painter::paint(WIDTH - x - 1, 0, 1, HEIGHT);
+				Painter::paint(Painter::width - x - 1, 0, 1, Painter::height);
 			}
 			break;
 		case Center:

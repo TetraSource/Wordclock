@@ -20,16 +20,17 @@ namespace Wordclock
 
 	void ModeWavesBase::printCenterWaves()
 	{
-		uint8_t x0 = (WIDTH - 1) >> 1;
-		uint8_t y0 = (HEIGHT - 1) >> 1;
+		uint8_t x0 = (Painter::width - 1) >> 1;
+		uint8_t y0 = (Painter::height - 1) >> 1;
 		uint8_t ringCount =
-			WIDTH >= HEIGHT ? (WIDTH + 1) >> 1 : (HEIGHT + 1) >> 1;
+			Painter::width >= Painter::height ? (Painter::width + 1) >> 1 :
+			(Painter::height + 1) >> 1;
 
 		for (uint8_t i = 0; i < ringCount; i++) {
 			Painter::setColor(colors[i % count]);
 
-			uint8_t x1 = WIDTH - x0 - 1;
-			uint8_t y1 = HEIGHT - y0 - 1;
+			uint8_t x1 = Painter::width - x0 - 1;
+			uint8_t y1 = Painter::height - y0 - 1;
 
 			for (uint8_t x = x0; x <= x1; x++) {
 				Painter::paint(x, y0);
@@ -48,15 +49,16 @@ namespace Wordclock
 	void ModeWavesBase::printBorderWaves()
 	{
 		uint8_t ringCount =
-			WIDTH >= HEIGHT ? (WIDTH + 1) >> 1 : (HEIGHT + 1) >> 1;
+			Painter::width >= Painter::height ? (Painter::width + 1) >> 1 :
+			(Painter::height + 1) >> 1;
 
 		for (uint8_t i = 0; i < ringCount; i++) {
 			Painter::setColor(colors[i % count]);
 
 			uint8_t &x0 = i;
 			uint8_t &y0 = i;
-			uint8_t x1 = WIDTH - x0 - 1;
-			uint8_t y1 = HEIGHT - y0 - 1;
+			uint8_t x1 = Painter::width - x0 - 1;
+			uint8_t y1 = Painter::height - y0 - 1;
 
 			for (uint8_t x = x0; x <= x1; x++) {
 				Painter::paint(x, y0);

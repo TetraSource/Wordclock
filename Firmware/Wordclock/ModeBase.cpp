@@ -58,7 +58,7 @@ namespace Wordclock
 			Painter::setColor(CRGB(0, 0, 0));
 			Painter::paintAll();
 			Painter::setColor(Wordclock::getCurrentPreset());
-			Painter::paint(0, HEIGHT-1, WIDTH);
+			Painter::paint(0, Painter::height-1, Painter::width);
 			Utilities::printNumber(Wordclock::getMode(0) + 1, 1);
 		}
 #endif
