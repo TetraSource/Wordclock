@@ -7,11 +7,29 @@ namespace Wordclock
 	{
 		currAspect = 0;
 		triggered = false;
+		mode = EepromVariable<uint8_t>();
 		alarm = EepromVariable<Alarm>();
 		Alarm default_ = { 0, 0, false };
 		alarm.setDefault(default_);
 		if (alarm.get().active)
-			Wordclock::startTimer(this, 500, 0);
+			Wordclock::startTimer(this, 500, 1);
+	}
+
+	uint32_t ModeAlarmBase::getAlarmTimerTime()
+	{
+		Alarm &a = alarm.get();
+		uint8_t hours = (24 + a.hour - Wordclock::getTime(Hours)) % 24;
+		uint8_t minutes = (60 + a.minute - Wordclock::getTime(Minutes)) % 60;
+		if (Wordclock::getTime(Minutes) + minutes >= 60) {
+			hours--;
+		}
+		if (minutes > 0)
+			minutes--;
+		else {
+			minutes = 59;
+			hours--;
+		}
+		return (hours * 60 + minutes) * 60000;
 	}
 
 	uint8_t ModeAlarmBase::incVal(uint8_t val, const uint8_t &max,
@@ -53,7 +71,7 @@ namespace Wordclock
 		}
 		alarm.set(a);
 		if (a.active)
-			Wordclock::startTimer(this, 500, 0);
+			Wordclock::startTimer(this, getAlarmTimerTime(), 0);
 	}
 
 	void ModeAlarmBase::internalModeButton(const bool &inc, const uint8_t &max)
@@ -74,18 +92,13 @@ namespace Wordclock
 		internalModeButton(inc, 2);
 	}
 
-	uint32_t ModeAlarmBase::timer(const uint8_t &channel)
+	uint32_t ModeAlarmBase::internalTimer(const uint8_t &channel)
 	{
 		if (channel != 0)
-			return ModeBase::timer(channel);
+			return channel == 1 ? getAlarmTimerTime() : ModeBase::timer(channel);
 		Alarm &a = alarm.get();
-		if (a.active && Wordclock::getTime(Hours) == a.hour &&
-			Wordclock::getTime(Minutes) == a.minute)
-		{
-			this->trigger();
-			return 86350000;
-		}
-		return 500;
+		return (Wordclock::getTime(Hours) == a.hour &&
+			Wordclock::getTime(Minutes) == a.minute) ? 0xffffffff : 500;
 	}
 
 	void ModeAlarmBase::paint()
@@ -109,7 +122,4 @@ namespace Wordclock
 			Utilities::printTime(a.hour, a.minute);
 		}
 	}
-
-	void ModeAlarmBase::trigger()
-	{}
 }

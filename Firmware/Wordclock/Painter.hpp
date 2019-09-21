@@ -11,8 +11,6 @@
 #define HEIGHT (LED_COUNT / ROW_LENGTH)
 #endif
 
-#define MAX_LENGTH (WIDTH >= HEIGHT ? WIDTH : HEIGHT)
-
 namespace Wordclock
 {
 	/// provides the means for setting the color of all LEDs in the matrix.
@@ -43,6 +41,9 @@ namespace Wordclock
 
 		/// the length of the longest side of the display.
 		static const uint8_t maxLength;
+
+		/// the length of the shortest side of the display.
+		static const uint8_t minLength;
 
 		/// returns the color for the next painting operations.
 		/// @returns the current color

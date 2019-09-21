@@ -178,19 +178,6 @@ namespace Wordclock
 		return maxTime[timeType];
 	}
 
-	uint32_t Wordclock::getSeconds(const TimeTypes &timeType)
-	{
-		if (timeType > Years)
-			return 0;
-
-		uint32_t secs = 0;
-		for (uint8_t i = 0; i <= timeType; i++) {
-			if (i != Days)
-				secs += times[i] * getUnitSeconds(i);
-		}
-		return secs;
-	}
-
 	uint32_t Wordclock::getUnitSeconds(const TimeTypes &timeType)
 	{
 		switch(timeType)
@@ -327,7 +314,7 @@ namespace Wordclock
 		for (uint8_t i = 0; i < COLOR_PRESET_COUNT; i++)
 			Wordclock::presets.setDefault(i, defaultPresets[i]);
 
-		uint8_t brightness = 255;
+		uint8_t brightness = DEFAULT_BRIGHTNESS;
 		brightnessSlot.setDefault(brightness);
 		FastLED.setBrightness(brightness);
 

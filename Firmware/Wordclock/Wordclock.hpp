@@ -18,12 +18,8 @@ Serial.print("\t"); Serial.println(c.b)
 #define DEBUG_RGB(c)
 #endif
 
-// EEPROM memory
-#define MODE_INDEX 0
-#define COLOR_PRESET_INDEX_INDEX 1
-#define BRIGHTNESS_INDEX 2
-#define COLOR_PRESET_INDEX 3
-#define LAST_INDEX COLOR_PRESET_INDEX + COLOR_PRESET_COUNT * sizeof(CRGB)
+#define POINT(x, y) (x + y * ROW_LENGTH)
+#define NO_POINT (LED_COUNT+1)
 
 // allows to specify a collection of directions
 // e.g DIR_ITEM(Center, 0) just contains the center

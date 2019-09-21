@@ -4,69 +4,52 @@
 
 namespace Wordclock
 {
-	void ModeFillerUtilities::modeFillerPaint(const CRGB &color,
-		const Directions &direction, const TimeTypes &timeType, uint8_t maxSecs)
+	void ModeFillerUtilities::modeFillerPaint(const Directions &direction,
+		const TimeTypes &timeType, const uint8_t &scope)
 	{
-		if (timeType < Years) {
-			uint32_t maxMaxSecs = maxSecs;
-			maxSecs = Wordclock::getUnitSeconds(timeType + 1);
-			maxMaxSecs *= Wordclock::getUnitSeconds(timeType);
-			if (maxSecs > maxMaxSecs)
-				maxSecs = maxMaxSecs;
-		}
+		const Fraction amount = Utilities::getTimeProgress(timeType, scope);
 
-		uint32_t amount = Wordclock::getSeconds(timeType) % maxSecs + 1;
-		while (amount > 0xffffff) {
-			amount >>= 1;
-			maxSecs >>= 1;
-		}
+		uint8_t filledW = Painter::width > 1 ?
+			((Painter::width + 1) * amount.numerator) / amount.denominator :
+			(Painter::width == 1 ? amount.numerator >= (amount.denominator >> 1
+			) : 0);
+		uint8_t filledH = Painter::height > 1 ?
+			((Painter::height + 1) * amount.numerator) / amount.denominator :
+			(Painter::height == 1 ? amount.numerator >= (amount.denominator >> 1
+			) : 0);
 
-		Painter::setColor(color);
-		if (direction == Border) {
-			Painter::paintAll();
-			Painter::setColor(CRGB(0, 0, 0));
-		}
-
-		switch (direction)
+		if (direction == Top || direction == Bottom)
 		{
-		case Top:
-		{
-			uint8_t filled = (amount * Painter::height) / maxSecs;
-			Painter::paint(0, 0, Painter::width, filled);
-		}
-			break;
-		case Bottom:
-		{
-			uint8_t filled = (amount * Painter::height) / maxSecs;
 			Painter::paint(
-				0, Painter::height - filled, Painter::width, filled);
+				0, direction == Bottom ? Painter::height - filledH : 0,
+				Painter::width, filledH);
 		}
-			break;
-		case Left:
+		else if (direction == Left || direction == Right)
 		{
-			uint8_t filled = (amount * Painter::height) / maxSecs;
-			Painter::paint(0, 0, filled, Painter::height);
-		}
-			break;
-		case Right:
-		{
-			uint8_t filled = (amount * Painter::height) / maxSecs;
 			Painter::paint(
-				Painter::width - filled, 0, filled, Painter::height);
+				direction == Right ? Painter::width - filledW : 0, 0,
+				filledW, Painter::height);
 		}
-			break;
-		case Center:
-		case Border:
-		{
-			uint8_t filledW = ((amount * Painter::width) / maxSecs);
-			uint8_t filledH = ((amount * Painter::height) / maxSecs);
-			filledW = Painter::width % 2 ? filledW | 0x01 : filledW & 0xfe;
-			filledH = Painter::height % 2 ? filledH | 0x01 : filledH & 0xfe;
-			Painter::paint(
-				(Painter::width - filledW) >> 1,
-				(Painter::height - filledH) >> 1,
-				filledW, filledH);
-		}
+		else if (direction == Center || direction == Border) {
+			filledW = Painter::width & 1 ? filledW | 0x01 : filledW & 0xfe;
+			filledH = Painter::height & 1 ? filledH | 0x01 : filledH & 0xfe;
+			if (direction == Border) {
+				Painter::paint(0, 0,
+					Painter::width, (Painter::height - filledH) >> 1);
+				Painter::paint(0, (Painter::height + filledH) >> 1,
+					Painter::width, (Painter::height - filledH) >> 1);
+				Painter::paint(0, (Painter::height - filledH) >> 1,
+					(Painter::width - filledW) >> 1, filledH);
+				Painter::paint((Painter::width + filledW) >> 1,
+					(Painter::height - filledH) >> 1,
+					(Painter::width - filledW) >> 1, filledH);
+			}
+			else {
+				Painter::paint(
+					(Painter::width - filledW) >> 1,
+					(Painter::height - filledH) >> 1,
+					filledW, filledH);
+			}
 		}
 	}
 }

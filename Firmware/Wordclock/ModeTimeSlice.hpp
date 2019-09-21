@@ -1,38 +1,43 @@
 #pragma once
 
 #include "ModeBaseInterval.hpp"
+#include "Utilities.hpp"
 #include "Wordclock.hpp"
 
 namespace Wordclock
 {
-	class ModeTimeSliceBase : public ModeTimeBound
+	class ModeTimeSliceUtils
 	{
-	protected:
-		typedef ModeTimeBound super;
-		static uint8_t calcLength(
-			const uint32_t &l,
-			const uint8_t &column,
-			const uint8_t &max);
+	private:
+		static void paintSlice(const uint8_t &timeType, const uint8_t &scope);
 
-		static void paintSlice(const CRGB &color,
-			uint32_t rec, uint32_t maxSecs);
-		
-		ModeTimeSliceBase();
+	template <class, TimeTypes, uint8_t> friend class ModeTimeSlice;
 	};
 
 	/// shows the time using a time slice.
 	/// @tparam Generator - generates the color(s) of the time slice.
-	/// @tparam timeType - the unit of the time for the scope
-	/// @tparam scope - the scope of time that is shown. If the time exceeds
-	///                 this value, it will be displayed as 0 again.
-	///                 This value never exceeds the maximal possible time for
-	///                 the given time type. You can safely pass 255 to use
-	///                 the maximal possible scope always.
-	template <class Generator, TimeTypes timeType = Minutes, uint8_t scope = 255>
-	class ModeTimeSlice : public ModeTimeSliceBase
+	/// @tparam timeType - the unit of the time that determines how great
+	///                    the percentage of filled area is.
+	/// @tparam scope - specifies what time is equal to a 100% filled area.
+	///                 If your time type is Minutes for instance and you set
+	///                 scope to 5, then the entire area is filled right
+	///                 before the 5th minutes is complete. When it is
+	///                 complete it is filled by 0% again. Same applies to the
+	///                 10th, 15th, ... minute - so its basically a modulo.
+	///                 This value never exceeds the maximal possible value for
+	///                 the given time type, so you can set it to 255 to use
+	///                 the entire scope of the specified time type.
+	///                 This value should always divide the maximal possible
+	///                 value for the given time type (5 minutes divide 60
+	///                 minutes for instance). If the maximal value is not
+	///                 static - as with days (January has more than February),
+	///                 then you should set it to 255 always.
+	template <class Generator, TimeTypes timeType = Minutes,
+		uint8_t scope = 255>
+	class ModeTimeSlice : public ModeTimeBound
 	{
 	protected:
-		typedef ModeTimeSliceBase super;
+		typedef ModeTimeBound super;
 		Generator gen;
 	public:
 		ModeTimeSlice();
@@ -48,19 +53,11 @@ namespace Wordclock
 	template <class Generator, TimeTypes timeType, uint8_t scope>
 	void ModeTimeSlice<Generator, timeType, scope>::paint()
 	{
-		if (isInTransition()) {
+		if (isInTransition())
 			ModeBase::paint();
-			return;
+		else {
+			Painter::setColor(gen.next());
+			ModeTimeSliceUtils::paintSlice(timeType, scope);
 		}
-		uint32_t maxSecs = scope;
-		if (timeType < Years) {
-			maxSecs = Wordclock::getUnitSeconds((TimeTypes)(timeType + 1));
-			uint32_t maxMaxSecs = scope;
-			maxMaxSecs *= Wordclock::getUnitSeconds(timeType);
-			if (maxSecs > maxMaxSecs)
-				maxSecs = maxMaxSecs;
-		}
-		paintSlice(gen.next(),
-			Wordclock::getSeconds(timeType) % maxSecs + 1, maxSecs);
 	}
 }

@@ -1,4 +1,3 @@
-
 #include "Painter.hpp"
 #include "Utilities.hpp"
 #include "Wordclock.hpp"
@@ -28,6 +27,40 @@ namespace Wordclock
 		else if (level < 0)
 			level = levelCount - 1;
 		return (255 + (level << 8) - level) / levelCount;
+	}
+
+	Fraction Utilities::getTimeProgress(
+		const TimeTypes &timeType,
+		const uint8_t &scope)
+	{
+		Fraction frac;
+		if (timeType >= Years) {
+			frac.numerator = 0;
+			frac.denominator = 1;
+			return frac;
+		}
+		
+		uint32_t secs = scope * Wordclock::getUnitSeconds(timeType);
+		if (scope != 255 && timeType < Years) {
+			uint32_t maxSecs =
+				Wordclock::getUnitSeconds(timeType + 1);
+			if (secs > maxSecs)
+				secs = maxSecs;
+		}
+		frac.denominator = secs - 1;
+		
+		secs = 0;
+		for (uint8_t i = 0; i <= timeType; i++) {
+			if (i != Days)
+				secs += Wordclock::getTime(i) * Wordclock::getUnitSeconds(i);
+		}
+		frac.numerator = secs % (frac.denominator+1);
+
+		while (frac.denominator >= 0xffffff) {
+			frac.denominator >>= 1;
+			frac.numerator >>= 1;
+		}
+		return frac;
 	}
 
 	void Utilities::printTime(uint8_t hours, uint8_t minutes)

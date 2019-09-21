@@ -21,6 +21,7 @@ namespace Wordclock
 
 		uint8_t currAspect : 4;
 		bool triggered : 1;
+		EepromVariable<uint8_t> mode;
 		EepromVariable<Alarm> alarm;
 
 		ModeAlarmBase();
@@ -28,12 +29,13 @@ namespace Wordclock
 			const uint8_t &increment, const bool &inc);
 		void internalActionButton(const bool &inc, const int8_t &increment);
 		void internalModeButton(const bool &inc, const uint8_t &max);
+		uint32_t internalTimer(const uint8_t &channel);
+		uint32_t getAlarmTimerTime();
 
 	public:
 		void modeButton(const bool &inc);
-		uint32_t timer(const uint8_t &channel);
 		void paint();
-		virtual void trigger();
+		virtual void trigger() = 0;
 	};
 
 	/// Allows to set an alarm. That is at a certain time a certain mode is
@@ -61,22 +63,33 @@ namespace Wordclock
 	{
 	protected:
 		typedef ModeAlarmBase super;
-		EepromVariable<uint8_t> mode;
 		
 	public:
 		ModeAlarm();
+		uint32_t timer(const uint8_t &channel);
 		void actionButton(const bool &inc);
 		void modeButton(const bool &inc);
-		void trigger();
 		void paint();
+		void trigger();
 	};
 
 	template <uint8_t layer, uint8_t minMode, uint8_t maxMode, uint8_t increment>
 	ModeAlarm<layer, minMode, maxMode, increment>::ModeAlarm()
 		: ModeAlarmBase()
 	{
-		mode = EepromVariable<uint8_t>();
 		mode.setDefault(minMode);
+	}
+
+	template <uint8_t layer, uint8_t minMode, uint8_t maxMode, uint8_t increment>
+	uint32_t ModeAlarm<layer, minMode, maxMode, increment>::
+		timer(const uint8_t &channel)
+	{
+		uint32_t time = internalTimer(channel);
+		if (time == 0xffffffff) {
+			this->trigger();
+			return 86350000;
+		}
+		return time;
 	}
 
 	template <uint8_t layer, uint8_t minMode, uint8_t maxMode, uint8_t increment>

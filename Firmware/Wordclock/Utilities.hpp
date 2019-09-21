@@ -1,10 +1,17 @@
 #pragma once
 
 #include <Arduino.h>
+#include "Wordclock.hpp"
 
 namespace Wordclock
 {
 	class Painter;
+
+	struct Fraction
+	{
+		uint32_t numerator;
+		uint32_t denominator;
+	};
 
 	/// contains some utility functions for the Wordclock.
 	class Utilities
@@ -31,6 +38,20 @@ namespace Wordclock
 		inline static uint8_t getLevel(
 			const uint8_t &value,
 			const uint8_t &levelCount);
+
+		/// retuns the progess for the specified time scope. If the time type
+		/// is minutes, the scope is 30 and the 15th minute just passed, then
+		/// the progess will be approximately 50%.
+		/// @param timeType - the unit of the scope.
+		/// @param scope - the upper limit for the given time type. This is
+		///                never more than the maximum for the given time type.
+		///                Thus you can pass 255 to use the full scope always.
+		/// @returns - the progress f. Note that
+		///              progress = f.numerator / f.denominator <= 1
+		///            applies always.
+		static Fraction getTimeProgress(
+			const TimeTypes &timeType,
+			const uint8_t &scope = 255);
 
 		/// returns a incrementation or decrementation a value in range from 0
 		/// to 255 in levels.

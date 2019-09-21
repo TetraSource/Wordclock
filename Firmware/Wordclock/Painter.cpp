@@ -2,6 +2,7 @@
 #include "Painter.hpp"
 #define IMPORT_LAYOUT
 #include "Config.hpp"
+#include "Wordclock.hpp"
 
 namespace Wordclock
 {
@@ -14,7 +15,8 @@ namespace Wordclock
 
 	const uint8_t Painter::width = WIDTH;
 	const uint8_t Painter::height = HEIGHT;
-	const uint8_t Painter::maxLength = MAX_LENGTH;
+	const uint8_t Painter::maxLength = WIDTH >= HEIGHT ? WIDTH : HEIGHT;
+	const uint8_t Painter::minLength = WIDTH <= HEIGHT ? WIDTH : HEIGHT;
 
 	CRGB Painter::getPixel(const uint8_t &x, const uint8_t &y)
 	{

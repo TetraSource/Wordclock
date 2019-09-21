@@ -36,13 +36,6 @@
 #define ROW_LENGTH    11
 // The length of a vertical row is the LED_COUNT divided by the ROW_LENGTH
 
-// Macro for calculating the virtual LED position
-// of a point with the coord (x, y). Note that (0, 0)
-// specifies the top left point.
-#define POINT(x, y) (x + y * ROW_LENGTH)
-#define NO_POINT (LED_COUNT+1)
-#define HEX(n) n & 0xff0000, n & 0x00ff00, n & 0x0000ff
-
 // protect this section from being loaded into wrong code sections
 #ifdef IMPORT_LAYOUT
 #undef IMPORT_LAYOUT
@@ -136,6 +129,10 @@ namespace Wordclock
 // Just shows the current configuration mode if this setting exists.
 #define SHOW_MODE
 
+// The default brightness.
+// 255 specifies the maximal possible degree of brightness.
+#define DEFAULT_BRIGHTNESS 127
+
 // COLOR PRESETS //
 
 // Reset the EEPROM whenever you change these.
@@ -194,9 +191,10 @@ CRGB(CRGB::DarkGreen), \
 #include "ModeFlashlight.hpp"
 #include "ModeFiller.hpp"
 #include "ModeGlowing.hpp"
+#include "ModeHands.hpp"
 #include "ModeMaskWordclock.hpp"
 #include "ModePixelRain.hpp"
-#include "ModeSuspended.hpp"
+#include "ModeSuspend.hpp"
 #include "ModeTimeSlice.hpp"
 #include "ModeWaves.hpp"
 #include "ModeWordclock.hpp"
@@ -223,6 +221,8 @@ CRGB(CRGB::DarkGreen), \
 #include "SelectorStatic.hpp"
 #include "SelectorTime.hpp"
 
+#define HEX(n) n & 0xff0000, n & 0x00ff00, n & 0x0000ff
+
 namespace Wordclock
 {
 	// here you can define some shorthands
@@ -240,7 +240,7 @@ namespace Wordclock
 	// BESIDES, YOU SHOULD NOT USE MORE THAN 70% RAM AND 80% OF PROGRAM
 	// FLASH MEMORY.
 	const ModeBase *Wordclock::modes[MODE_COUNT] = {
-		new ModeSuspended<>(),
+		new ModeSuspend<>(),
 		new ModeLayerMode<1, SELECTABLE_MODES>(),
 		new ModeAlarm<1, SELECTABLE_MODES>(),
 		new ModeColorPreset(),
