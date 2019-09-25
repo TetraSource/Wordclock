@@ -19,34 +19,31 @@ namespace Wordclock
 		typedef EepromAccess<T> super;
 		T value;
 	public:
-		EepromVariable();
-		inline void setDefault(const T &);
-		inline T &get();
-		inline void set(const T &);
+		inline void setDefault(const T &val)
+		{
+			value = val;
+			super::setDefault(value);
+		}
+
+		/// Returns the value. Since it is returned by reference it can be
+		/// altered. You need to call save() afterwards though.
+		inline T &get()
+		{
+			return value;
+		}
+
+		/// Saves the value on the EEPROM.
+		inline void save()
+		{
+			super::set(value);
+		}
+
+		/// Overwrites the value with the given one and saves it on the EEPROM.
+		/// @param val - the new value.
+		inline void set(const T &val)
+		{
+			value = val;
+			save();
+		}
 	};
-
-	template <class T>
-	EepromVariable<T>::EepromVariable()
-		: EepromAccess<T>()
-	{}
-
-	template <class T>
-	inline void EepromVariable<T>::setDefault(const T &default_)
-	{
-		value = default_;
-		super::setDefault(value);
-	}
-
-	template <class T>
-	inline T &EepromVariable<T>::get()
-	{
-		return value;
-	}
-
-	template <class T>
-	inline void EepromVariable<T>::set(const T &val)
-	{
-		super::set(val);
-		value = val;
-	}
 }

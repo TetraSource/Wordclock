@@ -1,21 +1,13 @@
 #pragma once
 
-#include "ModeBaseInterval.hpp"
-#include "Wordclock.hpp"
+#include "ModeMaskBase.hpp"
+#include "ModeTimeSlice.hpp"
 
 namespace Wordclock
 {
-	class ModeTimeSliceUtils
-	{
-	private:
-		static void paintSlice(const uint8_t &timeType, const uint8_t &scope);
-
-	template <class, TimeTypes, uint8_t> friend class ModeTimeSlice;
-	template <class, TimeTypes, uint8_t> friend class ModeMaskTimeSlice;
-	};
-
 	/// shows the time using a time slice.
-	/// @tparam Generator - generates the color(s) of the time slice.
+	/// @tparam Mode - the mode used to print the "background".
+	///                This mode must no inherit from another masking mode.
 	/// @tparam timeType - the unit of the time that determines how great
 	///                    the percentage of filled area is.
 	/// @tparam scope - specifies what time is equal to a 100% filled area.
@@ -32,32 +24,21 @@ namespace Wordclock
 	///                 minutes for instance). If the maximal value is not
 	///                 static - as with days (January has more than February),
 	///                 then you should set it to 255 always.
-	template <class Generator, TimeTypes timeType = Minutes,
+	template <class Mode, TimeTypes timeType = Minutes,
 		uint8_t scope = 255>
-	class ModeTimeSlice : public ModeTimeBound
+	class ModeMaskTimeSlice :
+		public ModeMaskBase<ModeMaskTimeSlice<Mode, timeType, scope>, Mode, 500>
 	{
 	protected:
-		typedef ModeTimeBound super;
-		Generator gen;
+		typedef ModeMaskBase<ModeMaskTimeSlice<Mode, timeType, scope>, Mode, 500>
+			super;
 	public:
-		ModeTimeSlice();
-		void paint();
+		void mask();
 	};
 
-	template <class Generator, TimeTypes timeType, uint8_t scope>
-	ModeTimeSlice<Generator, timeType, scope>::ModeTimeSlice()
+	template <class Mode, TimeTypes timeType, uint8_t scope>
+	void ModeMaskTimeSlice<Mode, timeType, scope>::mask()
 	{
-		gen = Generator();
-	}
-
-	template <class Generator, TimeTypes timeType, uint8_t scope>
-	void ModeTimeSlice<Generator, timeType, scope>::paint()
-	{
-		if (isInTransition())
-			ModeBase::paint();
-		else {
-			Painter::setColor(gen.next());
-			ModeTimeSliceUtils::paintSlice(timeType, scope);
-		}
+		ModeTimeSliceUtils::paintSlice(timeType, scope);
 	}
 }

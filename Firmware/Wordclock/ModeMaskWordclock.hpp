@@ -9,7 +9,7 @@ namespace Wordclock
 	/// printing the mode first and masking it then at the time indicating
 	/// pixels.
 	/// @tparam Mode - the mode used to print the "background".
-	///                This mode must no inherit from another masing mode.
+	///                This mode must no inherit from another masking mode.
 	template <class Mode>
 	class ModeMaskWordclock
 		: public ModeMaskBase<ModeMaskWordclock<Mode>, Mode, 500>
@@ -17,14 +17,8 @@ namespace Wordclock
 	protected:
 		typedef ModeMaskBase<ModeMaskWordclock, Mode, 500> super;
 	public:
-		ModeMaskWordclock();
 		void mask();
 	};
-
-	template <class Mode>
-	ModeMaskWordclock<Mode>::ModeMaskWordclock()
-		: ModeMaskBase<ModeMaskWordclock, Mode, 500>()
-	{}
 
 	template <class Mode>
 	void ModeMaskWordclock<Mode>::mask()

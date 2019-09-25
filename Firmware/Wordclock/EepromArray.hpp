@@ -17,35 +17,37 @@ namespace Wordclock
 		typedef EepromArrayAccess<T, size> super;
 		T array[size];
 	public:
-		EepromArray();
-		inline void setDefault(const uint8_t &idx, const T &val);
-		inline T &get(const uint8_t &idx);
-		inline void set(const uint8_t &idx, const T val);
+		inline void setDefault(const uint8_t &idx, const T &val)
+		{
+			array[idx] = val;
+			super::setDefault(idx, array[idx]);
+		}
+
+		/// Returns the element at the given index in the array. Since it is
+		/// returned by reference you can even alter externally. However, after
+		/// this you need to call save(idx).
+		/// @parm idx - the index of the item in the array.
+		inline T &get(const uint8_t &idx)
+		{
+			return array[idx];
+		}
+
+		/// saves the element at the given index.
+		/// Call this if you used the reference returned by get(idx) to
+		/// modify the item.
+		/// @param idx - the index of the item in the array.
+		inline void save(const uint8_t &idx)
+		{
+			super::set(idx, array[idx]);
+		}
+
+		/// sets the given value at the given index in the array and saves.
+		/// @param idx - the index of the item in the array.
+		/// @param val - the value to be set.
+		inline void set(const uint8_t &idx, const T &val)
+		{
+			array[idx] = val;
+			save(idx);
+		}
 	};
-
-	template <class T, uint8_t size>
-	EepromArray<T, size>::EepromArray()
-		: EepromArrayAccess<T, size>()
-	{}
-
-	template <class T, uint8_t size>
-	inline void EepromArray<T, size>::setDefault(
-		const uint8_t &idx, const T &val)
-	{
-		array[idx] = val;
-		super::setDefault(idx, array[idx]);
-	}
-
-	template <class T, uint8_t size>
-	inline T &EepromArray<T, size>::get(const uint8_t &idx)
-	{
-		return array[idx];
-	}
-
-	template <class T, uint8_t size>
-	inline void EepromArray<T, size>::set(const uint8_t &idx, const T val)
-	{
-		super::set(idx, val);
-		array[idx] = val;
-	}
 }

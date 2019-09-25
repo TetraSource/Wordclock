@@ -49,7 +49,7 @@ namespace Wordclock
 	void TimerHeap<SizeType>::start(const ModeBase *callback_,
 		const uint8_t &channel_, const uint32_t &time_)
 	{
-		if (time_ == 0 || channel_ == 255)
+		if (channel_ == 255)
 			return;
 		insert(TimerItem(callback_, channel_, internalMillis() +
 			(time_ > (uint32_t)(0 - MAX_TRIGGER_DELAY) ?

@@ -13,12 +13,14 @@ namespace Wordclock
 			const uint8_t &scope, const uint8_t &ring, const uint8_t &rings);
 	
 	template <class, TimeTypes, uint8_t, uint8_t, uint8_t>
-	friend class ModeHands;
+	friend class ModeHand;
+	template <class, TimeTypes, uint8_t, uint8_t, uint8_t>
+	friend class ModeMaskHand;
 	};
 
 	/// Shows the time using hands of variable length. The hands can also
 	/// be extended into a slice of a rotating pie chart like thing.
-	/// @tparam Generator 
+	/// @tparam Generator - generates the colors of the hand.
 	/// @tparam timeType - the unit of the time that determines how great
 	///                    the percentage of filled area is.
 	/// @tparam scope - specifies what time is equal to the hand pointing to
@@ -41,26 +43,26 @@ namespace Wordclock
 	///                 basically specifies the length of the hand.
 	template <class Generator, TimeTypes timeType, uint8_t scope = 255,
 		uint8_t ring = 0, uint8_t rings = 1>
-	class ModeHands : public ModeTimeBound
+	class ModeHand : public ModeTimeBound
 	{
 	protected:
 		typedef ModeTimeBound super;
 		Generator gen;
 	public:
-		ModeHands();
+		ModeHand();
 		void paint();
 	};
 
 	template <class Generator, TimeTypes timeType, uint8_t scope,
 		uint8_t ring, uint8_t rings>
-	ModeHands<Generator, timeType, scope, ring, rings>::ModeHands()
+	ModeHand<Generator, timeType, scope, ring, rings>::ModeHand()
 	{
 		gen = Generator();
 	}
 
 	template <class Generator, TimeTypes timeType, uint8_t scope,
 		uint8_t ring, uint8_t rings>
-	void ModeHands<Generator, timeType, scope, ring, rings>::paint()
+	void ModeHand<Generator, timeType, scope, ring, rings>::paint()
 	{
 		if (isInTransition())
 			ModeBase::paint();

@@ -1,21 +1,14 @@
 #pragma once
 
-#include "ModeBaseInterval.hpp"
-#include "Wordclock.hpp"
+#include "ModeFiller.hpp"
+#include "ModeMaskBase.hpp"
 
 namespace Wordclock
 {
-	class ModeTimeSliceUtils
-	{
-	private:
-		static void paintSlice(const uint8_t &timeType, const uint8_t &scope);
-
-	template <class, TimeTypes, uint8_t> friend class ModeTimeSlice;
-	template <class, TimeTypes, uint8_t> friend class ModeMaskTimeSlice;
-	};
-
-	/// shows the time using a time slice.
-	/// @tparam Generator - generates the color(s) of the time slice.
+	/// Shows the time by turning on a certain amount of the display.
+	/// The current and the two next color presets are used thereby.
+	/// @tparam Mode - the mode used to print the "background".
+	///                This mode must no inherit from another masking mode.
 	/// @tparam timeType - the unit of the time that determines how great
 	///                    the percentage of filled area is.
 	/// @tparam scope - specifies what time is equal to a 100% filled area.
@@ -32,32 +25,23 @@ namespace Wordclock
 	///                 minutes for instance). If the maximal value is not
 	///                 static - as with days (January has more than February),
 	///                 then you should set it to 255 always.
-	template <class Generator, TimeTypes timeType = Minutes,
-		uint8_t scope = 255>
-	class ModeTimeSlice : public ModeTimeBound
+	/// @tparam direction - specifies the side whence the filling advances.
+	template <class Mode, TimeTypes timeType, uint8_t scope,
+		Directions direction>
+	class ModeMaskFiller : public ModeMaskBase<ModeMaskFiller<
+		Mode, timeType, scope, direction>, Mode, 500>
 	{
 	protected:
-		typedef ModeTimeBound super;
-		Generator gen;
+		typedef ModeMaskBase<ModeMaskFiller<
+		Mode, timeType, scope, direction>, Mode, 500> super;
 	public:
-		ModeTimeSlice();
-		void paint();
+		void mask();
 	};
 
-	template <class Generator, TimeTypes timeType, uint8_t scope>
-	ModeTimeSlice<Generator, timeType, scope>::ModeTimeSlice()
+	template <class Mode, TimeTypes timeType, uint8_t scope,
+		Directions direction>
+	void ModeMaskFiller<Mode, timeType, scope, direction>::mask()
 	{
-		gen = Generator();
-	}
-
-	template <class Generator, TimeTypes timeType, uint8_t scope>
-	void ModeTimeSlice<Generator, timeType, scope>::paint()
-	{
-		if (isInTransition())
-			ModeBase::paint();
-		else {
-			Painter::setColor(gen.next());
-			ModeTimeSliceUtils::paintSlice(timeType, scope);
-		}
+		ModeFillerUtilities::modeFillerPaint(timeType, scope, direction);
 	}
 }

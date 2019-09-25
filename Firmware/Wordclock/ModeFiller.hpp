@@ -7,16 +7,19 @@ namespace Wordclock
 	class ModeFillerUtilities
 	{
 	private:
-		static void modeFillerPaint(const Directions &,
-			const TimeTypes &timeType, const uint8_t &scope);
+		static void modeFillerPaint(
+			const TimeTypes &timeType, const uint8_t &scope,
+			const Directions &);
 	
-	template <class, Directions, TimeTypes, uint8_t> friend class ModeFiller;
+	template <class, TimeTypes, uint8_t, Directions>
+	friend class ModeFiller;
+	template <class, TimeTypes, uint8_t, Directions>
+	friend class ModeMaskFiller;
 	};
 
 	/// Shows the time by turning on a certain amount of the display.
 	/// The current and the two next color presets are used thereby.
 	/// @tparam Generator - generates the colors for the filled area.
-	/// @tparam direction - specifies the side whence the filling advances.
 	/// @tparam timeType - the unit of the time that determines how great
 	///                    the percentage of filled area is.
 	/// @tparam scope - specifies what time is equal to a 100% filled area.
@@ -33,8 +36,9 @@ namespace Wordclock
 	///                 minutes for instance). If the maximal value is not
 	///                 static - as with days (January has more than February),
 	///                 then you should set it to 255 always.
-	template <class Generator, Directions direction,
-		TimeTypes timeType, uint8_t scope = 255>
+	/// @tparam direction - specifies the side whence the filling advances.
+	template <class Generator, TimeTypes timeType, uint8_t scope,
+		Directions direction>
 	class ModeFiller : public ModeTimeBound
 	{
 	protected:
@@ -45,22 +49,22 @@ namespace Wordclock
 		void paint();
 	};
 
-	template <class Generator, Directions direction,
-		TimeTypes timeType, uint8_t scope>
-	ModeFiller<Generator, direction, timeType, scope>::ModeFiller()
+	template <class Generator, TimeTypes timeType, uint8_t scope,
+		Directions direction>
+	ModeFiller<Generator, timeType, scope, direction>::ModeFiller()
 	{
 		gen = Generator();
 	}
 
-	template <class Generator, Directions direction,
-		TimeTypes timeType, uint8_t scope>
-	void ModeFiller<Generator, direction, timeType, scope>::paint()
+	template <class Generator, TimeTypes timeType, uint8_t scope,
+		Directions direction>
+	void ModeFiller<Generator, timeType, scope, direction>::paint()
 	{
 		if (isInTransition())
 			ModeBase::paint();
 		else {
 			Painter::setColor(gen.next());
-			ModeFillerUtilities::modeFillerPaint(direction, timeType, scope);
+			ModeFillerUtilities::modeFillerPaint(timeType, scope, direction);
 		}
 	}
 }

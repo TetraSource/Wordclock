@@ -21,109 +21,98 @@ namespace Wordclock
 
 		uint8_t currAspect : 4;
 		bool triggered : 1;
-		EepromVariable<uint8_t> mode;
 		EepromVariable<Alarm> alarm;
 
-		ModeAlarmBase();
-		uint8_t incVal(uint8_t val, const uint8_t &max,
+		static uint32_t getAlarmTimerTime(const Alarm &);
+		static uint8_t incVal(uint8_t val, const uint8_t &max,
 			const uint8_t &increment, const bool &inc);
-		void internalActionButton(const bool &inc, const int8_t &increment);
+
+		ModeAlarmBase();
+		void internalActionButton(const bool &inc, const uint8_t &increment);
 		void internalModeButton(const bool &inc, const uint8_t &max);
-		uint32_t internalTimer(const uint8_t &channel);
-		uint32_t getAlarmTimerTime();
+
+	public:
+		void modeButton(const bool &inc);
+		uint32_t timer(const uint8_t &channel);
+		void paint();
+	};
+
+	class ModeAlarmChangeModeBase : public ModeAlarmBase
+	{
+	protected:
+		typedef ModeAlarmBase super;
+
+		struct ModeData {
+			uint8_t mode;
+			uint8_t returnTime;
+		};
+
+		static const uint8_t maxReturnTime;
+		static ModeAlarmChangeModeBase *activeAlarm;
+		static uint8_t returnMode;
+
+		EepromVariable<ModeData> mode;
+
+		static void aboardActiveAlarm(const uint8_t &layer);
+
+		ModeAlarmChangeModeBase(const uint8_t &minMode);
+		void internalActionButton(const bool &inc, const uint8_t &minMode,
+			const uint8_t &maxMode, const uint8_t &increment);
+		uint32_t internalTimer(const uint8_t &channel, const uint8_t &layer);
 
 	public:
 		void modeButton(const bool &inc);
 		void paint();
-		virtual void trigger() = 0;
 	};
 
 	/// Allows to set an alarm. That is at a certain time a certain mode is
 	/// selected automatically.
 	/// By default this mode indicates whether the alarm is active or disabled.
 	/// Press the decrement button to toggle this bahaviour.
-	/// If you press the increment button, you can set the hour, minute and
-	/// mode to be selected using the increment and decrement button.
-	/// The mode increment and decrement buttons cannot be used to change
-	/// the mode during this process. Instead, you can use the mode increment
-	/// button to change the aspect - hour, minute or mode - you are setting.
-	/// The mode decrement button is used to confirm the configuration and to
-	/// return to normal operation mode. While setting the minutes
-	/// 0 to 4 LEDs on the upper left corner indicate the exact minute by
-	/// showing five minute intervals. Same holds true for hours, however,
-	/// there is just one LED turned on, if the hours are greater than 12.
+	/// If you press the increment button, you can set the settings of the
+	/// alarm (listed below). Use the action buttons to increment or decrement
+	/// the current selected setting. To select the next setting, press the
+	/// next mode button. The previous mode button allows you to leave the
+	/// settings. Note that the settings are saved directly after being set
+	/// instead after leaving. The available settings are:
+	///  * hour of alarm - the pixel at upper left indicate whether you set
+	///                    currently a time at am or pm (pixel visible = pm).
+	///  * minute of alarm - the pixels at the upper left indicate five minute
+	///                      intervals. If increment is divisible by 5, they
+	///                      never appear.
+	///  * return time n - After n minutes the alarm return to its previous
+	///                    mode after being triggered. If n is 0, a cross is
+	///                    displayed and we do not return automatically.
+	///                    In addition, if another mode is selected externally
+	///                    - by the user for instance - then we do not return
+	///                    to the previous mode either.
+	///  * mode - the mode that is selected if the alarm is triggered.
 	/// @tparam layer - the layer the mode is selected on.
 	/// @tparam minMode - the smallest mode that can be choosen.
 	/// @tparam maxMode - the mode behind the biggest mode that can be choosen.
 	/// @tparam increment - the factor minutes are increment by with
 	///                     each button press. This value should divide 60.
-	template <uint8_t layer = 0,
-		uint8_t minMode = 0, uint8_t maxMode = 255, uint8_t increment = 5>
-	class ModeAlarm : public ModeAlarmBase
+	template <uint8_t layer = 0, uint8_t minMode = 0, uint8_t maxMode = 255,
+		uint8_t increment = 5>
+	class ModeAlarm : public ModeAlarmChangeModeBase
 	{
 	protected:
-		typedef ModeAlarmBase super;
-		
+		typedef ModeAlarmChangeModeBase super;
+		EepromVariable<uint8_t> mode;
 	public:
-		ModeAlarm();
-		uint32_t timer(const uint8_t &channel);
-		void actionButton(const bool &inc);
-		void modeButton(const bool &inc);
-		void paint();
-		void trigger();
+		ModeAlarm()
+			: ModeAlarmChangeModeBase(minMode)
+		{}
+
+		uint32_t timer(const uint8_t &channel)
+		{
+			internalTimer(channel, layer);
+		}
+
+		void actionButton(const bool &inc)
+		{
+			internalActionButton(inc, minMode,
+				maxMode > MODE_COUNT ? MODE_COUNT : maxMode, increment);
+		}
 	};
-
-	template <uint8_t layer, uint8_t minMode, uint8_t maxMode, uint8_t increment>
-	ModeAlarm<layer, minMode, maxMode, increment>::ModeAlarm()
-		: ModeAlarmBase()
-	{
-		mode.setDefault(minMode);
-	}
-
-	template <uint8_t layer, uint8_t minMode, uint8_t maxMode, uint8_t increment>
-	uint32_t ModeAlarm<layer, minMode, maxMode, increment>::
-		timer(const uint8_t &channel)
-	{
-		uint32_t time = internalTimer(channel);
-		if (time == 0xffffffff) {
-			this->trigger();
-			return 86350000;
-		}
-		return time;
-	}
-
-	template <uint8_t layer, uint8_t minMode, uint8_t maxMode, uint8_t increment>
-	void ModeAlarm<layer, minMode, maxMode, increment>::actionButton(
-		const bool &inc)
-	{
-		Wordclock::repaint();
-		if (currAspect == 3) {
-			mode.set(incVal(mode.get() - minMode,
-				(maxMode > MODE_COUNT ? MODE_COUNT : maxMode) - minMode,
-				1, inc) + minMode);
-		}
-		else
-			internalActionButton(inc, increment);
-	}
-
-	template <uint8_t layer, uint8_t minMode, uint8_t maxMode, uint8_t increment>
-	void ModeAlarm<layer, minMode, maxMode, increment>::modeButton(
-		const bool &inc)
-	{
-		internalModeButton(inc, 3);
-	}
-
-	template <uint8_t layer, uint8_t minMode, uint8_t maxMode, uint8_t increment>
-	void ModeAlarm<layer, minMode, maxMode, increment>::paint()
-	{
-		super::paint();
-		if (!isInTransition() && currAspect == 3)
-			Utilities::printNumber(mode.get() + 1);
-	}
-
-	template <uint8_t layer, uint8_t minMode, uint8_t maxMode, uint8_t increment>
-	void ModeAlarm<layer, minMode, maxMode, increment>::trigger()
-	{
-		Wordclock::setMode(layer, mode.get());
-	}
 }

@@ -21,9 +21,9 @@ namespace Wordclock
 		EEPROM_SIZE_TYPE slot;
 	public:
 		EepromAccess();
-		inline void setDefault(T &val);
-		inline void get(T &val) const;
-		inline void set(const T &val) const;
+		void setDefault(T &val);
+		void get(T &val) const;
+		void set(const T &val) const;
 	};
 
 	template <class T>

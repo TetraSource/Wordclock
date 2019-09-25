@@ -12,7 +12,9 @@ namespace Wordclock
 	protected:
 		const static uint8_t transitionChannel;
 		const static uint16_t transitionTime;
+#ifdef SHOW_MODE
 		static bool inTransition;
+#endif
 
 		/// Always delegate all control over paint, timer, select and deselect
 		/// to ModeBase if this function returns true!
@@ -46,7 +48,7 @@ namespace Wordclock
 		/// You may start, cancel or extend any timer within this function.
 		/// @param channel - the channel value that was passed to
 		///                  Wordclock::startTimer.
-		/// @returns the value n. If n == 0, is the timer canceled. Otherwise,
+		/// @returns the value n. If n == 0, the timer is canceled. Otherwise,
 		///          it is extended by n milliseconds.
 		virtual uint32_t timer(const uint8_t &channel);
 

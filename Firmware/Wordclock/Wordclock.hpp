@@ -199,6 +199,12 @@ namespace Wordclock
 		/// are multiple timers with the same callback and channel and all is
 		/// false, just one of them is cancelled. If all is true, all these
 		/// timers are canceled however.
+		/// Note that you can cancel a timer of a mode within the Mode::timer
+		/// function - the function derived from ModeBase::timer - with this
+		/// function. However, if you do so, the Mode::timer function needs to
+		/// return 0. Note that this is just necessary if the canceled mode
+		/// and the mode of the timer are the same, so you can safely cancel
+		/// the timers of other modes if accessible.
 		/// @param callback - the mode of the timer (see startTimer).
 		/// @param channel - the channel of the timer (see startTimer).
 		/// @param all - whether to delete all or just one of the matching
@@ -232,7 +238,7 @@ namespace Wordclock
 
 	inline ModeBase *Wordclock::accessMode(const uint8_t &index)
 	{
-		return modes[index];
+		return index < MODE_COUNT ? modes[index] : nullptr;
 	}
 
 	inline CRGB Wordclock::getCurrentPreset()

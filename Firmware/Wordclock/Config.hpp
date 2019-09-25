@@ -82,7 +82,7 @@ namespace Wordclock
 
 // If this setting is set, the clock of the Arduino is used instead of the RTC.
 // Becomes inaccurate easily.
-//#define INTERNAL_TIME
+#define INTERNAL_TIME
 
 // TIMERS //
 
@@ -160,18 +160,18 @@ CRGB(CRGB::DarkGreen), \
 
 // The count of modes of the Wordclock. Keep it in sync with the count of
 // modes in the list below.
-#define MODE_COUNT 12
+#define MODE_COUNT 13
 
 // The count of layers of the Wordclock i.e. the count of modes the Wordclock
 // runs simultaneous. This needs to be at least one
 #define LAYER_COUNT 2
 
 // The selected modes on the layers 0 to LAYER_COUNT after initialization.
-#define DEFAULT_MODES 0, 9
+#define DEFAULT_MODES 0, 10
 
 // All modes from 0 to SELECTABLE_MODES-1 are selectable with the mode buttons
 // Set it to MODE_COUNT to not limit the selection.
-#define SELECTABLE_MODES 8
+#define SELECTABLE_MODES 9
 
 #ifdef IMPORT_MODES
 
@@ -191,18 +191,28 @@ CRGB(CRGB::DarkGreen), \
 #include "ModeFlashlight.hpp"
 #include "ModeFiller.hpp"
 #include "ModeGlowing.hpp"
-#include "ModeHands.hpp"
-#include "ModeMaskWordclock.hpp"
+#include "ModeHand.hpp"
 #include "ModePixelRain.hpp"
 #include "ModeSuspend.hpp"
 #include "ModeTimeSlice.hpp"
+#include "ModeUnicolored.hpp"
 #include "ModeWaves.hpp"
 #include "ModeWordclock.hpp"
+
+// masking modes
+#include "ModeMaskCoffee.hpp"
+#include "ModeMaskFiller.hpp"
+#include "ModeMaskHand.hpp"
+#include "ModeMaskTimeSlice.hpp"
+#include "ModeMaskWordclock.hpp"
 
 // mode managing modes
 #include "ModeAlarm.hpp"
 #include "ModeLayerMode.hpp"
 #include "ModeLayerModeSwitcher.hpp"
+
+// other modes
+#include "ModeParallel.hpp"
 
 // color generators
 #include "GeneratorAlternating.hpp"
@@ -221,12 +231,9 @@ CRGB(CRGB::DarkGreen), \
 #include "SelectorStatic.hpp"
 #include "SelectorTime.hpp"
 
-#define HEX(n) n & 0xff0000, n & 0x00ff00, n & 0x0000ff
-
 namespace Wordclock
 {
 	// here you can define some shorthands
-	typedef ModeBase ModeEmpty;
 	typedef GeneratorColorPreset<SelectorColorPreset<>> CurrColor;
 	typedef GeneratorColorPreset<SelectorSuccessive<0, COLOR_PRESET_COUNT, 1, 0>
 		> PresetGenerator;
@@ -235,24 +242,41 @@ namespace Wordclock
 		GeneratorRandom<0xaa, 0xff, 0xff, 0xff, 0xff, 0xff>, 150>
 		> RedNeonGenerator;
 
+	typedef ModeParallel<ModeHand<GeneratorColorPreset<SelectorColorPreset<1>>,
+		Minutes, 5, 0, 1>,
+		ModeWordclock<GeneratorColorPreset<SelectorColorPreset<>>>>
+		ModeWordclockWithHand;
+
+	typedef ModePixelRain<GeneratorStatic<0x00, 0xff, 0x00>,
+		DIR_ITEM(Top, 0), 150, 3, 5, 30, 40> ModeTheMatrix;
+
+	// placeholder mode that does nothing
+	typedef ModeBase ModeEmpty;
+	// prints the current time in the current color
+	typedef ModeWordclock<CurrColor> ModeDefault;
+
+	// helper constants
+	const uint8_t layer0 = SELECTABLE_MODES;
+
 	// ALWAYS KEEP THIS NUMBER IN SYNC WITH THE COUNT OF MODES AND
 	// RESET THE EEPROM IF YOU CHANGE ANYTHING!
-	// BESIDES, YOU SHOULD NOT USE MORE THAN 70% RAM AND 80% OF PROGRAM
-	// FLASH MEMORY.
+	// BESIDES, YOU SHOULD NOT USE MORE THAN 70% RAM.
+	// Program flash memory should not be so critical but be careful when
+	// using more than 80%.
 	const ModeBase *Wordclock::modes[MODE_COUNT] = {
 		new ModeSuspend<>(),
-		new ModeLayerMode<1, SELECTABLE_MODES>(),
-		new ModeAlarm<1, SELECTABLE_MODES>(),
+		new ModeLayerMode<1, layer0>(),
+		new ModeAlarm<1, layer0>(),
 		new ModeColorPreset(),
+		new ModeRearrangeColorPreset(),
 		new ModeBrightness<8>(),
 		new ModeTime<Hours>(),
 		new ModeTime<Minutes>(),
 		new ModeTime<Seconds>(),
 		new ModeEmpty(),
-		new ModeWordclock(),
-		new ModeCoffee<ModeWaves<RedNeonGenerator, Bottom, 500>, 2000>(),
-		new ModePixelRain<GeneratorStatic<0x00, 0xff, 0x00>, DIR_ITEM(Top, 0),
-			150, 3, 5, 30, 40>(),
+		new ModeWordclockWithHand(),
+		new ModeMaskCoffee<ModeWaves<RedNeonGenerator, Bottom, 500>, 2000>(),
+		new ModeTheMatrix(),
 	};
 }
 #endif

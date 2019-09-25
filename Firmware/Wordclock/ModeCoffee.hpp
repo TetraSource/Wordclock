@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ModeMaskBase.hpp"
+#include "ModeBaseInterval.hpp"
 
 namespace Wordclock
 {
@@ -10,44 +10,46 @@ namespace Wordclock
 	public:
 		ModeCoffeeImpl();
 		void update();
-		void mask();
+		void paint();
 	};
 
-	/// Displays a coffee mug with moving steam using the background specified
-	/// by the given mode.
-	/// @tparam Mode - the mode that is masked in the shape of a mug with steam.
-	///                The mode should fill the entire screen with colors.
+	/// Displays a coffee mug with moving steam.
+	/// @tparam Generator - generates the colors of the picture.
 	/// @tparam speed - the time between each movement of the steam in
 	///                 milliseconds.
-	template <class Mode, uint32_t speed>
-	class ModeCoffee : public ModeMaskBase<ModeCoffee<Mode, speed>, Mode, speed>
+	template <class Generator, uint32_t speed>
+	class ModeCoffee : public ModeBaseInterval<speed>
 	{
 	protected:
-		typedef ModeMaskBase<ModeCoffee, Mode, speed> super;
-
-		ModeCoffeeImpl self;
+		typedef ModeBaseInterval<speed> super;
+		Generator gen;
+		ModeCoffeeImpl impl;
 	public:
 		ModeCoffee();
-		void update();
-		void mask();
+		uint32_t timer(const uint8_t &channel);
+		void paint();
 	};
 
-	template <class Mode, uint32_t speed>
-	ModeCoffee<Mode, speed>::ModeCoffee()
-		: ModeMaskBase<ModeCoffee, Mode, speed>()
+	template <class Generator, uint32_t speed>
+	ModeCoffee<Generator, speed>::ModeCoffee()
+		: ModeBaseInterval<speed>()
 	{
-		self = ModeCoffeeImpl();
+		gen = Generator();
+		impl = ModeCoffeeImpl();
 	}
 
-	template <class Mode, uint32_t speed>
-	void ModeCoffee<Mode, speed>::update()
+	template <class Generator, uint32_t speed>
+	uint32_t ModeCoffee<Generator, speed>::timer(const uint8_t &channel)
 	{
-		self.update();
+		if (channel == 0)
+			impl.update();
+		return super::timer(channel);
 	}
 	
-	template <class Mode, uint32_t speed>
-	void ModeCoffee<Mode, speed>::mask()
+	template <class Generator, uint32_t speed>
+	void ModeCoffee<Generator, speed>::paint()
 	{
-		self.mask();
+		Painter::setColor(gen.next());
+		impl.paint();
 	}
 }

@@ -1,4 +1,3 @@
-
 #include <FastLED.h>
 #include "ModeTimeSlice.hpp"
 #include "Utilities.hpp"

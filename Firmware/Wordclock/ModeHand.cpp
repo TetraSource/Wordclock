@@ -1,4 +1,4 @@
-#include "ModeHands.hpp"
+#include "ModeHand.hpp"
 #include "Painter.hpp"
 #include "Utilities.hpp"
 #include "Wordclock.hpp"

@@ -7,12 +7,18 @@ namespace Wordclock
 	const uint8_t ModeBase::transitionChannel = 254;
 	const uint16_t ModeBase::transitionTime = 750;
 
+#ifdef SHOW_MODE
 	bool ModeBase::inTransition = false;
+#endif
 
 	bool ModeBase::isInTransition()
 	{
+#ifdef SHOW_MODE
 		return inTransition &&
 			Wordclock::accessMode(Wordclock::getMode(0)) == this;
+#else
+		return false;
+#endif
 	}
 
 	ModeBase::ModeBase()

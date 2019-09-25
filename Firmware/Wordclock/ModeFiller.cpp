@@ -4,8 +4,9 @@
 
 namespace Wordclock
 {
-	void ModeFillerUtilities::modeFillerPaint(const Directions &direction,
-		const TimeTypes &timeType, const uint8_t &scope)
+	void ModeFillerUtilities::modeFillerPaint(
+		const TimeTypes &timeType, const uint8_t &scope,
+		const Directions &direction)
 	{
 		const Fraction amount = Utilities::getTimeProgress(timeType, scope);
 

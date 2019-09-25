@@ -13,7 +13,7 @@ namespace Wordclock
 		Wordclock::repaint();
 	}
 
-	void ModeCoffeeImpl::mask()
+	void ModeCoffeeImpl::paint()
 	{
 		// mug
 		Painter::paint(3, 4, 5, 5);

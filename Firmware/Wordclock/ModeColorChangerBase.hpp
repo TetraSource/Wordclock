@@ -8,9 +8,7 @@ namespace Wordclock
 	{
 	protected:
 		typedef ModeBase super;
-
 		CRGB currColor;
-
 		ModeColorChangerBase();
 
 	public:
