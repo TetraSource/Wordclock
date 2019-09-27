@@ -32,41 +32,32 @@ namespace Wordclock
 		typedef ModeLayerModeSwitcherBase super;
 		Selector selector;
 	public:
-		ModeLayerModeSwitcher();
-		void actionButton(const bool &inc);
-		uint32_t timer(const uint8_t &channel);
+		ModeLayerModeSwitcher()
+			: ModeLayerModeSwitcherBase(initActive)
+		{
+			selector = Selector();
+			if (initActive)
+				Wordclock::startTimer(this, interval, 0);
+		}
+
+		void actionButton(const bool &inc)
+		{
+			if (active == inc)
+				return;
+			active = inc;
+			if (active)
+				Wordclock::startTimer(this, interval, 0);
+			else
+				Wordclock::cancelTimer(this, 0);
+			Wordclock::repaint();
+		}
+
+		uint32_t timer(const uint8_t &channel)
+		{
+			if (channel != 0)
+				return ModeBase::timer(channel);
+			Wordclock::setMode(layer, selector.next() % MODE_COUNT);
+			return interval;
+		}
 	};
-
-	template <class Selector, uint32_t interval, uint8_t layer, bool initActive>
-	ModeLayerModeSwitcher<Selector, interval, layer, initActive>::
-		ModeLayerModeSwitcher() : ModeLayerModeSwitcherBase(initActive)
-	{
-		selector = Selector();
-		if (initActive)
-			Wordclock::startTimer(this, interval, 0);
-	}
-
-	template <class Selector, uint32_t interval, uint8_t layer, bool initActive>
-	void ModeLayerModeSwitcher<Selector, interval, layer, initActive>::
-		actionButton(const bool &inc)
-	{
-		if (active == inc)
-			return;
-		active = inc;
-		if (active)
-			Wordclock::startTimer(this, interval, 0);
-		else
-			Wordclock::cancelTimer(this, 0);
-		Wordclock::repaint();
-	}
-
-	template <class Selector, uint32_t interval, uint8_t layer, bool initActive>
-	uint32_t ModeLayerModeSwitcher<Selector, interval, layer, initActive>::
-		timer(const uint8_t &channel)
-	{
-		if (channel != 0)
-			return ModeBase::timer(channel);
-		Wordclock::setMode(layer, selector.next() % MODE_COUNT);
-		return interval;
-	}
 }

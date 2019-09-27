@@ -33,15 +33,12 @@ namespace Wordclock
 	{
 	protected:
 		typedef ModeMaskBase<ModeMaskFiller<
-		Mode, timeType, scope, direction>, Mode, 500> super;
+			Mode, timeType, scope, direction>, Mode, 500> super;
+		
 	public:
-		void mask();
+		void mask()
+		{
+			ModeFillerUtilities::modeFillerPaint(timeType, scope, direction);
+		}
 	};
-
-	template <class Mode, TimeTypes timeType, uint8_t scope,
-		Directions direction>
-	void ModeMaskFiller<Mode, timeType, scope, direction>::mask()
-	{
-		ModeFillerUtilities::modeFillerPaint(timeType, scope, direction);
-	}
 }

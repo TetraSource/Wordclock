@@ -37,14 +37,11 @@ namespace Wordclock
 	protected:
 		typedef ModeMaskBase<ModeMaskHand<
 			Mode, timeType, scope, ring, rings>, Mode, 500> super;
+		
 	public:
-		void mask();
+		void mask()
+		{
+			ModeHandsUtilities::paintHands(timeType, scope, ring, rings);
+		}
 	};
-
-	template <class Mode, TimeTypes timeType, uint8_t scope,
-		uint8_t ring, uint8_t rings>
-	void ModeMaskHand<Mode, timeType, scope, ring, rings>::mask()
-	{
-		ModeHandsUtilities::paintHands(timeType, scope, ring, rings);
-	}
 }

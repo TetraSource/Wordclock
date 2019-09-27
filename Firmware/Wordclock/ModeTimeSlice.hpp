@@ -7,11 +7,8 @@ namespace Wordclock
 {
 	class ModeTimeSliceUtils
 	{
-	private:
+	public:
 		static void paintSlice(const uint8_t &timeType, const uint8_t &scope);
-
-	template <class, TimeTypes, uint8_t> friend class ModeTimeSlice;
-	template <class, TimeTypes, uint8_t> friend class ModeMaskTimeSlice;
 	};
 
 	/// shows the time using a time slice.
@@ -40,24 +37,20 @@ namespace Wordclock
 		typedef ModeTimeBound super;
 		Generator gen;
 	public:
-		ModeTimeSlice();
-		void paint();
-	};
-
-	template <class Generator, TimeTypes timeType, uint8_t scope>
-	ModeTimeSlice<Generator, timeType, scope>::ModeTimeSlice()
-	{
-		gen = Generator();
-	}
-
-	template <class Generator, TimeTypes timeType, uint8_t scope>
-	void ModeTimeSlice<Generator, timeType, scope>::paint()
-	{
-		if (isInTransition())
-			ModeBase::paint();
-		else {
-			Painter::setColor(gen.next());
-			ModeTimeSliceUtils::paintSlice(timeType, scope);
+		ModeTimeSlice()
+			: ModeTimeBound()
+		{
+			gen = Generator();
 		}
-	}
+
+		void paint()
+		{
+			if (isInTransition())
+				ModeBase::paint();
+			else {
+				Painter::setColor(gen.next());
+				ModeTimeSliceUtils::paintSlice(timeType, scope);
+			}
+		}
+	};
 }

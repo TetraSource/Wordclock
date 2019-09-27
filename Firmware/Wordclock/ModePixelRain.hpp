@@ -68,52 +68,34 @@ namespace Wordclock
 	protected:
 		typedef ModePixelRainBase super;
 		Generator gen;
+		
 	public:
-		/// initializes the effect.
-		/// @param generator - the color generator for the color of the
-		///                    head pixel.
-		ModePixelRain();
-		void select();
-		uint32_t timer(const uint8_t &channel);
-	};
-
-	template <class Generator, uint8_t directions, uint16_t interval,
-		uint8_t minLength, uint8_t maxLength,
-		uint8_t minPixelCount, uint8_t maxPixelCount>
-	ModePixelRain<Generator, directions, interval, minLength,
-		maxLength, minPixelCount, maxPixelCount>::ModePixelRain()
-		: ModePixelRainBase()
-	{
-		gen = Generator();
-	}
-
-	template <class Generator, uint8_t directions, uint16_t interval,
-		uint8_t minLength, uint8_t maxLength,
-		uint8_t minPixelCount, uint8_t maxPixelCount>
-	void ModePixelRain<Generator, directions, interval, minLength,
-		maxLength, minPixelCount, maxPixelCount>::select()
-	{
-		if (isInTransition())
-			ModeBase::select();
-		else
-			internalSelect(maxPixelCount);
-	}
-
-	template <class Generator, uint8_t directions, uint16_t interval,
-		uint8_t minLength, uint8_t maxLength,
-		uint8_t minPixelCount, uint8_t maxPixelCount>
-	uint32_t ModePixelRain<Generator, directions, interval, minLength,
-		maxLength, minPixelCount, maxPixelCount>::timer(const uint8_t &channel)
-	{
-		if (channel != 0)
-			return ModeBase::timer(channel);
-		movePixels();
-		while (count < maxPixelCount && (count < minPixelCount ||
-			random(minPixelCount, maxPixelCount + 1) > count))
+		ModePixelRain()
+			: ModePixelRainBase()
 		{
-			genPixel(directions, minLength, maxLength, gen.next());
+			gen = Generator();
 		}
-		Wordclock::repaint();
-		return interval;
-	}
+
+		void select()
+		{
+			if (isInTransition())
+				ModeBase::select();
+			else
+				internalSelect(maxPixelCount);
+		}
+
+		uint32_t timer(const uint8_t &channel)
+		{
+			if (channel != 0)
+				return ModeBase::timer(channel);
+			movePixels();
+			while (count < maxPixelCount && (count < minPixelCount ||
+				random(minPixelCount, maxPixelCount + 1) > count))
+			{
+				genPixel(directions, minLength, maxLength, gen.next());
+			}
+			Wordclock::repaint();
+			return interval;
+		}
+	};
 }

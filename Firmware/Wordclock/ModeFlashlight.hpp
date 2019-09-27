@@ -12,7 +12,6 @@ namespace Wordclock
 		CRGB currColor;
 		bool visible;
 	public:
-		ModeFlashlightBase();
 		void deselect();
 		void paint();
 	};
@@ -32,42 +31,35 @@ namespace Wordclock
 	protected:
 		typedef ModeFlashlightBase super;
 		Generator gen;
+
 	public:
-		ModeFlashlight();
-		void select();
-		uint32_t timer(const uint8_t &channel);
-	};
-
-	template <class Generator, uint32_t timeOn, uint32_t timeOff>
-	ModeFlashlight<Generator, timeOn, timeOff>::ModeFlashlight()
-		: ModeFlashlightBase()
-	{
-		gen = Generator();
-	}
-
-	template <class Generator, uint32_t timeOn, uint32_t timeOff>
-	void ModeFlashlight<Generator, timeOn, timeOff>::select()
-	{
-		if (isInTransition()) {
-			ModeBase::select();
-			return;
+		ModeFlashlight()
+			: ModeFlashlightBase()
+		{
+			gen = Generator();
 		}
-		visible = true;
-		currColor = gen.next();
-		Wordclock::startTimer(this, timeOn, 0);
-	}
 
-	template <class Generator, uint32_t timeOn, uint32_t timeOff>
-	uint32_t ModeFlashlight<Generator, timeOn, timeOff>::timer(
-		const uint8_t &channel)
-	{
-		if (channel != 0)
-			return ModeBase::timer(channel);
-		if (timeOff != 0)
-			visible = !visible;
-		if (visible)
+		void select()
+		{
+			if (isInTransition()) {
+				ModeBase::select();
+				return;
+			}
+			visible = true;
 			currColor = gen.next();
-		Wordclock::repaint();
-		return visible ? timeOn : timeOff;
-	}
+			Wordclock::startTimer(this, timeOn, 0);
+		}
+
+		uint32_t timer(const uint8_t &channel)
+		{
+			if (channel != 0)
+				return ModeBase::timer(channel);
+			if (timeOff != 0)
+				visible = !visible;
+			if (visible)
+				currColor = gen.next();
+			Wordclock::repaint();
+			return visible ? timeOn : timeOff;
+		}
+	};
 }

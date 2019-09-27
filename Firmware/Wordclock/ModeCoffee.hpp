@@ -24,32 +24,26 @@ namespace Wordclock
 		typedef ModeBaseInterval<speed> super;
 		Generator gen;
 		ModeCoffeeImpl impl;
+		
 	public:
-		ModeCoffee();
-		uint32_t timer(const uint8_t &channel);
-		void paint();
+		ModeCoffee()
+			: ModeBaseInterval<speed>()
+		{
+			gen = Generator();
+			impl = ModeCoffeeImpl();
+		}
+
+		uint32_t timer(const uint8_t &channel)
+		{
+			if (channel == 0)
+				impl.update();
+			return super::timer(channel);
+		}
+
+		void paint()
+		{
+			Painter::setColor(gen.next());
+			impl.paint();
+		}
 	};
-
-	template <class Generator, uint32_t speed>
-	ModeCoffee<Generator, speed>::ModeCoffee()
-		: ModeBaseInterval<speed>()
-	{
-		gen = Generator();
-		impl = ModeCoffeeImpl();
-	}
-
-	template <class Generator, uint32_t speed>
-	uint32_t ModeCoffee<Generator, speed>::timer(const uint8_t &channel)
-	{
-		if (channel == 0)
-			impl.update();
-		return super::timer(channel);
-	}
-	
-	template <class Generator, uint32_t speed>
-	void ModeCoffee<Generator, speed>::paint()
-	{
-		Painter::setColor(gen.next());
-		impl.paint();
-	}
 }

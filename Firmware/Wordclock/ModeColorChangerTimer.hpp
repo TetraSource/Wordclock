@@ -17,25 +17,19 @@ namespace Wordclock
 		Generator gen;
 
 	public:
-		ModeColorChangerTimer();
-		uint32_t timer(const uint8_t &);
+		ModeColorChangerTimer()
+			: ModeColorChangerBase()
+		{
+			gen = Generator();
+		}
+
+		uint32_t timer(const uint8_t &channel)
+		{
+			if (channel != 0)
+				return ModeBase::timer(channel);
+			currColor = gen.next();
+			Wordclock::repaint();
+			return time;
+		}
 	};
-
-	template <class Generator, uint32_t time>
-	ModeColorChangerTimer<Generator, time>::ModeColorChangerTimer()
-		: ModeColorChangerBase()
-	{
-		gen = Generator();
-	}
-
-	template <class Generator, uint32_t time>
-	uint32_t ModeColorChangerTimer<Generator, time>::timer(
-		const uint8_t &channel)
-	{
-		if (channel != 0)
-			return ModeBase::timer(channel);
-		currColor = gen.next();
-		Wordclock::repaint();
-		return time;
-	}
 }

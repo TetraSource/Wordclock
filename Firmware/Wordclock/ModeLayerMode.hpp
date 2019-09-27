@@ -22,32 +22,21 @@ namespace Wordclock
 	protected:
 		typedef ModeBase super;
 	public:
-		ModeLayerMode();
-		void actionButton(const bool &);
-		void paint();
+		void actionButton(const bool &inc)
+		{
+			Wordclock::setMode(layer,
+				Wordclock::getNextMode(layer, inc, from, to));
+		}
+
+		void paint()
+		{
+			if (isInTransition()) {
+				ModeBase::paint();
+			}
+			else {
+				Painter::setColor(Wordclock::getCurrentPreset());
+				Utilities::printNumber(Wordclock::getMode(layer) + 1);
+			}
+		}
 	};
-
-	template <uint8_t layer, uint8_t from, uint8_t to>
-	ModeLayerMode<layer, from, to>::ModeLayerMode()
-		: ModeBase()
-	{}
-
-	template <uint8_t layer, uint8_t from, uint8_t to>
-	void ModeLayerMode<layer, from, to>::actionButton(const bool &inc)
-	{
-		Wordclock::setMode(layer,
-			Wordclock::getNextMode(layer, inc, from, to));
-	}
-
-	template <uint8_t layer, uint8_t from, uint8_t to>
-	void ModeLayerMode<layer, from, to>::paint()
-	{
-		if (isInTransition()) {
-			ModeBase::paint();
-		}
-		else {
-			Painter::setColor(Wordclock::getCurrentPreset());
-			Utilities::printNumber(Wordclock::getMode(layer) + 1);
-		}
-	}
 }

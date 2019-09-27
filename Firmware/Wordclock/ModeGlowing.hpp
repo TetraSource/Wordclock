@@ -9,7 +9,7 @@
 
 namespace Wordclock
 {
-	class ModeGlowingBase : public ModeBase
+	class ModeGlowingUtilities
 	{
 	protected:
 		typedef ModeBase super;
@@ -18,10 +18,10 @@ namespace Wordclock
 		static void setGlow(const uint8_t &x, const uint8_t &y,
 			const CRGB &color);
 		static void setGlowingPixel(const uint8_t &x, const uint8_t &y,
-			CRGB color, const uint8_t &strength, const uint8_t &maxStrength);
+			CRGB color, const uint8_t &intensity, const uint8_t &maxIntensity);
 		
+	public:
 		static void glowPaint(const uint8_t &radius);
-		ModeGlowingBase();
 	};
 
 	/// turns on the LEDs around the activated ones using the a dimmed color
@@ -29,20 +29,18 @@ namespace Wordclock
 	/// @tparam radius - the radius of the area which LEDs are turned on in
 	///                  around activated LEDs.
 	template <uint8_t radius = 1>
-	class ModeGlowing : public ModeGlowingBase
+	class ModeGlowing : public ModeBase
 	{
 	protected:
-		typedef ModeGlowingBase super;
-	public:
-		void paint();
-	};
+		typedef ModeBase super;
 
-	template <uint8_t radius>
-	void ModeGlowing<radius>::paint()
-	{
-		if (isInTransition())
-			ModeBase::paint();
-		else
-			glowPaint(radius + 1);
-	}
+	public:
+		void paint()
+		{
+			if (isInTransition())
+				ModeBase::paint();
+			else
+				ModeGlowingUtilities::glowPaint(radius + 1);
+		}
+	};
 }

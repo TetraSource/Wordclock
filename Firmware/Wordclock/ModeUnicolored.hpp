@@ -12,21 +12,18 @@ namespace Wordclock
 	protected:
 		typedef ModeBase super;
 		Generator gen;
+
 	public:
-		ModeUnicolored();
-		void paint();
+		ModeUnicolored()
+			: ModeBase()
+		{
+			gen = Generator();
+		}
+
+		void paint()
+		{
+			Painter::setColor(gen.next());
+			Painter::paintAll();
+		}
 	};
-
-	template <class Generator>
-	ModeUnicolored<Generator>::ModeUnicolored()
-	{
-		gen = Generator();
-	}
-
-	template <class Generator>
-	void ModeUnicolored<Generator>::paint()
-	{
-		Painter::setColor(gen.next());
-		Painter::paintAll();
-	}
 }

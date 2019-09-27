@@ -36,31 +36,26 @@ namespace Wordclock
 	protected:
 		typedef ModeHSVBase super;
 	public:
-		void actionButton(const bool &inc);
-		void paint();
-	};
-
-	template <HSVColorValues value, uint8_t levelCount>
-	void ModeHSV<value, levelCount>::actionButton(const bool &inc)
-	{
-		uint8_t* colorArray = (uint8_t*)&curr;
-		colorArray[value] = Utilities::changeLevel(
-			colorArray[value], levelCount, inc);
-
-		hsv2rgb_rainbow(curr, result);
-		Wordclock::setColorPreset(Wordclock::getColorPresetIndex(), result);
-	}
-
-	template <HSVColorValues value, uint8_t levelCount>
-	void ModeHSV<value, levelCount>::paint()
-	{
-		if (isInTransition()) {
-			ModeBase::paint();
-		}
-		else {
-			Painter::setColor(Wordclock::getCurrentPreset());
+		void actionButton(const bool &inc)
+		{
 			uint8_t* colorArray = (uint8_t*)&curr;
-			Utilities::printHex(colorArray[value]);
+			colorArray[value] = Utilities::changeLevel(
+				colorArray[value], levelCount, inc);
+
+			hsv2rgb_rainbow(curr, result);
+			Wordclock::setColorPreset(Wordclock::getColorPresetIndex(), result);
 		}
-	}
+
+		void paint()
+		{
+			if (isInTransition()) {
+				ModeBase::paint();
+			}
+			else {
+				Painter::setColor(Wordclock::getCurrentPreset());
+				uint8_t* colorArray = (uint8_t*)&curr;
+				Utilities::printHex(colorArray[value]);
+			}
+		}
+	};
 }

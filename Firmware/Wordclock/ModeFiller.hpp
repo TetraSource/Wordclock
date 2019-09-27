@@ -6,15 +6,10 @@ namespace Wordclock
 {
 	class ModeFillerUtilities
 	{
-	private:
+	public:
 		static void modeFillerPaint(
 			const TimeTypes &timeType, const uint8_t &scope,
 			const Directions &);
-	
-	template <class, TimeTypes, uint8_t, Directions>
-	friend class ModeFiller;
-	template <class, TimeTypes, uint8_t, Directions>
-	friend class ModeMaskFiller;
 	};
 
 	/// Shows the time by turning on a certain amount of the display.
@@ -45,26 +40,21 @@ namespace Wordclock
 		typedef ModeTimeBound super;
 		Generator gen;
 	public:
-		ModeFiller();
-		void paint();
-	};
-
-	template <class Generator, TimeTypes timeType, uint8_t scope,
-		Directions direction>
-	ModeFiller<Generator, timeType, scope, direction>::ModeFiller()
-	{
-		gen = Generator();
-	}
-
-	template <class Generator, TimeTypes timeType, uint8_t scope,
-		Directions direction>
-	void ModeFiller<Generator, timeType, scope, direction>::paint()
-	{
-		if (isInTransition())
-			ModeBase::paint();
-		else {
-			Painter::setColor(gen.next());
-			ModeFillerUtilities::modeFillerPaint(timeType, scope, direction);
+		ModeFiller()
+			: ModeTimeBound()
+		{
+			gen = Generator();
 		}
-	}
+
+		void paint()
+		{
+			if (isInTransition())
+				ModeBase::paint();
+			else {
+				Painter::setColor(gen.next());
+				ModeFillerUtilities::modeFillerPaint(
+					timeType, scope, direction);
+			}
+		}
+	};
 }

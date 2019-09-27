@@ -4,14 +4,10 @@
 
 namespace Wordclock
 {
-	CRGB **ModeGlowingBase::glowing = nullptr;
+	CRGB **ModeGlowingUtilities::glowing = nullptr;
 
-	ModeGlowingBase::ModeGlowingBase()
-		: ModeBase()
-	{}
-
-	void ModeGlowingBase::setGlow(const uint8_t &x, const uint8_t &y,
-		const CRGB &color)
+	void ModeGlowingUtilities::setGlow(
+		const uint8_t &x, const uint8_t &y, const CRGB &color)
 	{
 		if (glowing[y][x].r < color.r)
 			glowing[y][x].r = color.r;
@@ -21,19 +17,20 @@ namespace Wordclock
 			glowing[y][x].b = color.b;
 	}
 
-	void ModeGlowingBase::setGlowingPixel(const uint8_t &x, const uint8_t &y,
-		CRGB color, const uint8_t &strength, const uint8_t &maxStrength)
+	void ModeGlowingUtilities::setGlowingPixel(
+		const uint8_t &x, const uint8_t &y, CRGB color,
+		const uint8_t &intensity, const uint8_t &maxIntensity)
 	{
 		if (color.r)
-			color.r = ((color.r * strength) / maxStrength) >> DIMING_FACTOR;
+			color.r = ((color.r * intensity) / maxIntensity) >> DIMING_FACTOR;
 		if (color.g)
-			color.g = ((color.g * strength) / maxStrength) >> DIMING_FACTOR;
+			color.g = ((color.g * intensity) / maxIntensity) >> DIMING_FACTOR;
 		if (color.b)
-			color.b = ((color.b * strength) / maxStrength) >> DIMING_FACTOR;
+			color.b = ((color.b * intensity) / maxIntensity) >> DIMING_FACTOR;
 		setGlow(x, y, color);
 	}
 
-	void ModeGlowingBase::glowPaint(const uint8_t &radius)
+	void ModeGlowingUtilities::glowPaint(const uint8_t &radius)
 	{
 		// Init the matrix glowing.
 		glowing = new CRGB*[Painter::height];

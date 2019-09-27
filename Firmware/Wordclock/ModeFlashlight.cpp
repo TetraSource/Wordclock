@@ -2,10 +2,6 @@
 
 namespace Wordclock
 {
-	ModeFlashlightBase::ModeFlashlightBase()
-		: ModeBase()
-	{}
-
 	void ModeFlashlightBase::deselect()
 	{
 		if (isInTransition()) {

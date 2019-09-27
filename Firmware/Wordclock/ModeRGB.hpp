@@ -22,30 +22,26 @@ namespace Wordclock
 	protected:
 		typedef ModeBase super;
 	public:
-		void actionButton(const bool &inc);
-		void paint();
+		void actionButton(const bool &inc)
+		{
+			CRGB color = Wordclock::getColorPreset(
+				Wordclock::getColorPresetIndex());
+			color[value] =
+				Utilities::changeLevel(color[value], levelCount, inc);
+			Wordclock::setColorPreset(Wordclock::getColorPresetIndex(), color);
+			Wordclock::repaint();
+		}
+
+		void paint()
+		{
+			if (isInTransition()) {
+				ModeBase::paint();
+			}
+			else {
+				Painter::setColor(Wordclock::getCurrentPreset());
+				Utilities::printHex(Wordclock::getColorPreset(
+					Wordclock::getColorPresetIndex())[value]);
+			}
+		}
 	};
-
-	template <RGBColorValues value, uint8_t levelCount>
-	void ModeRGB<value, levelCount>::actionButton(const bool &inc)
-	{
-		CRGB color = Wordclock::getColorPreset(
-			Wordclock::getColorPresetIndex());
-		color[value] = Utilities::changeLevel(color[value], levelCount, inc);
-		Wordclock::setColorPreset(Wordclock::getColorPresetIndex(), color);
-		Wordclock::repaint();
-	}
-
-	template <RGBColorValues value, uint8_t levelCount>
-	void ModeRGB<value, levelCount>::paint()
-	{
-		if (isInTransition()) {
-			ModeBase::paint();
-		}
-		else {
-			Painter::setColor(Wordclock::getCurrentPreset());
-			Utilities::printHex(Wordclock::getColorPreset(
-				Wordclock::getColorPresetIndex())[value]);
-		}
-	}
 }

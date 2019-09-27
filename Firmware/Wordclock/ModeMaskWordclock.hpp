@@ -16,13 +16,11 @@ namespace Wordclock
 	{
 	protected:
 		typedef ModeMaskBase<ModeMaskWordclock, Mode, 500> super;
-	public:
-		void mask();
-	};
 
-	template <class Mode>
-	void ModeMaskWordclock<Mode>::mask()
-	{
-		Utilities::printTime();
-	}
+	public:
+		void mask()
+		{
+			Utilities::printTime();
+		}
+	};
 }

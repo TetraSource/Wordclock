@@ -30,15 +30,13 @@ namespace Wordclock
 		public ModeMaskBase<ModeMaskTimeSlice<Mode, timeType, scope>, Mode, 500>
 	{
 	protected:
-		typedef ModeMaskBase<ModeMaskTimeSlice<Mode, timeType, scope>, Mode, 500>
-			super;
+		typedef ModeMaskBase<ModeMaskTimeSlice<
+			Mode, timeType, scope>, Mode, 500> super;
+		
 	public:
-		void mask();
+		void mask()
+		{
+			ModeTimeSliceUtils::paintSlice(timeType, scope);
+		}
 	};
-
-	template <class Mode, TimeTypes timeType, uint8_t scope>
-	void ModeMaskTimeSlice<Mode, timeType, scope>::mask()
-	{
-		ModeTimeSliceUtils::paintSlice(timeType, scope);
-	}
 }

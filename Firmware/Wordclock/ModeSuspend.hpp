@@ -26,16 +26,14 @@ namespace Wordclock
 	{
 	protected:
 		typedef ModeSuspendedBase super;
+		
 	public:
-		void actionButton(const bool &inc);
+		void actionButton(const bool &inc)
+		{
+			suspended.set(!suspended.get());
+			Wordclock::repaint();
+			if (inc)
+				Wordclock::startTimer(this, lock, 0);
+		}
 	};
-
-	template <uint32_t lock>
-	void ModeSuspend<lock>::actionButton(const bool &inc)
-	{
-		suspended.set(!suspended.get());
-		Wordclock::repaint();
-		if (inc)
-			Wordclock::startTimer(this, lock, 0);
-	}
 }

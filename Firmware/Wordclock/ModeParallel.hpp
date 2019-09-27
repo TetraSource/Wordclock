@@ -17,58 +17,48 @@ namespace Wordclock
 		typedef ModeBase super;
 		Mode1 mode1;
 		Mode2 mode2;
+
 	public:
-		ModeParallel();
-		void select();
-		void deselect();
-		void actionButton(const bool &inc);
-		void paint();
+		ModeParallel()
+		{
+			mode1 = Mode1();
+			mode2 = Mode2();
+		}
+
+		void select()
+		{
+			if (isInTransition()) {
+				ModeBase::select();
+				return;
+			}
+			mode2.select();
+			mode1.select();
+		}
+
+		void deselect()
+		{
+			if (isInTransition()) {
+				ModeBase::deselect();
+				return;
+			}
+			mode1.deselect();
+			mode2.deselect();
+		}
+
+		void actionButton(const bool &inc)
+		{
+			mode1.actionButton(inc);
+			mode2.actionButton(inc);
+		}
+
+		void paint()
+		{
+			if (isInTransition()) {
+				ModeBase::paint();
+				return;
+			}
+			mode2.paint();
+			mode1.paint();
+		}
 	};
-
-	template <class Mode1, class Mode2>
-	ModeParallel<Mode1, Mode2>::ModeParallel()
-	{
-		mode1 = Mode1();
-		mode2 = Mode2();
-	}
-
-	template <class Mode1, class Mode2>
-	void ModeParallel<Mode1, Mode2>::select()
-	{
-		if (isInTransition()) {
-			ModeBase::select();
-			return;
-		}
-		mode2.select();
-		mode1.select();
-	}
-
-	template <class Mode1, class Mode2>
-	void ModeParallel<Mode1, Mode2>::deselect()
-	{
-		if (isInTransition()) {
-			ModeBase::deselect();
-			return;
-		}
-		mode1.deselect();
-		mode2.deselect();
-	}
-
-	template <class Mode1, class Mode2>
-	void ModeParallel<Mode1, Mode2>::actionButton(const bool &inc)
-	{
-		mode1.actionButton(inc);
-		mode2.actionButton(inc);
-	}
-
-	template <class Mode1, class Mode2>
-	void ModeParallel<Mode1, Mode2>::paint()
-	{
-		if (isInTransition()) {
-			ModeBase::paint();
-			return;
-		}
-		mode2.paint();
-		mode1.paint();
-	}
 }

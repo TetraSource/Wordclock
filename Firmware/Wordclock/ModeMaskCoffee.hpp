@@ -20,27 +20,20 @@ namespace Wordclock
 
 		ModeCoffeeImpl impl;
 	public:
-		ModeMaskCoffee();
-		void update();
-		void mask();
+		ModeMaskCoffee()
+			: ModeMaskBase<ModeMaskCoffee<Mode, speed>, Mode, speed>()
+		{
+			impl = ModeCoffeeImpl();
+		}
+
+		void update()
+		{
+			impl.update();
+		}
+
+		void mask()
+		{
+			impl.paint();
+		}
 	};
-
-	template <class Mode, uint32_t speed>
-	ModeMaskCoffee<Mode, speed>::ModeMaskCoffee()
-		: ModeMaskBase<ModeMaskCoffee<Mode, speed>, Mode, speed>()
-	{
-		impl = ModeCoffeeImpl();
-	}
-
-	template <class Mode, uint32_t speed>
-	void ModeMaskCoffee<Mode, speed>::update()
-	{
-		impl.update();
-	}
-	
-	template <class Mode, uint32_t speed>
-	void ModeMaskCoffee<Mode, speed>::mask()
-	{
-		impl.paint();
-	}
 }

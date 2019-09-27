@@ -18,54 +18,48 @@ namespace Wordclock
 	protected:
 		typedef ModeBase super;
 		bool active;
+
 	public:
-		ModeExternalPulse();
-		void select();
-		void deselect();
-		uint32_t timer(const uint8_t &channel);
+		ModeExternalPulse()
+			: ModeBase()
+		{
+			active = false;
+		}
+
+		void select()
+		{
+			if (isInTransition())
+				ModeBase::select();
+			else {
+				if (timeOff != 0)
+					Wordclock::startTimer(this, timeOn, 0);
+				digitalWrite(pin, true);
+				active = true;
+			}
+		}
+
+		void deselect()
+		{
+			if (isInTransition())
+				ModeBase::select();
+			else {
+				if (timeOff != 0)
+					Wordclock::cancelTimer(this, 0);
+				digitalWrite(pin, false);
+				active = false;
+			}
+		}
+
+		uint32_t timer(const uint8_t &channel)
+		{
+			if (channel != 0)
+				return ModeBase::timer(channel);
+			if (timeOff != 0) {
+				active = !active;
+				digitalWrite(pin, active);
+				return active ? timeOn : timeOff;
+			}
+			return 0;
+		}
 	};
-
-	template <uint8_t pin, uint32_t timeOn, uint32_t timeOff>
-	ModeExternalPulse<pin, timeOn, timeOff>::ModeExternalPulse()
-		: ModeBase()
-	{}
-
-	template <uint8_t pin, uint32_t timeOn, uint32_t timeOff>
-	void ModeExternalPulse<pin, timeOn, timeOff>::select()
-	{
-		if (isInTransition())
-			ModeBase::select();
-		else {
-			if (timeOff != 0)
-				Wordclock::startTimer(this, timeOn, 0);
-			digitalWrite(pin, true);
-			active = true;
-		}
-	}
-
-	template <uint8_t pin, uint32_t timeOn, uint32_t timeOff>
-	void ModeExternalPulse<pin, timeOn, timeOff>::deselect()
-	{
-		if (isInTransition())
-			ModeBase::select();
-		else {
-			if (timeOff != 0)
-				Wordclock::cancelTimer(this, 0);
-			digitalWrite(pin, false);
-		}
-	}
-
-	template <uint8_t pin, uint32_t timeOn, uint32_t timeOff>
-	uint32_t ModeExternalPulse<pin, timeOn, timeOff>::timer(
-		const uint8_t &channel)
-	{
-		if (channel != 0)
-			return ModeBase::timer(channel);
-		if (timeOff != 0) {
-			active = !active;
-			digitalWrite(pin, active);
-			return active ? timeOn : timeOff;
-		}
-		return 0;
-	}
 }

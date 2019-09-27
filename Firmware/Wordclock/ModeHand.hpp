@@ -8,14 +8,9 @@ namespace Wordclock
 {
 	class ModeHandsUtilities
 	{
-	private:
+	public:
 		static void paintHands(const uint8_t &timeType,
 			const uint8_t &scope, const uint8_t &ring, const uint8_t &rings);
-	
-	template <class, TimeTypes, uint8_t, uint8_t, uint8_t>
-	friend class ModeHand;
-	template <class, TimeTypes, uint8_t, uint8_t, uint8_t>
-	friend class ModeMaskHand;
 	};
 
 	/// Shows the time using hands of variable length. The hands can also
@@ -49,26 +44,20 @@ namespace Wordclock
 		typedef ModeTimeBound super;
 		Generator gen;
 	public:
-		ModeHand();
-		void paint();
-	};
-
-	template <class Generator, TimeTypes timeType, uint8_t scope,
-		uint8_t ring, uint8_t rings>
-	ModeHand<Generator, timeType, scope, ring, rings>::ModeHand()
-	{
-		gen = Generator();
-	}
-
-	template <class Generator, TimeTypes timeType, uint8_t scope,
-		uint8_t ring, uint8_t rings>
-	void ModeHand<Generator, timeType, scope, ring, rings>::paint()
-	{
-		if (isInTransition())
-			ModeBase::paint();
-		else {
-			Painter::setColor(gen.next());
-			ModeHandsUtilities::paintHands(timeType, scope, ring, rings);
+		ModeHand()
+			: ModeTimeBound()
+		{
+			gen = Generator();
 		}
-	}
+
+		void paint()
+		{
+			if (isInTransition())
+				ModeBase::paint();
+			else {
+				Painter::setColor(gen.next());
+				ModeHandsUtilities::paintHands(timeType, scope, ring, rings);
+			}
+		}
+	};
 }
