@@ -63,7 +63,7 @@ namespace Wordclock
 		const static EepromArray<CRGB, COLOR_PRESET_COUNT> presets;
 		const static EepromVariable<uint8_t> currPresetIndex;
 
-		static TimerHeap<TIMER_COUNT_TYPE> timers;
+		static TimerHeap<uint8_t> timers;
 		static bool repaintRequest;
 
 	protected:
@@ -180,9 +180,8 @@ namespace Wordclock
 		/// mode->timer(channel) is called with the given channel.
 		/// channel is not accessed by the timer system and also has no
 		/// fixed usage except channel 255 which cannot used.
-		/// Note that TIMER_COUNT_TYPE specifies the maximal count of running
-		/// timers at a time (see Config.hpp). However, you can have running
-		/// multiple timers with the same callback and channel.
+		/// Note that at most 255 timers can run at a time. However, multiple
+		/// timers with the same callback and channel can run parellely.
 		/// In addition, the timer does not use the RTC but the Arduino
 		/// clock. If you need to trigger something at a certain time
 		/// you should just use the timer to check repeatedly whether it

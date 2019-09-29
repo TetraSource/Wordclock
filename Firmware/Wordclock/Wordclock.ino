@@ -67,8 +67,7 @@ namespace Wordclock
 	const EepromVariable<uint8_t> Wordclock::currPresetIndex =
 		EepromVariable<uint8_t>();
 
-	TimerHeap<TIMER_COUNT_TYPE> Wordclock::timers =
-		TimerHeap<TIMER_COUNT_TYPE>();
+	TimerHeap<uint8_t> Wordclock::timers = TimerHeap<uint8_t>();
 	bool Wordclock::repaintRequest = false;
 
 	bool Wordclock::setMode(const uint8_t &layer, const uint8_t &index,

@@ -19,12 +19,14 @@ namespace Wordclock
 			bool active : 1;
 		};
 
+		static const uint8_t checkAlarmInterval;
+
 		uint8_t currAspect : 4;
 		bool triggered : 1;
+		bool changed : 1;
 		EepromVariable<Alarm> alarm;
 
-		static uint32_t getAlarmTimerTime(const Alarm &);
-		static uint8_t incVal(uint8_t val, const uint8_t &max,
+		static uint8_t incVal(const uint8_t &val, const uint8_t &max,
 			const uint8_t &increment, const bool &inc);
 
 		ModeAlarmBase();
@@ -48,6 +50,8 @@ namespace Wordclock
 		};
 
 		static const uint8_t maxReturnTime;
+
+		// You can just have one alarm active at a time.
 		static ModeAlarmChangeModeBase *activeAlarm;
 		static uint8_t returnMode;
 
@@ -106,7 +110,7 @@ namespace Wordclock
 
 		uint32_t timer(const uint8_t &channel)
 		{
-			internalTimer(channel, layer);
+			return internalTimer(channel, layer);
 		}
 
 		void actionButton(const bool &inc)

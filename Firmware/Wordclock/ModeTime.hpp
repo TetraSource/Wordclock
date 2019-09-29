@@ -6,8 +6,16 @@
 
 namespace Wordclock
 {
-	/// allows manual setting of the time.
-	/// @tparam timeType - the time element that is manipulated by the mode.
+	/// Allows to set the time. First it displays the current time element
+	/// (Seconds, Minutes, ...) that is selected for this mode. When you do
+	/// no changes, no changes are written to the RTC. And when you do any
+	/// changes they are written when you leave the mode. A change means
+	/// pressing a action button by the way, so even a sequence of button
+	/// presses that resulted in the same value as before, are considered
+	/// changes.
+	/// When setting seconds it might be helpful to select a time ahead of time
+	/// and simply select another mode the instant it becomes the current time.
+	/// @tparam timeType - the unit of the time element that can be manipulated.
 	template <TimeTypes timeType>
 	class ModeTime : public ModeBase
 	{

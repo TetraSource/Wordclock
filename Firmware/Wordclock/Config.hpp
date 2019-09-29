@@ -81,20 +81,10 @@ namespace Wordclock
 #define INTERNAL_PULSE
 
 // If this setting is set, the clock of the Arduino is used instead of the RTC.
-// Becomes inaccurate easily.
-#define INTERNAL_TIME
+// The time becomes inaccurate easily then, though.
+//#define INTERNAL_TIME
 
 // TIMERS //
-
-// The type of the variable used to save the (maximal) count of running timers.
-// Thus this value determines the maximal count of running timers but also
-// increases the amount of RAM used by the timers.
-// The following types are possible:
-//   uint8_t  => 1 byte  => max. 2^8-1 = 255 timers
-//   uint16_t => 2 bytes => max. 2^16-1 = 65535 timers
-//   uint32_t => 4 bytes => max. 2^32-1 = 4294967295 timers
-//   uint64_t => 8 bytes => max. 2^64-1 timers
-#define TIMER_COUNT_TYPE uint8_t
 
 // Specifies the maximal count of milliseconds that may pass between a timer
 // elapses and the time it is triggered. This is necessary as the timers are
@@ -160,7 +150,7 @@ CRGB(CRGB::DarkGreen), \
 
 // The count of modes of the Wordclock. Keep it in sync with the count of
 // modes in the list below.
-#define MODE_COUNT 13
+#define MODE_COUNT 12
 
 // The count of layers of the Wordclock i.e. the count of modes the Wordclock
 // runs simultaneous. This needs to be at least one
@@ -233,30 +223,50 @@ CRGB(CRGB::DarkGreen), \
 
 namespace Wordclock
 {
-	// here you can define some shorthands
+	// You can define some shorthands here
+
+	// Generates the currently selected color.
 	typedef GeneratorColorPreset<SelectorColorPreset<>> CurrColor;
+
+	// Generates successively all colors of the color preset.
 	typedef GeneratorColorPreset<SelectorSuccessive<0, COLOR_PRESET_COUNT, 1, 0>
 		> PresetGenerator;
 
+	// Generates radiant red neon colors
 	typedef GeneratorRGBAdapter<GeneratorGradient<
 		GeneratorRandom<0xaa, 0xff, 0xff, 0xff, 0xff, 0xff>, 150>
 		> RedNeonGenerator;
 
+	// Works like ModeWordclock but uses an pixel that wanders at the edge
+	// of the display to indicate five minute intervals.
 	typedef ModeParallel<ModeHand<GeneratorColorPreset<SelectorColorPreset<1>>,
 		Minutes, 5, 0, 1>,
 		ModeWordclock<GeneratorColorPreset<SelectorColorPreset<>>>>
 		ModeWordclockWithHand;
 
+	// Placeholder mode that does nothing
+	typedef ModeBase ModeEmpty;
+
+	// Prints the current time in the current color
+	typedef ModeWordclock<CurrColor> ModeDefault;
+
+	// The Matrix!
 	typedef ModePixelRain<GeneratorStatic<0x00, 0xff, 0x00>,
 		DIR_ITEM(Top, 0), 150, 3, 5, 30, 40> ModeTheMatrix;
 
-	// placeholder mode that does nothing
-	typedef ModeBase ModeEmpty;
-	// prints the current time in the current color
-	typedef ModeWordclock<CurrColor> ModeDefault;
+	// Shows the time using three "mechanical" hands, one for hours, one
+	// for minutes and one for seconds. This mode doesn't differentiate
+	// AM and PM.
+	typedef ModeParallel<ModeHand<GeneratorColorPreset<SelectorColorPreset<2>>,
+			Minutes, 1, 0, 255>,
+		ModeParallel<ModeHand<GeneratorColorPreset<SelectorColorPreset<1>>,
+			Hours, 1, 1, 255>,
+		ModeHand<GeneratorColorPreset<SelectorColorPreset<0>>,
+			Hours, 12, 2, 255>>> ModeMechanicalClock;
 
 	// helper constants
 	const uint8_t layer0 = SELECTABLE_MODES;
+	const uint8_t layer1 = MODE_COUNT;
 
 	// ALWAYS KEEP THIS NUMBER IN SYNC WITH THE COUNT OF MODES AND
 	// RESET THE EEPROM IF YOU CHANGE ANYTHING!
@@ -276,7 +286,6 @@ namespace Wordclock
 		new ModeEmpty(),
 		new ModeWordclockWithHand(),
 		new ModeMaskCoffee<ModeWaves<RedNeonGenerator, Bottom, 500>, 2000>(),
-		new ModeTheMatrix(),
 	};
 }
 #endif

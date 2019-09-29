@@ -41,9 +41,9 @@ namespace Wordclock
 		}
 		
 		uint32_t secs = scope * Wordclock::getUnitSeconds(timeType);
-		if (scope != 255 && timeType < Years) {
-			uint32_t maxSecs =
-				Wordclock::getUnitSeconds(timeType + 1);
+		if (timeType < Years) {
+			uint32_t maxSecs = Wordclock::getUnitSeconds(
+				timeType + (timeType == Weekdays ? 2 : 1));
 			if (secs > maxSecs)
 				secs = maxSecs;
 		}
