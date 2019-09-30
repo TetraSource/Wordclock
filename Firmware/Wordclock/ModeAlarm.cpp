@@ -162,6 +162,8 @@ namespace Wordclock
 			// If the user selects another mode or its time to return to the
 			// previous mode, aboard all alarms here or return to the previous
 			// mode.
+			if (channel == 0)
+				returnMode = Wordclock::getMode(layer);
 			aboardActiveAlarm(layer);
 			return 0;
 		}
