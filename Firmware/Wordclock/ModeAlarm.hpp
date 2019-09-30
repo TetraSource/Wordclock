@@ -75,10 +75,11 @@ namespace Wordclock
 	/// Press the decrement button to toggle this bahaviour.
 	/// If you press the increment button, you can set the settings of the
 	/// alarm (listed below). Use the action buttons to increment or decrement
-	/// the current selected setting. To select the next setting, press the
-	/// next mode button. The previous mode button allows you to leave the
-	/// settings. Note that the settings are saved directly after being set
-	/// instead after leaving. The available settings are:
+	/// the current selected setting. Press the next or previous mode button,
+	/// to select the next or previous setting. Once you would "select" the
+	/// setting before the first mode or the one behind the last one, you
+	/// return to normal opering mode and the settings are saved.
+	/// The available settings are:
 	///  * hour of alarm - the pixel at upper left indicate whether you set
 	///                    currently a time at am or pm (pixel visible = pm).
 	///  * minute of alarm - the pixels at the upper left indicate five minute
